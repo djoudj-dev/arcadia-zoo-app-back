@@ -6,47 +6,38 @@ import {
   Delete,
   Body,
   Param,
-  Req,
+  UseGuards,
 } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import { RoleService } from '../user/role.service';
+import { UserService } from './user.service';
+import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly roleService: RoleService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get()
   async findAll() {
     return await this.userService.findAll();
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: number) {
-    return await this.userService.findOne(id);
-  }
-
+  @Roles('admin')
   @Post()
-  async create(@Body() userData: any, @Req() req: any) {
-    const role = req.user?.role || 'guest'; // supposons que le rôle est récupéré de req.user
-    return await this.userService.create(userData, role);
+  async create(@Body() userData: any) {
+    return await this.userService.create(userData, 'admin');
   }
 
+  @Roles('admin')
   @Put(':id')
-  async update(
-    @Param('id') id: number,
-    @Body() userData: any,
-    @Req() req: any,
-  ) {
-    const role = req.user?.role || 'guest';
-    return await this.userService.update(id, userData, role);
+  async update(@Param('id') id: number, @Body() userData: any) {
+    return await this.userService.update(id, userData, 'admin');
   }
 
+  @Roles('admin')
   @Delete(':id')
-  async delete(@Param('id') id: number, @Req() req: any) {
-    const role = req.user?.role || 'guest';
-    return await this.userService.delete(id, role);
+  async delete(@Param('id') id: number) {
+    return await this.userService.delete(id, 'admin');
   }
 }
