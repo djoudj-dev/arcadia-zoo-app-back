@@ -25,7 +25,15 @@ export class UserService {
 
   // Obtenir un utilisateur par ID
   async findOne(id: number) {
-    const res = await query('SELECT * FROM users WHERE id = $1', [id]);
+    const res = await query(
+      `
+      SELECT users.*, roles.name as role
+      FROM users
+      LEFT JOIN roles ON users.role_id = roles.id
+      WHERE users.id = $1
+    `,
+      [id],
+    );
     if (res.rows.length === 0) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
