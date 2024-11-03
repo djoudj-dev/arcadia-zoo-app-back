@@ -18,6 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException();
     }
+    console.log('User Data:', user); // Ajoutez ce log pour vérifier les données de l'utilisateur
     return user;
   }
 }
