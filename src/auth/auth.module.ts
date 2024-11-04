@@ -3,11 +3,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { UserModule } from '../modules/user/user.module';
+import { AccountModule } from 'src/modules/admin-dashboard/account-management/account.module';
 
 @Module({
   imports: [
-    UserModule,
+    AccountModule,
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET, // Défini dans le .env
