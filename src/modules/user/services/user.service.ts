@@ -3,7 +3,7 @@ import {
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { query } from '../../config/postgres.config';
+import { query } from '../../../config/postgres.config';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -16,11 +16,31 @@ export class UserService {
 
   // Obtenir un utilisateur par e-mail
   async findByEmail(email: string) {
-    const res = await query('SELECT * FROM users WHERE email = $1', [email]);
+    const res = await query(
+      `
+      SELECT users.id, users.name, users.email, users.password, users.role_id, roles.id as role_id, roles.name AS role_name
+      FROM users
+      LEFT JOIN roles ON users.role_id = roles.id
+      WHERE users.email = $1
+      `,
+      [email],
+    );
+
     if (res.rows.length === 0) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
-    return res.rows[0];
+    const user = res.rows[0];
+    // Reformate l'objet pour inclure un objet `role` complet
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      role: {
+        id: user.role_id,
+        name: user.role_name,
+      },
+    };
   }
 
   // Obtenir un utilisateur par ID
