@@ -11,7 +11,10 @@ export class RoleService {
 
   // Obtenir un rôle par ID
   async findOne(id: number) {
+    console.log(`Recherche du rôle avec l'id ${id}`);
     const res = await query('SELECT * FROM roles WHERE id = $1', [id]);
-    return res.rows.length > 0 ? res.rows[0] : null;
+    const role = res.rows.length > 0 ? res.rows[0] : null;
+    console.log(`Rôle trouvé :`, role);
+    return role;
   }
 }
