@@ -7,4 +7,6 @@ export class User {
   password: string;
   role: Role;
   roleId: number;
+  created_at: Date;
+  updated_at: Date;
 }

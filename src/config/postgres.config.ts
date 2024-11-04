@@ -1,8 +1,5 @@
-// src/config/postgres.config.ts
-
 import { Pool } from 'pg';
 import * as dotenv from 'dotenv';
-// import * as bcrypt from 'bcrypt';
 
 dotenv.config(); // Chargement des variables d'environnement
 
@@ -49,6 +46,33 @@ const poolWithDb = new Pool({
 });
 
 /**
+ * Fonction pour créer la table `habitats` dans `arcadia_db` si elle n'existe pas.
+ */
+const createHabitatsTable = async () => {
+  const client = await poolWithDb.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS habitats (
+        id_habitat SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        images VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log(
+      'Table `habitats` vérifiée/créée avec succès dans `arcadia_db`',
+    );
+  } catch (error) {
+    console.error('Erreur lors de la création de la table `habitats`', error);
+    process.exit(1);
+  } finally {
+    client.release();
+  }
+};
+
+/**
  * Fonction pour créer la table `roles` dans `arcadia_db` si elle n'existe pas.
  */
 const createRolesTable = async () => {
@@ -82,7 +106,9 @@ const createUsersTable = async () => {
         name VARCHAR(100) NOT NULL,
         email VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(100) NOT NULL,
-        role_id INTEGER REFERENCES roles(id) ON DELETE SET NULL
+        role_id INTEGER REFERENCES roles(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
     console.log('Table `users` vérifiée/créée avec succès dans `arcadia_db`');
@@ -95,30 +121,11 @@ const createUsersTable = async () => {
 };
 
 /**
- * Initialisation d'un administrateur dans la table `users`.
- */
-// const initializeAdminUser = async () => {
-//   const res = await query(`SELECT COUNT(*) FROM users WHERE email = $1`, [
-//     'admin@example.com',
-//   ]);
-//   if (parseInt(res.rows[0].count, 10) === 0) {
-//     const hashedPassword = await bcrypt.hash('adminpassword', 10);
-//     await query(
-//       `INSERT INTO users (name, email, password, role_id) VALUES ($1, $2, $3, $4)`,
-//       ['Admin', 'admin@example.com', hashedPassword, 1], // `role_id` peut être défini sur celui d'un administrateur
-//     );
-//     console.log('Utilisateur administrateur initial créé : admin@example.com');
-//   } else {
-//     console.log("L'utilisateur administrateur existe déjà");
-//   }
-// };
-
-/**
  * Initialisation des rôles dans la table `roles`.
  * Insère les rôles "Admin", "Employe" et "Veterinaire" si la table est vide.
  */
 const initializeRoles = async () => {
-  const client = await poolWithDb.connect(); // Utilise `poolWithDb` pour accéder à `arcadia_db`
+  const client = await poolWithDb.connect();
   try {
     const res = await client.query(`SELECT COUNT(*) FROM roles`);
     if (parseInt(res.rows[0].count, 10) === 0) {
@@ -145,17 +152,14 @@ export const connectPostgres = async () => {
   await createDatabase(); // Créer la base de données si elle n'existe pas
   await createRolesTable(); // Créer la table `roles` si elle n'existe pas
   await createUsersTable(); // Créer la table `users` si elle n'existe pas
+  await createHabitatsTable(); // Créer la table `habitats` si elle n'existe pas
 
   try {
     const client = await poolWithDb.connect();
     console.log('Connexion à PostgreSQL réussie sur arcadia_db');
-    client.release(); // Libérer le client après vérification
+    client.release();
 
-    // Initialiser l'utilisateur administrateur après la connexion
-    // await initializeAdminUser();
-
-    // Initialiser les rôles après la connexion
-    await initializeRoles();
+    await initializeRoles(); // Initialiser les rôles après la connexion
   } catch (error) {
     console.error('Erreur de connexion à PostgreSQL', error);
     process.exit(1);

@@ -54,4 +54,3 @@ export class AccountController {
     return this.accountService.getAllRoles();
   }
 }
-// AccountService.ts
