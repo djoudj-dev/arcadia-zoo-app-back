@@ -9,9 +9,15 @@ import * as bcrypt from 'bcrypt';
 import { User } from 'src/modules/admin-dashboard/account-management/models/user.model';
 import { Role } from 'src/modules/admin-dashboard/account-management/models/role.model';
 
+/**
+ * Service pour la gestion des comptes utilisateur, incluant les opérations CRUD et la gestion des rôles.
+ */
 @Injectable()
 export class AccountService {
-  // Récupère tous les utilisateurs avec leurs rôles
+  /**
+   * Récupère tous les utilisateurs avec leurs rôles associés.
+   * @returns Une promesse d'un tableau d'objets User
+   */
   async getAllUsers(): Promise<User[]> {
     const res = await query(`
       SELECT users.id, users.name, users.email, users.password, users.role_id AS "roleId", roles.name AS role_name
@@ -21,13 +27,23 @@ export class AccountService {
     return res.rows.map((user) => this.formatUser(user));
   }
 
-  // Récupère tous les rôles
+  /**
+   * Récupère tous les rôles disponibles.
+   * @returns Une promesse d'un tableau d'objets Role
+   */
   async getAllRoles(): Promise<Role[]> {
     const res = await query('SELECT * FROM roles');
     return res.rows;
   }
 
-  // Crée un nouvel utilisateur
+  /**
+   * Crée un nouvel utilisateur après vérification des autorisations et du rôle.
+   * @param userData Données partielles de l'utilisateur à créer
+   * @param userRole Rôle de l'utilisateur qui effectue l'opération (doit être admin)
+   * @returns La promesse de l'objet User créé
+   * @throws BadRequestException Si le rôle de l'utilisateur est manquant
+   * @throws NotFoundException Si le rôle spécifié n'existe pas
+   */
   async createUser(userData: Partial<User>, userRole: string): Promise<User> {
     this.checkAdminRole(userRole);
     if (!userData.roleId) {
@@ -51,7 +67,14 @@ export class AccountService {
     return this.formatUser(newUser);
   }
 
-  // Met à jour un utilisateur
+  /**
+   * Met à jour les informations d'un utilisateur existant.
+   * @param id Identifiant de l'utilisateur à mettre à jour
+   * @param userData Nouvelles données partielles de l'utilisateur
+   * @param userRole Rôle de l'utilisateur qui effectue l'opération (doit être admin)
+   * @returns La promesse de l'objet User mis à jour
+   * @throws NotFoundException Si l'utilisateur spécifié n'existe pas
+   */
   async updateUser(
     id: number,
     userData: Partial<User>,
@@ -59,13 +82,11 @@ export class AccountService {
   ): Promise<User> {
     this.checkAdminRole(userRole);
 
-    // Vérifiez d'abord si l'utilisateur existe
     const user = await this.findOne(id);
     if (!user) {
       throw new NotFoundException(`Utilisateur avec l'ID ${id} non trouvé`);
     }
 
-    // Préparez les champs à mettre à jour en utilisant `COALESCE` uniquement pour ceux présents
     const name = userData.name || null;
     const email = userData.email || null;
     const password = userData.password
@@ -92,7 +113,13 @@ export class AccountService {
     return this.formatUser(updatedUser);
   }
 
-  // Supprime un utilisateur
+  /**
+   * Supprime un utilisateur spécifié.
+   * @param id Identifiant de l'utilisateur à supprimer
+   * @param userRole Rôle de l'utilisateur qui effectue l'opération (doit être admin)
+   * @returns Un message de confirmation de suppression
+   * @throws NotFoundException Si l'utilisateur spécifié n'existe pas
+   */
   async deleteUser(id: number, userRole: string): Promise<{ message: string }> {
     this.checkAdminRole(userRole);
 
@@ -105,7 +132,12 @@ export class AccountService {
     return { message: `Utilisateur avec l'ID ${id} supprimé avec succès` };
   }
 
-  // Récupère un utilisateur par ID avec son rôle
+  /**
+   * Récupère un utilisateur par son ID, incluant son rôle.
+   * @param id Identifiant de l'utilisateur
+   * @returns La promesse de l'objet User correspondant
+   * @throws NotFoundException Si l'utilisateur n'existe pas
+   */
   async findOne(id: number): Promise<User> {
     const res = await query(
       `
@@ -123,7 +155,12 @@ export class AccountService {
     return this.formatUser(res.rows[0]);
   }
 
-  // Récupère un utilisateur par e-mail avec son rôle
+  /**
+   * Récupère un utilisateur par son adresse e-mail, incluant son rôle.
+   * @param email Adresse e-mail de l'utilisateur
+   * @returns La promesse de l'objet User correspondant
+   * @throws NotFoundException Si l'utilisateur n'existe pas
+   */
   async findByEmail(email: string): Promise<User> {
     const res = await query(
       `
@@ -142,26 +179,44 @@ export class AccountService {
     return this.formatUser(res.rows[0]);
   }
 
-  // Récupère un rôle par ID
+  /**
+   * Récupère un rôle par son ID.
+   * @param id Identifiant du rôle
+   * @returns La promesse d'un objet Role ou null si le rôle n'existe pas
+   */
   async findRoleById(id: number): Promise<Role | null> {
     const res = await query('SELECT * FROM roles WHERE id = $1', [id]);
     return res.rows.length > 0 ? res.rows[0] : null;
   }
 
-  // Hash le mot de passe
+  /**
+   * Hash le mot de passe de manière sécurisée.
+   * @param password Mot de passe en texte clair
+   * @returns Une promesse de la chaîne de caractères du mot de passe hashé
+   */
   private async hashPassword(password: string): Promise<string> {
     const saltRounds = 10;
     return bcrypt.hash(password, saltRounds);
   }
 
-  // Vérifie que l'utilisateur a un rôle admin
+  /**
+   * Vérifie si l'utilisateur a le rôle 'admin'.
+   * @param userRole Rôle de l'utilisateur effectuant l'opération
+   * @throws ForbiddenException Si l'utilisateur n'est pas admin
+   */
   private checkAdminRole(userRole: string): void {
     if (userRole !== 'admin') {
-      throw new ForbiddenException('Only admins can perform this action');
+      throw new ForbiddenException(
+        'Seuls les administrateurs peuvent effectuer cette action',
+      );
     }
   }
 
-  // Formate les informations de l'utilisateur avec son rôle
+  /**
+   * Formate les informations d'un utilisateur en ajoutant son rôle.
+   * @param user Données brutes de l'utilisateur
+   * @returns Un objet User avec le rôle formaté
+   */
   private formatUser(user: any): User {
     return {
       ...user,
