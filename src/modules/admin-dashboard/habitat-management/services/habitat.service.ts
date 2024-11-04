@@ -9,8 +9,15 @@ import { Habitat } from '../models/habitat.model';
 import * as fs from 'fs';
 import * as path from 'path';
 
+/**
+ * Service pour gérer les opérations CRUD des habitats.
+ */
 @Injectable()
 export class HabitatService {
+  /**
+   * Récupère tous les habitats de la base de données.
+   * @returns Une promesse d'un tableau d'objets Habitat.
+   */
   async getAllHabitats(): Promise<Habitat[]> {
     const res = await query(`
       SELECT id_habitat, name, description, images, created_at, updated_at
@@ -19,6 +26,13 @@ export class HabitatService {
     return res.rows.map((row) => this.formatHabitat(row));
   }
 
+  /**
+   * Crée un nouvel habitat après validation des données et du rôle d'utilisateur.
+   * @param habitatData Données de l'habitat partiellement remplies
+   * @param userRole Rôle de l'utilisateur pour vérification des autorisations
+   * @returns La promesse de l'objet Habitat créé
+   * @throws BadRequestException Si des champs requis sont manquants
+   */
   async createHabitat(
     habitatData: Partial<Habitat>,
     userRole: string,
@@ -53,6 +67,14 @@ export class HabitatService {
     }
   }
 
+  /**
+   * Met à jour les informations d'un habitat existant.
+   * @param id Identifiant de l'habitat à mettre à jour
+   * @param habitatData Nouvelles données de l'habitat partiellement remplies
+   * @param userRole Rôle de l'utilisateur pour vérification des autorisations
+   * @returns La promesse de l'objet Habitat mis à jour
+   * @throws NotFoundException Si l'habitat avec l'ID spécifié n'existe pas
+   */
   async updateHabitat(
     id: number,
     habitatData: Partial<Habitat>,
@@ -79,6 +101,13 @@ export class HabitatService {
     return this.formatHabitat(res.rows[0]);
   }
 
+  /**
+   * Supprime un habitat spécifique, y compris l'image associée.
+   * @param id Identifiant de l'habitat à supprimer
+   * @param userRole Rôle de l'utilisateur pour vérification des autorisations
+   * @returns Un message de confirmation de suppression
+   * @throws NotFoundException Si l'habitat avec l'ID spécifié n'existe pas
+   */
   async deleteHabitat(
     id: number,
     userRole: string,
@@ -99,6 +128,11 @@ export class HabitatService {
     return { message: `Habitat avec l'ID ${id} supprimé avec succès` };
   }
 
+  /**
+   * Récupère un habitat spécifique par son ID.
+   * @param id Identifiant de l'habitat
+   * @returns Une promesse de l'objet Habitat ou null s'il n'est pas trouvé
+   */
   async findOne(id: number): Promise<Habitat | null> {
     const res = await query('SELECT * FROM habitats WHERE id_habitat = $1', [
       id,
@@ -109,12 +143,24 @@ export class HabitatService {
     return this.formatHabitat(res.rows[0]);
   }
 
+  /**
+   * Vérifie si l'utilisateur a le rôle 'admin'.
+   * @param userRole Rôle de l'utilisateur
+   * @throws ForbiddenException Si l'utilisateur n'est pas admin
+   */
   private checkAdminRole(userRole: string): void {
     if (userRole !== 'admin') {
-      throw new ForbiddenException('Only admins can perform this action');
+      throw new ForbiddenException(
+        'Seuls les administrateurs peuvent effectuer cette action',
+      );
     }
   }
 
+  /**
+   * Formate les données d'un habitat pour correspondre au modèle Habitat.
+   * @param row Ligne de données brute issue de la base de données
+   * @returns Un objet Habitat formaté
+   */
   private formatHabitat(row: any): Habitat {
     return {
       id_habitat: row.id_habitat,
