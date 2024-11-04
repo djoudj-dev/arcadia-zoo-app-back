@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { query } from '../../config/postgres.config';
+import { query } from '../../../config/postgres.config';
 
 @Injectable()
 export class RoleService {
