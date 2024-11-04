@@ -1,114 +1,174 @@
 import {
   BadRequestException,
   Injectable,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
-import { RoleService } from 'src/modules/user/services/role.service';
-import { UserService } from 'src/modules/user/services/user.service';
-import { User } from 'src/modules/user/models/user.model';
-import { Role } from 'src/modules/user/models/role.model';
+import { query } from '../../../../config/postgres.config';
+import * as bcrypt from 'bcrypt';
+import { User } from 'src/modules/admin-dashboard/account-management/models/user.model';
+import { Role } from 'src/modules/admin-dashboard/account-management/models/role.model';
 
 @Injectable()
 export class AccountService {
-  constructor(
-    private readonly userService: UserService,
-    private readonly roleService: RoleService,
-  ) {}
-
-  /**
-   * Récupère tous les utilisateurs avec leurs rôles.
-   * @returns Une liste d'utilisateurs avec les informations de rôle.
-   */
+  // Récupère tous les utilisateurs avec leurs rôles
   async getAllUsers(): Promise<User[]> {
-    const users = await this.userService.findAll();
-
-    return Promise.all(
-      users.map(async (user) => {
-        if (user.roleId !== null && user.roleId !== undefined) {
-          console.log(
-            `Tentative de récupération du rôle pour roleId: ${user.roleId}`,
-          );
-          const role = await this.roleService.findOne(user.roleId);
-
-          if (role) {
-            user.role = role;
-          } else {
-            console.warn(`Rôle introuvable pour roleId ${user.roleId}`);
-            user.role = { id: 0, name: 'Rôle non défini' } as Role;
-          }
-        } else {
-          console.warn(`Utilisateur ${user.id} n'a pas de roleId associé`);
-          user.role = { id: 0, name: 'Rôle non défini' } as Role;
-        }
-
-        console.log(`Utilisateur traité:`, user); // Log pour vérification
-        return user;
-      }),
-    );
+    const res = await query(`
+      SELECT users.id, users.name, users.email, users.password, users.role_id AS "roleId", roles.name AS role_name
+      FROM users
+      LEFT JOIN roles ON users.role_id = roles.id
+    `);
+    return res.rows.map((user) => this.formatUser(user));
   }
 
-  /**
-   * Crée un nouvel utilisateur.
-   * @param userData - Les données de l'utilisateur à créer.
-   * @returns L'utilisateur créé.
-   */
-  async createUser(userData: Partial<User>): Promise<User> {
+  // Récupère tous les rôles
+  async getAllRoles(): Promise<Role[]> {
+    const res = await query('SELECT * FROM roles');
+    return res.rows;
+  }
+
+  // Crée un nouvel utilisateur
+  async createUser(userData: Partial<User>, userRole: string): Promise<User> {
+    this.checkAdminRole(userRole);
     if (!userData.roleId) {
       throw new BadRequestException("Le rôle de l'utilisateur est requis.");
     }
-
-    const role = await this.roleService.findOne(userData.roleId);
+    const role = await this.findRoleById(userData.roleId);
     if (!role) {
       throw new NotFoundException(
         `Rôle avec l'ID ${userData.roleId} non trouvé`,
       );
     }
 
-    const newUser = await this.userService.create(userData, 'admin');
+    const hashedPassword = await this.hashPassword(userData.password);
+    const res = await query(
+      'INSERT INTO users (name, email, password, role_id) VALUES ($1, $2, $3, $4) RETURNING *',
+      [userData.name, userData.email, hashedPassword, userData.roleId],
+    );
+
+    const newUser = res.rows[0];
     newUser.role = role;
-
-    console.log(`Nouvel utilisateur créé:`, newUser);
-    return newUser;
+    return this.formatUser(newUser);
   }
 
-  /**
-   * Met à jour les informations d'un utilisateur par ID.
-   * @param id - L'ID de l'utilisateur à mettre à jour.
-   * @param userData - Les nouvelles données de l'utilisateur.
-   * @returns L'utilisateur mis à jour.
-   */
-  async updateUser(id: number, userData: Partial<User>): Promise<User> {
-    const user = await this.userService.findOne(id);
+  // Met à jour un utilisateur
+  async updateUser(
+    id: number,
+    userData: Partial<User>,
+    userRole: string,
+  ): Promise<User> {
+    this.checkAdminRole(userRole);
+
+    // Vérifiez d'abord si l'utilisateur existe
+    const user = await this.findOne(id);
     if (!user) {
       throw new NotFoundException(`Utilisateur avec l'ID ${id} non trouvé`);
     }
 
-    const updatedUser = await this.userService.update(id, userData, 'admin');
+    // Préparez les champs à mettre à jour en utilisant `COALESCE` uniquement pour ceux présents
+    const name = userData.name || null;
+    const email = userData.email || null;
+    const password = userData.password
+      ? await this.hashPassword(userData.password)
+      : null;
+    const roleId = userData.roleId || null;
 
-    if (updatedUser.roleId) {
-      const role = await this.roleService.findOne(updatedUser.roleId);
-      updatedUser.role = role || ({ id: 0, name: 'Rôle non défini' } as Role);
-    } else {
-      updatedUser.role = { id: 0, name: 'Rôle non défini' } as Role;
-    }
+    const res = await query(
+      `UPDATE users SET 
+        name = COALESCE($1, name), 
+        email = COALESCE($2, email), 
+        password = COALESCE($3, password), 
+        role_id = COALESCE($4, role_id) 
+      WHERE id = $5 RETURNING *`,
+      [name, email, password, roleId, id],
+    );
 
-    console.log(`Utilisateur mis à jour:`, updatedUser);
-    return updatedUser;
+    const updatedUser = res.rows[0];
+    const role = userData.roleId
+      ? await this.findRoleById(userData.roleId)
+      : user.role;
+
+    updatedUser.role = role || { id: 0, name: 'Rôle non défini' };
+    return this.formatUser(updatedUser);
   }
 
-  /**
-   * Supprime un utilisateur par ID.
-   * @param id - L'ID de l'utilisateur à supprimer.
-   * @returns Un message de confirmation de suppression.
-   */
-  async deleteUser(id: number): Promise<{ message: string }> {
-    const user = await this.userService.findOne(id);
+  // Supprime un utilisateur
+  async deleteUser(id: number, userRole: string): Promise<{ message: string }> {
+    this.checkAdminRole(userRole);
+
+    const user = await this.findOne(id);
     if (!user) {
       throw new NotFoundException(`Utilisateur avec l'ID ${id} non trouvé`);
     }
 
-    await this.userService.delete(id, 'admin');
-    console.log(`Utilisateur supprimé: ID ${id}`);
+    await query('DELETE FROM users WHERE id = $1', [id]);
     return { message: `Utilisateur avec l'ID ${id} supprimé avec succès` };
+  }
+
+  // Récupère un utilisateur par ID avec son rôle
+  async findOne(id: number): Promise<User> {
+    const res = await query(
+      `
+      SELECT users.id, users.name, users.email, users.password, users.role_id AS "roleId", roles.name AS role_name
+      FROM users
+      LEFT JOIN roles ON users.role_id = roles.id
+      WHERE users.id = $1
+    `,
+      [id],
+    );
+
+    if (res.rows.length === 0) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return this.formatUser(res.rows[0]);
+  }
+
+  // Récupère un utilisateur par e-mail avec son rôle
+  async findByEmail(email: string): Promise<User> {
+    const res = await query(
+      `
+      SELECT users.id, users.name, users.email, users.password, users.role_id AS "roleId", roles.name AS role_name
+      FROM users
+      LEFT JOIN roles ON users.role_id = roles.id
+      WHERE users.email = $1
+    `,
+      [email],
+    );
+
+    if (res.rows.length === 0) {
+      throw new NotFoundException(`User with email ${email} not found`);
+    }
+
+    return this.formatUser(res.rows[0]);
+  }
+
+  // Récupère un rôle par ID
+  async findRoleById(id: number): Promise<Role | null> {
+    const res = await query('SELECT * FROM roles WHERE id = $1', [id]);
+    return res.rows.length > 0 ? res.rows[0] : null;
+  }
+
+  // Hash le mot de passe
+  private async hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    return bcrypt.hash(password, saltRounds);
+  }
+
+  // Vérifie que l'utilisateur a un rôle admin
+  private checkAdminRole(userRole: string): void {
+    if (userRole !== 'admin') {
+      throw new ForbiddenException('Only admins can perform this action');
+    }
+  }
+
+  // Formate les informations de l'utilisateur avec son rôle
+  private formatUser(user: any): User {
+    return {
+      ...user,
+      role: user.role || {
+        id: user.role_id || 0,
+        name: user.role_name || 'Rôle non défini',
+      },
+    };
   }
 }
