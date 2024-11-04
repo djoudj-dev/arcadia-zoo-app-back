@@ -1,17 +1,13 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { RoleService } from '../services/role.service';
+import { Role } from '../models/role.model';
 
-@Controller('roles')
+@Controller('admin/account-management/roles')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Get()
-  async findAll() {
-    return await this.roleService.findAll();
-  }
-
-  @Get(':id')
-  async findOne(@Param('id') id: number) {
-    return await this.roleService.findOne(id);
+  async findAll(): Promise<Role[]> {
+    return this.roleService.findAll();
   }
 }

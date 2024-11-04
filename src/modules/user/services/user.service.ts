@@ -10,7 +10,10 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   // Obtenir tous les utilisateurs
   async findAll() {
-    const res = await query('SELECT * FROM users');
+    const res = await query(`
+    SELECT id, name, email, password, role_id AS "roleId"
+    FROM users
+  `);
     return res.rows;
   }
 
