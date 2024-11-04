@@ -2,7 +2,7 @@
 
 import { Pool } from 'pg';
 import * as dotenv from 'dotenv';
-import * as bcrypt from 'bcrypt';
+// import * as bcrypt from 'bcrypt';
 
 dotenv.config(); // Chargement des variables d'environnement
 
@@ -97,21 +97,21 @@ const createUsersTable = async () => {
 /**
  * Initialisation d'un administrateur dans la table `users`.
  */
-const initializeAdminUser = async () => {
-  const res = await query(`SELECT COUNT(*) FROM users WHERE email = $1`, [
-    'admin@example.com',
-  ]);
-  if (parseInt(res.rows[0].count, 10) === 0) {
-    const hashedPassword = await bcrypt.hash('adminpassword', 10);
-    await query(
-      `INSERT INTO users (name, email, password, role_id) VALUES ($1, $2, $3, $4)`,
-      ['Admin', 'admin@example.com', hashedPassword, 1], // `role_id` peut être défini sur celui d'un administrateur
-    );
-    console.log('Utilisateur administrateur initial créé : admin@example.com');
-  } else {
-    console.log("L'utilisateur administrateur existe déjà");
-  }
-};
+// const initializeAdminUser = async () => {
+//   const res = await query(`SELECT COUNT(*) FROM users WHERE email = $1`, [
+//     'admin@example.com',
+//   ]);
+//   if (parseInt(res.rows[0].count, 10) === 0) {
+//     const hashedPassword = await bcrypt.hash('adminpassword', 10);
+//     await query(
+//       `INSERT INTO users (name, email, password, role_id) VALUES ($1, $2, $3, $4)`,
+//       ['Admin', 'admin@example.com', hashedPassword, 1], // `role_id` peut être défini sur celui d'un administrateur
+//     );
+//     console.log('Utilisateur administrateur initial créé : admin@example.com');
+//   } else {
+//     console.log("L'utilisateur administrateur existe déjà");
+//   }
+// };
 
 /**
  * Initialisation des rôles dans la table `roles`.
@@ -152,7 +152,7 @@ export const connectPostgres = async () => {
     client.release(); // Libérer le client après vérification
 
     // Initialiser l'utilisateur administrateur après la connexion
-    await initializeAdminUser();
+    // await initializeAdminUser();
 
     // Initialiser les rôles après la connexion
     await initializeRoles();
