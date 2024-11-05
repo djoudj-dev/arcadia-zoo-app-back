@@ -73,6 +73,36 @@ const createHabitatsTable = async () => {
 };
 
 /**
+ * Fonction pour créer la table `animals` dans `arcadia_db` si elle n'existe pas.
+ */
+const createAnimalsTable = async () => {
+  const client = await poolWithDb.connect();
+  try {
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS animals (
+        id_animal SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        species VARCHAR(100) NOT NULL,
+        characteristics TEXT NOT NULL,
+        weight_range VARCHAR(50) NOT NULL,
+        diet TEXT NOT NULL,
+        habitat_id INTEGER REFERENCES habitats(id_habitat) ON DELETE SET NULL,
+        images VARCHAR(255) NOT NULL,
+        vet_note TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log('Table `animals` vérifiée/créée avec succès dans `arcadia_db`');
+  } catch (error) {
+    console.error('Erreur lors de la création de la table `animals`', error);
+    process.exit(1);
+  } finally {
+    client.release();
+  }
+};
+
+/**
  * Fonction pour créer la table `roles` dans `arcadia_db` si elle n'existe pas.
  */
 const createRolesTable = async () => {
@@ -153,6 +183,7 @@ export const connectPostgres = async () => {
   await createRolesTable(); // Créer la table `roles` si elle n'existe pas
   await createUsersTable(); // Créer la table `users` si elle n'existe pas
   await createHabitatsTable(); // Créer la table `habitats` si elle n'existe pas
+  await createAnimalsTable(); // Créer la table `animals` si elle n'existe pas
 
   try {
     const client = await poolWithDb.connect();

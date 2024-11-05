@@ -17,7 +17,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Habitat } from '../models/habitat.model';
-import { multerOptions } from 'src/config/multer.config';
+import { multerOptionsHabitats } from 'src/config/multer.config';
 
 /**
  * Contrôleur pour la gestion des habitats en tant qu'admin.
@@ -52,7 +52,7 @@ export class HabitatController {
    */
   @Roles('admin')
   @Post()
-  @UseInterceptors(FileInterceptor('images', multerOptions))
+  @UseInterceptors(FileInterceptor('images', multerOptionsHabitats))
   async createHabitat(
     @Body() habitatData: Partial<Habitat>,
     @UploadedFile() images: Express.Multer.File,
