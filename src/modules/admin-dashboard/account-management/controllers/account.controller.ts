@@ -1,4 +1,3 @@
-// AccountController.ts
 import {
   Controller,
   Get,
