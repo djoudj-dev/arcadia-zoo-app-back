@@ -84,7 +84,7 @@ const createAnimalsTable = async () => {
         name VARCHAR(100) NOT NULL,
         species VARCHAR(100) NOT NULL,
         characteristics TEXT NOT NULL,
-        weight_range VARCHAR(50) NOT NULL,
+        weight_range VARCHAR(100) NOT NULL,
         diet TEXT NOT NULL,
         habitat_id INTEGER REFERENCES habitats(id_habitat) ON DELETE SET NULL,
         images VARCHAR(255) NOT NULL,
