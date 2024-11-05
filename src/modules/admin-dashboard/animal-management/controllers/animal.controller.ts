@@ -75,15 +75,10 @@ export class AnimalController {
    */
   @Roles('admin')
   @Put(':id')
-  @UseInterceptors(FileInterceptor('images', multerOptionsAnimals))
   async updateAnimal(
     @Param('id') id: number,
     @Body() animalData: Partial<Animal>,
-    @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
-    if (images) {
-      animalData.images = `uploads/animals/${images.filename}`;
-    }
     return this.animalService.updateAnimal(id, animalData, 'admin');
   }
 
