@@ -22,6 +22,12 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'uploads/habitats'), {
     prefix: '/uploads/habitats',
   });
+  app.useStaticAssets(join(__dirname, '..', 'uploads/animals'), {
+    prefix: '/uploads/animals',
+  });
+  app.useStaticAssets(join(__dirname, '..', 'uploads/services'), {
+    prefix: '/uploads/services',
+  });
 
   // Connexion à PostgreSQL & MongoDB
   await connectPostgres();
