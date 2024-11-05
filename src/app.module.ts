@@ -8,6 +8,7 @@ import { AccountModule } from './modules/admin-dashboard/account-management/acco
 import { HabitatModule } from './modules/admin-dashboard/habitat-management/habitat.module';
 import { HabitatsModule } from './modules/habitats/habitats.module';
 import { AnimalModule } from './modules/admin-dashboard/animal-management/animal.module';
+import { AnimalsModule } from './modules/animals/animals.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AnimalModule } from './modules/admin-dashboard/animal-management/animal
     HabitatModule,
     HabitatsModule,
     AnimalModule,
+    AnimalsModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService],
