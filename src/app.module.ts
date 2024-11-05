@@ -7,9 +7,16 @@ import { AuthModule } from './auth/auth.module';
 import { AccountModule } from './modules/admin-dashboard/account-management/account.module';
 import { HabitatModule } from './modules/admin-dashboard/habitat-management/habitat.module';
 import { HabitatsModule } from './modules/habitats/habitats.module';
+import { AnimalModule } from './modules/admin-dashboard/animal-management/animal.module';
 
 @Module({
-  imports: [AuthModule, AccountModule, HabitatModule, HabitatsModule],
+  imports: [
+    AuthModule,
+    AccountModule,
+    HabitatModule,
+    HabitatsModule,
+    AnimalModule,
+  ],
   controllers: [AppController, AuthController],
   providers: [AppService, AuthService],
 })
