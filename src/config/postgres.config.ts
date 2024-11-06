@@ -46,6 +46,92 @@ const poolWithDb = new Pool({
 });
 
 /**
+ * Fonction pour créer la table `Services` dans `arcadia_db` si elle n'existe pas.
+ */
+const createServicesTable = async () => {
+  const client = await poolWithDb.connect();
+  try {
+    // Table principale des services
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS services (
+        id_service SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log(
+      'Table `services` vérifiée/créée avec succès dans `arcadia_db`',
+    );
+
+    // Table des caractéristiques (features) générales
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS features (
+        id_feature SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        type VARCHAR(50) NOT NULL, -- Ex : Restaurant, Visite guidee, Visite en train
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log(
+      'Table `features` vérifiée/créée avec succès dans `arcadia_db`',
+    );
+
+    // Table pivot pour les caractéristiques des restaurants
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS restaurant_features (
+        id SERIAL PRIMARY KEY,
+        service_id INT REFERENCES services(id_service) ON DELETE CASCADE,
+        feature_id INT REFERENCES features(id_feature) ON DELETE CASCADE,
+        value VARCHAR(255) NOT NULL, -- Ex : Type de cuisine : végétarien
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log(
+      'Table `restaurant_features` vérifiée/créée avec succès dans `arcadia_db`',
+    );
+
+    // Table pivot pour les caractéristiques des visites guidées
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS visite_guidee_features (
+        id SERIAL PRIMARY KEY,
+        service_id INT REFERENCES services(id_service) ON DELETE CASCADE,
+        feature_id INT REFERENCES features(id_feature) ON DELETE CASCADE,
+        value VARCHAR(255) NOT NULL, -- Ex : Langues disponibles : Français, Anglais
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log(
+      'Table `visite_guidee_features` vérifiée/créée avec succès dans `arcadia_db`',
+    );
+
+    // Table pivot pour les caractéristiques des visites en train
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS visite_train_features (
+        id SERIAL PRIMARY KEY,
+        service_id INT REFERENCES services(id_service) ON DELETE CASCADE,
+        feature_id INT REFERENCES features(id_feature) ON DELETE CASCADE,
+        value VARCHAR(255) NOT NULL, -- Ex : Durée : 45 min
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log(
+      'Table `visite_train_features` vérifiée/créée avec succès dans `arcadia_db`',
+    );
+  } catch (error) {
+    console.error('Erreur lors de la création des tables', error);
+    process.exit(1);
+  } finally {
+    client.release();
+  }
+};
+
+/**
  * Fonction pour créer la table `habitats` dans `arcadia_db` si elle n'existe pas.
  */
 const createHabitatsTable = async () => {
@@ -184,6 +270,7 @@ export const connectPostgres = async () => {
   await createUsersTable(); // Créer la table `users` si elle n'existe pas
   await createHabitatsTable(); // Créer la table `habitats` si elle n'existe pas
   await createAnimalsTable(); // Créer la table `animals` si elle n'existe pas
+  await createServicesTable(); // Créer la table `services` si elle n'existe pas
 
   try {
     const client = await poolWithDb.connect();
