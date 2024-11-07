@@ -2,9 +2,12 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
-  UploadedFiles,
+  Put,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,54 +20,96 @@ import { Feature } from '../models/feature.model';
 import { Service } from '../models/service.model';
 import { ServiceService } from '../services/service.service';
 
-/**
- * Contrôleur pour la gestion des services en tant qu'admin.
- * Protégé par les gardes d'authentification et de rôles.
- */
 @Controller('admin/service-management')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ServiceController {
-  /**
-   * Injection du service ServiceService pour accéder aux opérations de gestion de service.
-   * @param serviceService Service pour les opérations CRUD des services
-   */
   constructor(private readonly serviceService: ServiceService) {}
 
-  /**
-   * Récupère tous les services existants.
-   * @returns Une promesse d'un tableau d'objets Service
-   */
   @Get()
   async getAllServices(): Promise<Service[]> {
     return this.serviceService.getAllServices();
   }
 
-  /**
-   * Récupère les features d'un service spécifique.
-   */
-  @Get('features')
-  async getAllFeatures(): Promise<Feature[]> {
-    return this.serviceService.getAllFeatures();
+  @Post()
+  @Roles('admin')
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices))
+  async createService(
+    @Body()
+    serviceData: {
+      // features is received as a JSON string
+      name: string;
+      description: string;
+      features: string; // features is received as a JSON string
+    },
+    @UploadedFile() image: Express.Multer.File,
+  ): Promise<Service> {
+    if (!image) {
+      throw new BadRequestException('Le champ image est obligatoire');
+    }
+
+    // Convert features from JSON string to an array of Feature objects
+    let parsedFeatures: Feature[];
+    try {
+      parsedFeatures = JSON.parse(serviceData.features);
+    } catch {
+      throw new BadRequestException('Le format de features est invalide');
+    }
+
+    // Set the image path in serviceData
+    const serviceDataWithImage = {
+      ...serviceData,
+      images: `uploads/services/${image.filename}`,
+    };
+
+    return this.serviceService.createService(
+      serviceDataWithImage,
+      parsedFeatures,
+      'admin',
+    );
   }
 
-  /**
-   * Crée un nouveau service avec les caractéristiques associées.
-   * Et une image.
-   * @param serviceData Objet Service à créer
-   * @returns Une promesse de Service
-   */
+  @Put(':id')
   @Roles('admin')
-  @Post()
-  @UseInterceptors(FileInterceptor('images', multerOptionsServices))
-  async createService(
-    @Body() serviceData: { name: string; description: string; images?: string },
-    @UploadedFiles() images: Express.Multer.File,
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices))
+  async updateService(
+    @Param('id') id: number,
+    @Body()
+    serviceData: {
+      name: string;
+      description: string;
+      images: string;
+      features: string; // Reçu sous forme de chaîne JSON
+    },
+    @UploadedFile() image: Express.Multer.File,
   ): Promise<Service> {
-    if (!images) {
-      console.error('Le champ images est obligatoire');
-      throw new BadRequestException('Le champ images est obligatoire');
+    if (image) {
+      serviceData.images = `uploads/services/${image.filename}`;
     }
-    serviceData.images = `uploads/services/${images.filename}`;
-    return this.serviceService.createService(serviceData, 'admin');
+
+    // Convertit `features` de chaîne JSON en tableau d'objets Feature
+    let parsedFeatures: Feature[];
+    try {
+      parsedFeatures = JSON.parse(serviceData.features);
+    } catch {
+      throw new BadRequestException('Le format de features est invalide');
+    }
+
+    // Appel à la méthode de service avec `parsedFeatures`
+    return this.serviceService.updateService(
+      {
+        name: serviceData.name,
+        description: serviceData.description,
+        images: serviceData.images,
+      },
+      id,
+      parsedFeatures, // Passer `parsedFeatures` au lieu de `serviceData.features`
+      'admin',
+    );
+  }
+
+  @Delete(':id')
+  @Roles('admin')
+  async deleteService(@Param('id') id: number): Promise<{ message: string }> {
+    return this.serviceService.deleteService(id, 'admin');
   }
 }

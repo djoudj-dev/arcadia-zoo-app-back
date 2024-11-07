@@ -63,12 +63,12 @@ const createServicesTable = async () => {
       'Table `services` vérifiée/créée avec succès dans `arcadia_db`',
     );
 
-    // Table des caractéristiques générales
+    // Table des caractéristiques générales (features)
     await client.query(`
       CREATE TABLE IF NOT EXISTS features (
         id_feature SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL, -- Nom de la caractéristique
-        type VARCHAR(50) NOT NULL,
+        name VARCHAR(100) NOT NULL, -- Nom de la caractéristique, ex: "prix", "horaire"
+        type VARCHAR(50) NOT NULL, -- Type de caractéristique, ex: "monétaire", "horaire"
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )
@@ -83,7 +83,7 @@ const createServicesTable = async () => {
         id SERIAL PRIMARY KEY,
         service_id INT REFERENCES services(id_service) ON DELETE CASCADE,
         feature_id INT REFERENCES features(id_feature) ON DELETE CASCADE,
-        value VARCHAR(255),
+        value VARCHAR(255), -- Valeur de la caractéristique, ex: "10€", "09:00-18:00"
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )
