@@ -196,22 +196,36 @@ export class ServiceService {
 
     return this.formatService(updatedService); // Correction : utilisation de updatedService
   }
-
   async deleteService(
     id: number,
     userRole: string,
   ): Promise<{ message: string }> {
     this.checkUserRole(userRole);
+
+    // Récupérez les informations du service pour obtenir le chemin de l'image
     const existingService = await this.findOne(id);
     if (!existingService) {
       throw new BadRequestException(`Service avec l'ID ${id} non trouvé`);
     }
 
+    // Chemin complet vers l'image à partir du champ `images`
     const imagePath: string = path.join(process.cwd(), existingService.images);
+
+    // Supprimez l'image si elle existe dans le système de fichiers
     if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
+      try {
+        fs.unlinkSync(imagePath);
+        console.log(`Image supprimée: ${imagePath}`);
+      } catch (error) {
+        console.error(
+          `Erreur lors de la suppression de l'image: ${error.message}`,
+        );
+      }
+    } else {
+      console.log(`Image non trouvée pour suppression: ${imagePath}`);
     }
 
+    // Supprimez le service de la base de données
     await query('DELETE FROM services WHERE id_service = $1', [id]);
     return { message: `Service avec l'ID ${id} supprimé avec succès` };
   }
