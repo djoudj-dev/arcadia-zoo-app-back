@@ -26,6 +26,8 @@ export class ServiceController {
   constructor(private readonly serviceService: ServiceService) {}
 
   @Get()
+  @Roles('admin')
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices))
   async getAllServices(): Promise<Service[]> {
     return this.serviceService.getAllServices();
   }
