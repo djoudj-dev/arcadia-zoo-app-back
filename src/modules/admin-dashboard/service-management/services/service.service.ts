@@ -20,6 +20,11 @@ export class ServiceService {
     return this.groupFeatures(res.rows);
   }
 
+  async getAllFeatures(): Promise<Feature[]> {
+    const res = await query(`SELECT * FROM features`);
+    return res.rows;
+  }
+
   private groupFeatures(rows: any[]): Service[] {
     const serviceMap = new Map<number, Service>();
     rows.forEach((row) => {

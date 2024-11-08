@@ -32,6 +32,12 @@ export class ServiceController {
     return this.serviceService.getAllServices();
   }
 
+  @Get('features')
+  @Roles('admin')
+  async getAllFeatures(): Promise<Feature[]> {
+    return this.serviceService.getAllFeatures();
+  }
+
   @Post()
   @Roles('admin')
   @UseInterceptors(FileInterceptor('image', multerOptionsServices))
