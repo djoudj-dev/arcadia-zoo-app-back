@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -88,18 +89,51 @@ export class ServiceController {
       images: string;
       features: string; // Reçu sous forme de chaîne JSON
     },
-    @UploadedFile() image: Express.Multer.File,
+    @UploadedFile() image?: Express.Multer.File, // Image rendue optionnelle
   ): Promise<Service> {
+    console.log('Image reçue :', image);
+
+    // Mise à jour du chemin de l'image si un fichier est téléchargé
     if (image) {
       serviceData.images = `uploads/services/${image.filename}`;
+    } else {
+      // Conserver l'image existante si aucune nouvelle image n'est fournie
+      const existingService = await this.serviceService.findById(id);
+      if (!existingService) {
+        throw new NotFoundException(`Service avec ID ${id} non trouvé`);
+      }
+      serviceData.images = existingService.images;
+
+      // Conserver les `features` existantes si aucune n'est spécifiée
+      if (!serviceData.features) {
+        serviceData.features = JSON.stringify(existingService.features);
+      }
     }
+
+    console.log('Données reçues après ajustements :', serviceData);
 
     // Convertit `features` de chaîne JSON en tableau d'objets Feature
     let parsedFeatures: Feature[];
     try {
       parsedFeatures = JSON.parse(serviceData.features);
+
+      // Vérification que chaque élément du tableau a les propriétés nécessaires
+      if (
+        !Array.isArray(parsedFeatures) ||
+        parsedFeatures.some(
+          (f) =>
+            !f.name || // Assurez-vous que `name` est présent
+            !f.type || // Assurez-vous que `type` est présent
+            typeof f.name !== 'string' || // Vérification du type
+            typeof f.type !== 'string', // Vérification du type
+        )
+      ) {
+        throw new Error();
+      }
     } catch {
-      throw new BadRequestException('Le format de features est invalide');
+      throw new BadRequestException(
+        'Le format de features est invalide ou manque des propriétés obligatoires.',
+      );
     }
 
     // Appel à la méthode de service avec `parsedFeatures`

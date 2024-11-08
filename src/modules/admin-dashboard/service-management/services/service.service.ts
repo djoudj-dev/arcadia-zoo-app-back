@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { QueryResult } from 'pg';
-import { query } from 'src/config/postgres.config';
+import { pool, query } from 'src/config/postgres.config';
 import { Feature } from '../models/feature.model';
 import { Service } from '../models/service.model';
 
@@ -119,88 +119,94 @@ export class ServiceService {
     this.checkUserRole(userRole);
 
     const { name, description, images } = serviceData;
-    if (!name || !description || !images) {
+    if (!name || !description || (!images && !images)) {
       throw new BadRequestException(
         'Les champs "name", "description" et "images" sont requis.',
       );
     }
 
-    // Mise à jour du service dans la table `services`
-    const res: QueryResult<any> = await query(
-      `
-      UPDATE services
-      SET name = $1, description = $2, images = $3, updated_at = NOW()
-      WHERE id_service = $4 RETURNING *`,
-      [name, description, images, id],
-    );
+    // Démarrer une transaction
+    const client = await pool.connect();
+    await client.query('BEGIN');
 
-    // Vérifie si la mise à jour a été réussie
-    if (res.rowCount === 0) {
-      throw new BadRequestException(`Service non trouvé avec l'ID : ${id}`);
-    }
-
-    // Récupère le service mis à jour
-    const updatedService = res.rows[0]; // Correction : déclaration et affectation de updatedService
-
-    // Mise à jour des caractéristiques (features)
-    for (const feature of features) {
-      // Vérifiez que `name` et `type` ne sont pas null ou vides
-      if (!feature.name || !feature.type) {
-        throw new BadRequestException(
-          'Chaque caractéristique doit avoir un "name" et un "type" non vides.',
-        );
-      }
-
-      let featureId;
-
-      // Vérifiez si la caractéristique existe déjà dans `features`
-      const featureRes = await query(
-        `SELECT id_feature FROM features WHERE name = $1 AND type = $2`,
-        [feature.name, feature.type],
+    try {
+      // Mise à jour du service dans la table `services`
+      const res: QueryResult<any> = await query(
+        `
+        UPDATE services
+        SET name = $1, description = $2, images = $3, updated_at = NOW()
+        WHERE id_service = $4 RETURNING *`,
+        [name, description, images, id],
       );
 
-      if (featureRes.rowCount > 0) {
-        // Si la caractéristique existe, récupérez son id
-        featureId = featureRes.rows[0].id_feature;
-      } else {
-        // Sinon, insérez la caractéristique et récupérez son id
-        const newFeatureRes = await query(
-          `
-          INSERT INTO features (name, type, created_at, updated_at)
-          VALUES ($1, $2, NOW(), NOW()) RETURNING id_feature`,
+      if (res.rowCount === 0) {
+        throw new BadRequestException(`Service non trouvé avec l'ID : ${id}`);
+      }
+
+      const updatedService = res.rows[0];
+
+      for (const feature of features) {
+        if (!feature.name || !feature.type) {
+          throw new BadRequestException(
+            'Chaque caractéristique doit avoir un "name" et un "type" non vides.',
+          );
+        }
+
+        let featureId;
+
+        // Rechercher ou insérer la caractéristique dans `features`
+        const featureRes = await query(
+          `SELECT id_feature FROM features WHERE name = $1 AND type = $2`,
           [feature.name, feature.type],
         );
-        featureId = newFeatureRes.rows[0].id_feature;
+
+        if (featureRes.rowCount > 0) {
+          featureId = featureRes.rows[0].id_feature;
+        } else {
+          const newFeatureRes = await query(
+            `
+            INSERT INTO features (name, type, created_at, updated_at)
+            VALUES ($1, $2, NOW(), NOW()) RETURNING id_feature`,
+            [feature.name, feature.type],
+          );
+          featureId = newFeatureRes.rows[0].id_feature;
+        }
+
+        // Rechercher ou mettre à jour la relation dans `service_features`
+        const serviceFeatureRes = await query(
+          `SELECT * FROM service_features WHERE service_id = $1 AND feature_id = $2`,
+          [id, featureId],
+        );
+
+        if (serviceFeatureRes.rowCount > 0) {
+          await query(
+            `
+            UPDATE service_features
+            SET value = $1, updated_at = NOW()
+            WHERE service_id = $2 AND feature_id = $3`,
+            [feature.value, id, featureId],
+          );
+        } else {
+          await query(
+            `
+            INSERT INTO service_features (service_id, feature_id, value, created_at, updated_at)
+            VALUES ($1, $2, $3, NOW(), NOW())`,
+            [id, featureId, feature.value],
+          );
+        }
       }
 
-      // Vérifiez si l'association entre le service et la caractéristique existe déjà
-      const serviceFeatureRes = await query(
-        `SELECT * FROM service_features WHERE service_id = $1 AND feature_id = $2`,
-        [id, featureId],
-      );
+      // Confirmer la transaction
+      await client.query('COMMIT');
 
-      if (serviceFeatureRes.rowCount > 0) {
-        // Si l'association existe, mettez à jour la valeur
-        await query(
-          `
-          UPDATE service_features
-          SET value = $1, updated_at = NOW()
-          WHERE service_id = $2 AND feature_id = $3`,
-          [feature.value, id, featureId],
-        );
-      } else {
-        // Sinon, insérez une nouvelle association
-        await query(
-          `
-          INSERT INTO service_features (service_id, feature_id, value, created_at, updated_at)
-          VALUES ($1, $2, $3, NOW(), NOW())`,
-          [id, featureId, feature.value],
-        );
-      }
+      return this.formatService(updatedService);
+    } catch (error) {
+      // Annuler la transaction en cas d'erreur
+      await client.query('ROLLBACK');
+      throw error;
     }
-
-    return this.formatService(updatedService); // Correction : utilisation de updatedService
   }
+
   async deleteService(
     id: number,
     userRole: string,
@@ -236,6 +242,20 @@ export class ServiceService {
   }
 
   async findOne(id: number): Promise<Service | null> {
+    const res = await query(
+      `
+      SELECT *
+      FROM services
+      WHERE id_service = $1`,
+      [id],
+    );
+    if (res.rowCount === 0) {
+      return null;
+    }
+    return this.formatService(res.rows[0]);
+  }
+
+  async findById(id: number): Promise<Service | null> {
     const res = await query(
       `
       SELECT *

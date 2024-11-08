@@ -261,3 +261,6 @@ export const connectPostgres = async () => {
  */
 export const query = (text: string, params?: any[]) =>
   poolWithDb.query(text, params);
+
+// Exportation de pool
+export { createDatabase, pool };
