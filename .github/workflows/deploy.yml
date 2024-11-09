@@ -1,0 +1,54 @@
+name: Deploy Backend to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.19' # Assure-toi que c'est la bonne version pour ton projet
+
+      - name: Install dependencies
+        run: npm ci # Utiliser npm ci au lieu de npm install pour une installation plus rapide et reproductible
+
+      - name: Build project
+        run: npm run build # Pas besoin de configuration spécifique ici pour NestJS
+
+      - name: Deploy to VPS
+        run: |
+          # Synchroniser les fichiers vers le serveur avec rsync
+          rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no -p 49999" --rsync-path="sudo rsync" \
+            --chown=www-data:www-data . ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/
+
+          # Connexion SSH pour démarrer les conteneurs Docker
+          ssh -o StrictHostKeyChecking=no -p 49999 ubuntu@${{ secrets.VPS_HOST }} << 'EOF'
+            cd /var/www/nedellec-julien.fr/backend/
+
+            # Exporter JWT_SECRET dans Docker Compose et autres variables d'environnement
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            
+            # Vérifier si Docker Compose est présent et redémarrer les conteneurs
+            if [ -f docker-compose.yml ]; then
+              docker-compose down
+              docker-compose up -d --build
+            else
+              echo "docker-compose.yml introuvable dans /var/www/nedellec-julien.fr/backend/"
+            fi
+          EOF
