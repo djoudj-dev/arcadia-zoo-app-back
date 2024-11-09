@@ -12,6 +12,10 @@ RUN npm install
 COPY . .
 RUN npm run build
 
+# Créer et définir les permissions des dossiers d'upload
+RUN mkdir -p /app/uploads/animals /app/uploads/habitats /app/uploads/services \
+    && chown -R node:node /app/uploads
+
 # Étape 2 : Utiliser une image légère et déployer les fichiers compilés
 FROM node:18-alpine
 

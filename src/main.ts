@@ -1,42 +1,41 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { connectPostgres } from './config/postgres.config';
-import { connectMongoDB } from './config/mongo.config';
-import * as cors from 'cors';
-import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import * as fs from 'fs';
+import { join } from 'path';
+import { AppModule } from './app.module';
+
+// Création du dossier uploads principal
+const uploadBasePath = join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadBasePath)) {
+  fs.mkdirSync(uploadBasePath);
+}
+
+// Création des sous-dossiers
+const uploadDirs = ['uploads/animals', 'uploads/habitats', 'uploads/services'];
+
+uploadDirs.forEach((dir) => {
+  const fullPath = join(process.cwd(), dir);
+  if (!fs.existsSync(fullPath)) {
+    fs.mkdirSync(fullPath, { recursive: true });
+  }
+});
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Activer CORS en utilisant l'origine définie dans le .env
-  app.use(
-    cors({
-      origin: process.env.CORS_ORIGIN,
-      methods: 'GET,POST,PUT,DELETE',
-      credentials: true,
-    }),
-  );
+  // Configuration CORS
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
 
   // Servir les fichiers statiques
-  app.useStaticAssets(join(__dirname, '..', 'uploads/habitats'), {
-    prefix: '/uploads/habitats',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'uploads/animals'), {
-    prefix: '/uploads/animals',
-  });
-  app.useStaticAssets(join(__dirname, '..', 'uploads/services'), {
-    prefix: '/uploads/services',
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads',
   });
 
-  // Connexion à PostgreSQL & MongoDB
-  await connectPostgres();
-  await connectMongoDB();
-
-  await app.listen(process.env.PORT ?? 3000);
-  console.log(
-    `Serveur en cours d'exécution sur le port ${process.env.PORT ?? 3000}`,
-  );
+  await app.listen(3000);
 }
 
 bootstrap();

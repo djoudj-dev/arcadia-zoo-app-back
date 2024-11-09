@@ -3,36 +3,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file: # Déplacez-le ici pour que l'environnement entier l'utilise
+    env_file:
       - .env
     container_name: backend
     ports:
       - '3000:3000'
     environment:
       - NODE_ENV=production
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=arcadia_user
-      - DB_PASSWORD=arcadia78#
-      - DB_NAME=arcadia_db
-      - JWT_SECRET=
     volumes:
       - backend-deployment:/var/www/nedellec-julien.fr/backend
-    depends_on:
-      - postgres
-
-  postgres:
-    image: postgres:16
-    container_name: postgres
-    environment:
-      POSTGRES_USER: arcadia_user
-      POSTGRES_PASSWORD: arcadia78#
-      POSTGRES_DB: arcadia_db
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - '5432:5432'
+      - ./uploads:/app/uploads
 
 volumes:
-  postgres-data:
   backend-deployment:

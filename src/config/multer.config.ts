@@ -3,7 +3,6 @@ import { join } from 'path';
 import * as fs from 'fs';
 
 function createMulterOptions(uploadDirectory: string) {
-  // Vérifie si le dossier d'upload existe, sinon le crée
   if (!fs.existsSync(uploadDirectory)) {
     fs.mkdirSync(uploadDirectory, { recursive: true });
   }
@@ -14,14 +13,16 @@ function createMulterOptions(uploadDirectory: string) {
         cb(null, uploadDirectory);
       },
       filename: (req, file, cb) => {
-        cb(null, file.originalname); // Utiliser le nom de fichier d'origine
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const filename = `${uniqueSuffix}-${file.originalname}`;
+        cb(null, filename);
       },
     }),
     fileFilter: (req, file, cb) => {
-      if (file.mimetype.match(/\/(jpg|jpeg|png|gif|svg|webp)$/)) {
+      if (file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
         cb(null, true);
       } else {
-        cb(new Error('Unsupported file format'), false);
+        cb(new Error('Format de fichier non supporté'), false);
       }
     },
   };
