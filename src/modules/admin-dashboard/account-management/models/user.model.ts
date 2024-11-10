@@ -10,7 +10,7 @@ export class User {
   email: string; // Adresse e-mail de l'utilisateur
   password: string; // Mot de passe de l'utilisateur
   role: Role; // Rôle de l'utilisateur
-  roleId: number; // Id du rôle de l'utilisateur
+  role_id: number; // Id du rôle de l'utilisateur
   created_at: Date; // Date de création de l'utilisateur
   updated_at: Date; // Date de mise à jour de l'utilisateur
 }

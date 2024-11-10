@@ -1,13 +1,13 @@
 import {
   BadRequestException,
-  Injectable,
   ForbiddenException,
+  Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { query } from '../../../../config/postgres.config';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/modules/admin-dashboard/account-management/models/user.model';
 import { Role } from 'src/modules/admin-dashboard/account-management/models/role.model';
+import { User } from 'src/modules/admin-dashboard/account-management/models/user.model';
+import { query } from '../../../../config/postgres.config';
 
 /**
  * Service pour la gestion des comptes utilisateur, incluant les opérations CRUD et la gestion des rôles.
@@ -20,7 +20,7 @@ export class AccountService {
    */
   async getAllUsers(): Promise<User[]> {
     const res = await query(`
-      SELECT users.id, users.name, users.email, users.password, users.role_id AS "roleId", roles.name AS role_name
+      SELECT users.id, users.name, users.email, users.password, users.role_id AS "role_id", roles.name AS role_name
       FROM users
       LEFT JOIN roles ON users.role_id = roles.id
     `);
@@ -46,20 +46,20 @@ export class AccountService {
    */
   async createUser(userData: Partial<User>, userRole: string): Promise<User> {
     this.checkAdminRole(userRole);
-    if (!userData.roleId) {
+    if (!userData.role_id) {
       throw new BadRequestException("Le rôle de l'utilisateur est requis.");
     }
-    const role = await this.findRoleById(userData.roleId);
+    const role = await this.findRoleById(userData.role_id);
     if (!role) {
       throw new NotFoundException(
-        `Rôle avec l'ID ${userData.roleId} non trouvé`,
+        `Rôle avec l'ID ${userData.role_id} non trouvé`,
       );
     }
 
     const hashedPassword = await this.hashPassword(userData.password);
     const res = await query(
       'INSERT INTO users (name, email, password, role_id) VALUES ($1, $2, $3, $4) RETURNING *',
-      [userData.name, userData.email, hashedPassword, userData.roleId],
+      [userData.name, userData.email, hashedPassword, userData.role_id],
     );
 
     const newUser = res.rows[0];
@@ -92,7 +92,7 @@ export class AccountService {
     const password = userData.password
       ? await this.hashPassword(userData.password)
       : null;
-    const roleId = userData.roleId || null;
+    const role_id = userData.role_id || null;
 
     const res = await query(
       `UPDATE users SET 
@@ -101,12 +101,12 @@ export class AccountService {
         password = COALESCE($3, password), 
         role_id = COALESCE($4, role_id) 
       WHERE id = $5 RETURNING *`,
-      [name, email, password, roleId, id],
+      [name, email, password, role_id, id],
     );
 
     const updatedUser = res.rows[0];
-    const role = userData.roleId
-      ? await this.findRoleById(userData.roleId)
+    const role = userData.role_id
+      ? await this.findRoleById(userData.role_id)
       : user.role;
 
     updatedUser.role = role || { id: 0, name: 'Rôle non défini' };
@@ -141,7 +141,7 @@ export class AccountService {
   async findOne(id: number): Promise<User> {
     const res = await query(
       `
-      SELECT users.id, users.name, users.email, users.password, users.role_id AS "roleId", roles.name AS role_name
+      SELECT users.id, users.name, users.email, users.password, users.role_id AS "role_id", roles.name AS role_name
       FROM users
       LEFT JOIN roles ON users.role_id = roles.id
       WHERE users.id = $1
@@ -164,7 +164,7 @@ export class AccountService {
   async findByEmail(email: string): Promise<User> {
     const res = await query(
       `
-      SELECT users.id, users.name, users.email, users.password, users.role_id AS "roleId", roles.name AS role_name
+      SELECT users.id, users.name, users.email, users.password, users.role_id AS "role_id", roles.name AS role_name
       FROM users
       LEFT JOIN roles ON users.role_id = roles.id
       WHERE users.email = $1
