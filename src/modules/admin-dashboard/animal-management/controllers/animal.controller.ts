@@ -2,22 +2,22 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Put,
-  Delete,
-  Param,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { AnimalService } from '../services/animal.service';
-import { Animal } from '../models/animal.model';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptionsAnimals } from 'src/config/multer.config';
+import { Animal } from '../models/animal.model';
+import { AnimalService } from '../services/animal.service';
 
 /**
  * Contrôleur pour la gestion des animaux en tant qu'admin.
@@ -36,6 +36,7 @@ export class AnimalController {
    * Récupère tous les animaux existants.
    * @returns Une promesse d'un tableau d'objets Animal
    */
+  @Roles('admin')
   @Get()
   async getAllAnimals(): Promise<Animal[]> {
     return this.animalService.getAllAnimals();
