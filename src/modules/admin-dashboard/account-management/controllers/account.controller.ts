@@ -1,19 +1,19 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Put,
-  Delete,
-  Body,
-  Param,
   UseGuards,
 } from '@nestjs/common';
-import { AccountService } from '../services/account.service';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { User } from 'src/modules/admin-dashboard/account-management/models/user.model';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from 'src/modules/admin-dashboard/account-management/models/role.model';
+import { User } from 'src/modules/admin-dashboard/account-management/models/user.model';
+import { AccountService } from '../services/account.service';
 
 /**
  * Contrôleur pour la gestion des comptes utilisateur et des rôles.
@@ -34,6 +34,7 @@ export class AccountController {
    * Récupère tous les utilisateurs existants.
    * @returns Une promesse d'un tableau d'objets User
    */
+  @Roles('admin')
   @Get()
   async getAllUsers(): Promise<User[]> {
     return this.accountService.getAllUsers();

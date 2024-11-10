@@ -1,23 +1,23 @@
 import {
+  BadRequestException,
+  Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   Put,
-  Delete,
-  Body,
-  Param,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { HabitatService } from '../services/habitat.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Habitat } from '../models/habitat.model';
 import { multerOptionsHabitats } from 'src/config/multer.config';
+import { Habitat } from '../models/habitat.model';
+import { HabitatService } from '../services/habitat.service';
 
 /**
  * Contrôleur pour la gestion des habitats en tant qu'admin.
@@ -36,6 +36,7 @@ export class HabitatController {
    * Récupère tous les habitats existants.
    * @returns Une promesse d'un tableau d'objets Habitat
    */
+  @Roles('admin')
   @Get()
   async getAllHabitats(): Promise<Habitat[]> {
     return this.habitatService.getAllHabitats();
