@@ -25,7 +25,7 @@ async function bootstrap() {
 
   // Configuration CORS
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+    origin: ['http://localhost:4200', 'https://nedellec-julien.fr'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
