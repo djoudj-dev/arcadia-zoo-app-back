@@ -4,7 +4,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
-import { AuthService } from './auth/auth.service';
 import { AccountModule } from './modules/admin-dashboard/account-management/account.module';
 import { AnimalModule } from './modules/admin-dashboard/animal-management/animal.module';
 import { HabitatModule } from './modules/admin-dashboard/habitat-management/habitat.module';
@@ -22,6 +21,7 @@ import { ServicesModule } from './modules/services-zoo/services.module';
         if (!config.JWT_SECRET) {
           throw new Error('JWT_SECRET is missing!');
         }
+        console.log('JWT_SECRET:', config.JWT_SECRET);  // Vérification du contenu de JWT_SECRET
         return config;
       },
     }),
@@ -35,6 +35,6 @@ import { ServicesModule } from './modules/services-zoo/services.module';
     ServicesModule,
   ],
   controllers: [AppController, AuthController],
-  providers: [AppService, AuthService],
+  providers: [AppService],
 })
 export class AppModule {}

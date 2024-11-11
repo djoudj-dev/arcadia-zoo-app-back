@@ -4,13 +4,13 @@ import * as dotenv from 'dotenv';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AccountService } from 'src/modules/admin-dashboard/account-management/services/account.service';
 
+// Charger les variables d'environnement
 dotenv.config();
-console.log('JWT_SECRET:', process.env.JWT_SECRET);  // Vérifie que la clé est chargée correctement
-
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(private accountService: AccountService) {
+    console.log('JWT_SECRET:', process.env.JWT_SECRET); // Ajout d'un log ici pour vérifier la clé
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
