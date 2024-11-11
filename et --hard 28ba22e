@@ -1,0 +1,36 @@
+[33m07db3a1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Refactor .github/workflows/deploy.yml to use cat for .env file creation, enhancing readability and maintainability
+[33ma84d428[m Refactor deploy.yml to improve .env creation with echo commands for clarity and add CORS_ORIGIN variable
+[33md8b5557[m Add French comment to main.ts for clarity on serving static files with appropriate prefix
+[33m56cc4e8[m Fix mongo.config.ts and update dotenv config to specify local path in postgres.config.ts for environment variable loading
+[33m7a5b441[m Update postgres.config.ts to log DB host and port for better visibility of environment variables during configuration
+[33m4ae1789[m Refactor postgres.config.ts to use dynamic DB host and port in the production connection string for improved configurability
+[33m99f7797[m Export the Postgres connection pool in postgres.config.ts for use in other modules
+[33m03827be[m Enhance postgres.config.ts by adding error handling for query execution and logging for better debugging of environment variables
+[33m08850b9[m Update postgres.config.ts to change production DB host to 146.59.239.218 for correct connection string in deployment
+[33m78e9e2b[m Update deploy.yml to use secrets for sensitive environment variables in .env file creation for improved security
+[33m210e579[m Refactor .env file creation in deploy.yml to improve formatting and readability of environment variable setup
+[33m514c911[m Update deploy.yml with clearer comment on Docker status check and container restart process
+[33mdf6ecc4[m Add function to insert admin user with hashed password and log the operation for better tracking in PostgreSQL config
+[33m7f9924f[m Refactor AuthModule to streamline JWT secret retrieval, removing default and enhancing logging for better debugging
+[33mc65e89c[m Refactor AuthModule to clean up JWT secret handling and add console log for improved debugging of the secret retrieval process
+[33m5f5983a[m Add console log to JwtStrategy for debugging JWT_SECRET retrieval from ConfigService
+[33m20b686d[m Refactor JwtStrategy and AuthModule to utilize ConfigService for JWT secret management and enhance environment variable handling
+[33m1cd71de[m Refactor AuthModule to use ConfigService for JWT secret management and improve environment variable handling
+[33m66d49b0[m Ajout de logs pour afficher la chaîne de connexion utilisée en fonction de l'environnement dans la configuration PostgreSQL
+[33mb3d4b4b[m Mise à jour du workflow de déploiement pour simplifier la création du fichier .env et améliorer la gestion des secrets
+[33macf4bb5[m Ajout de logs pour afficher les valeurs des variables d'environnement dans la configuration PostgreSQL
+[33m9d82847[m Refactor PostgreSQL config to simplify connection handling by removing redundant poolWithDb and defaulting to pool
+[33m28ba22e[m Suppression du fichier .env.production pour éviter la gestion de configurations sensibles en version contrôlée
+[33m0175b4d[m Ajout de la dépendance @nestjs/config et configuration du module ConfigModule dans app.module.ts
+[33mbeb2331[m Ajout de nouveaux en-têtes autorisés pour les requêtes CORS dans la configuration de l'application Merge branch 'develop'
+[33m3317fbe[m[33m ([m[1;31morigin/develop[m[33m, [m[1;32mdevelop[m[33m)[m Ajout de nouveaux en-têtes autorisés pour les requêtes CORS dans la configuration de l'application Merge branch 'fix/allowedHeaders' into develop
+[33mdc1aa27[m Ajout de nouveaux en-têtes autorisés pour les requêtes CORS dans la configuration de l'application
+[33m30f3903[m Ajout du guard JWT et mise à jour des modèles pour utiliser 'role_id' au lieu de 'roleId' dans le service de gestion des utilisateurs
+[33m4700c5c[m Ajout de la protection par rôle 'admin' pour la récupération des utilisateurs, animaux et habitats dans leurs contrôleurs respectifs Merge branch 'develop'
+[33m2d26a19[m Ajout de la protection par rôle 'admin' pour la récupération des utilisateurs, animaux et habitats dans leurs contrôleurs respectifs Merge branch 'update/protect_role' into develop
+[33m6bb8c8b[m Ajout de la protection par rôle 'admin' pour la récupération des utilisateurs, animaux et habitats dans leurs contrôleurs respectifs
+[33mdac26fa[m Mise à jour des secrets de déploiement et nettoyage de la configuration PostgreSQL pour une meilleure clarté et maintenance
+[33m035f9a5[m Merge branch 'develop'
+[33ma1bbe16[m Mise à jour de la configuration PostgreSQL avec création de la base de données, tables et utilisateur Admin par défaut Merge branch 'update/posgres.config.ts' into develop
+[33m7dbb0a7[m Mise à jour de la configuration PostgreSQL avec création de la base de données, tables et utilisateur Admin par défaut
+[33ma8e67b0[m Mise à jour de la configuration CORS pour inclure un nouvel origine dans l'application backend
