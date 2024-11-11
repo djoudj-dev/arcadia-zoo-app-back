@@ -11,9 +11,14 @@ import { ServiceModule } from './modules/admin-dashboard/service-management/serv
 import { AnimalsModule } from './modules/animals-zoo/animals.module';
 import { HabitatsModule } from './modules/habitats-zoo/habitats.module';
 import { ServicesModule } from './modules/services-zoo/services.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: `.env.${process.env.NODE_ENV}`, // Charge .env.production si NODE_ENV=production
+      isGlobal: true,
+    }),
     AuthModule,
     AccountModule,
     HabitatModule,
