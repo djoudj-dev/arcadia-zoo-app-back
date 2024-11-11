@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
@@ -11,13 +12,18 @@ import { ServiceModule } from './modules/admin-dashboard/service-management/serv
 import { AnimalsModule } from './modules/animals-zoo/animals.module';
 import { HabitatsModule } from './modules/habitats-zoo/habitats.module';
 import { ServicesModule } from './modules/services-zoo/services.module';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.env.${process.env.NODE_ENV}`, // Charge .env.production si NODE_ENV=production
       isGlobal: true,
+      validate: (config) => {
+        if (!config.JWT_SECRET) {
+          throw new Error('JWT_SECRET is missing!');
+        }
+        return config;
+      },
     }),
     AuthModule,
     AccountModule,
