@@ -1,18 +1,22 @@
+version: '3.8'
+
 services:
   backend:
     build:
       context: .
       dockerfile: Dockerfile
     env_file:
-      - .env
+      - .env  # Assurez-vous que le fichier .env est dans le même répertoire
     container_name: backend
     ports:
       - '3000:3000'
     environment:
       - NODE_ENV=production
     volumes:
-      - backend-deployment:/var/www/nedellec-julien.fr/backend
-      - ./uploads:/app/uploads
+      - ./uploads:/app/uploads  # Mapping pour les fichiers uploads
+      - ./src:/app/src  # Si vous avez un répertoire source à mapper
+      - ./Dockerfile:/app/Dockerfile  # Mapper le Dockerfile (optionnel)
+      - ./app:/app  # Assurez-vous que les fichiers du backend sont disponibles dans le container
 
 volumes:
-  backend-deployment:
+  backend-deployment:  # Si vous avez besoin d'un volume persistant pour des données spécifiques, vous pouvez l'utiliser
