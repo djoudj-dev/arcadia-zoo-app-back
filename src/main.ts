@@ -33,7 +33,7 @@ async function bootstrap() {
 
   // Servir les fichiers statiques
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads',
+    prefix: '/api/uploads',
   });
 
   await app.listen(3000);
