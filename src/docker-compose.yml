@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -18,4 +16,4 @@ services:
       - ./app:/app  # Assurez-vous que les fichiers du backend sont disponibles dans le container
 
 volumes:
-  backend-deployment:  # Si vous avez besoin d'un volume persistant pour des données spécifiques, vous pouvez l'utiliser
+  backend-deployment:  # Si vous avez besoin d'un volume persistant pour des données spécifiques, vous pouvez l'utiliser 
