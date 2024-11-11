@@ -1,38 +1,22 @@
 import * as dotenv from 'dotenv';
 import { Pool } from 'pg';
 
+// Charger les variables d'environnement
 dotenv.config();
 
-const pool = new Pool(
-  process.env.NODE_ENV === 'production'
-    ? {
-        connectionString: process.env.POSTGRESQL_URL,
-      }
-    : {
-        host: 'localhost',
-        port: 5432,
-        user: 'arcadia', // Utilisateur pour le développement
-        password: 'root78', // Mot de passe pour le développement
-        database: 'postgres',
-      },
-);
+// Configuration de la connexion à PostgreSQL pour l'environnement local
+const pool = new Pool({
+  host: 'localhost',
+  port: 5432,
+  user: 'arcadia', // Utilisateur pour le développement
+  password: 'arcadia78', // Mot de passe pour le développement
+  database: 'arcadia_db', // Nom de la base de données
+});
 
-const poolWithDb = new Pool(
-  process.env.NODE_ENV === 'production'
-    ? {
-        connectionString: process.env.POSTGRESQL_ARCADIA_URL,
-      }
-    : {
-        host: 'localhost',
-        port: 5432,
-        user: 'arcadia', // Utilisateur pour le développement
-        password: 'root78', // Mot de passe pour le développement
-        database: 'arcadia_db',
-      },
-);
-
+// Fonction générique pour exécuter une requête
 export const query = async (text: string, params?: any[]) => {
-  return poolWithDb.query(text, params);
+  return pool.query(text, params);
 };
 
-export { pool, poolWithDb };
+// Exporter le pool pour l'utiliser dans d'autres fichiers
+export { pool };
