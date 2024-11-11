@@ -16,7 +16,7 @@ import { ServicesModule } from './modules/services-zoo/services.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`, // Charge .env.production si NODE_ENV=production
+      envFilePath: `.env`,
       isGlobal: true,
       validate: (config) => {
         if (!config.JWT_SECRET) {
