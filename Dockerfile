@@ -37,4 +37,4 @@ COPY --from=build /app/dist/arcadia-zoo-app-back .
 EXPOSE 3000
 
 # Lancer l'application NestJS
-CMD ["node", "dist/arcadia-zoo-app-back/main"]
+CMD ["node", "dist/arcadia-zoo-app-back/main.js"]
