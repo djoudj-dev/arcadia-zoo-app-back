@@ -37,12 +37,19 @@ export class ServicesService {
 
       // Si une feature est présente, on l'ajoute à la liste des features du service
       if (row.id_feature) {
-        servicesMap[row.id_service].features.push({
-          id_feature: row.id_feature,
-          name: row.feature_name,
-          type: row.feature_type,
-          value: row.value,
-        });
+        const service = servicesMap[row.id_service];
+        // Vérifie si les features sont définies avant d'ajouter une nouvelle feature
+        if (service && !service.features) {
+          service.features = []; // Initialise features si non défini
+        }
+        if (service && service.features) {
+          service.features.push({
+            id_feature: row.id_feature,
+            name: row.feature_name,
+            type: row.feature_type,
+            value: row.value,
+          });
+        }
       }
     });
 

@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
+    "types": ["node", "jest"],
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
@@ -13,9 +13,8 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strict": false, // Désactive toutes les vérifications strictes
-    "strictNullChecks": false, // Facultatif : désactive la vérification des nulls
-    "noImplicitAny": false, // Facultatif : permet les types `any` implicites
+    "strict": true,
+    "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true

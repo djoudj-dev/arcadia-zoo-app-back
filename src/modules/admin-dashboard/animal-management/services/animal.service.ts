@@ -176,7 +176,7 @@ export class AnimalService {
    * @param id Identifiant de l'animal
    * @returns La promesse de l'objet Animal trouvé
    */
-  async findOne(id: number): Promise<Animal> {
+  async findOne(id: number): Promise<Animal | null> {
     const res = await query('SELECT * FROM animals WHERE id_animal = $1', [id]);
     return res.rows[0] ? this.formatAnimal(res.rows[0]) : null;
   }

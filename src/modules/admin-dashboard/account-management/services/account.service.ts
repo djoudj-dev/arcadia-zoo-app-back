@@ -56,7 +56,9 @@ export class AccountService {
       );
     }
 
-    const hashedPassword = await this.hashPassword(userData.password);
+    const hashedPassword = userData.password
+      ? await this.hashPassword(userData.password)
+      : '';
     const res = await query(
       'INSERT INTO users (name, email, password, role_id) VALUES ($1, $2, $3, $4) RETURNING *',
       [userData.name, userData.email, hashedPassword, userData.role_id],

@@ -40,12 +40,17 @@ export class ServiceService {
         });
       }
       if (row.id_feature) {
-        serviceMap.get(row.id_service).features.push({
-          id_feature: row.id_feature,
-          name: row.feature_name,
-          type: row.feature_type,
-          value: row.value,
-        });
+        const service = serviceMap.get(row.id_service);
+        if (service) {
+          // Vérifiez si features est défini, sinon initialisez-le
+          service.features = service.features || [];
+          service.features.push({
+            id_feature: row.id_feature,
+            name: row.feature_name,
+            type: row.feature_type,
+            value: row.value,
+          });
+        }
       }
     });
     return Array.from(serviceMap.values());
@@ -84,7 +89,12 @@ export class ServiceService {
         [feature.name, feature.type],
       );
 
-      if (featureRes.rowCount > 0) {
+      if (
+        featureRes &&
+        featureRes.rowCount !== undefined &&
+        featureRes.rowCount !== null &&
+        featureRes.rowCount > 0
+      ) {
         // Si la feature existe, récupérez son id
         featureId = featureRes.rows[0].id_feature;
       } else {
@@ -160,7 +170,12 @@ export class ServiceService {
           [feature.name, feature.type],
         );
 
-        if (featureRes.rowCount > 0) {
+        if (
+          featureRes &&
+          featureRes.rowCount !== undefined &&
+          featureRes.rowCount !== null &&
+          featureRes.rowCount > 0
+        ) {
           featureId = featureRes.rows[0].id_feature;
         } else {
           const newFeatureRes = await query(
@@ -178,7 +193,10 @@ export class ServiceService {
           [id, featureId],
         );
 
-        if (serviceFeatureRes.rowCount > 0) {
+        if (
+          serviceFeatureRes.rowCount !== null &&
+          serviceFeatureRes.rowCount > 0
+        ) {
           await query(
             `
             UPDATE service_features
@@ -220,16 +238,21 @@ export class ServiceService {
     }
 
     // Chemin complet vers l'image à partir du champ `images`
-    const imagePath: string = path.join(process.cwd(), existingService.images);
+    const imagePath: string = path.join(
+      process.cwd(),
+      existingService.images || '',
+    );
 
     // Supprimez l'image si elle existe dans le système de fichiers
     if (fs.existsSync(imagePath)) {
       try {
         fs.unlinkSync(imagePath);
         console.log(`Image supprimée: ${imagePath}`);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(
-          `Erreur lors de la suppression de l'image: ${error.message}`,
+          `Erreur lors de la suppression de l'image: ${
+            (error as Error).message
+          }`,
         );
       }
     } else {
