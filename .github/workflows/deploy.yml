@@ -48,7 +48,8 @@ jobs:
 
             # Copier tous les fichiers du répertoire du projet vers le VPS
             echo "Copie des fichiers du build sur le serveur..."
-            rsync -av --delete /home/runner/work/arcadia-zoo-app-back/ /var/www/nedellec-julien.fr/backend/
+            rsync -av --delete ./dist/arcadia-zoo-app-back/ ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
+
 
             # Vérification de la présence des fichiers transférés
             echo "Liste des fichiers dans le répertoire backend :"
