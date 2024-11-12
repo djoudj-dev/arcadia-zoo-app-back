@@ -16,7 +16,12 @@ const pool = new Pool({
 
 // Fonction générique pour exécuter une requête
 export const query = async (text: string, params?: any[]) => {
-  return pool.query(text, params);
+  try {
+    return await pool.query(text, params);
+  } catch (error) {
+    console.error('Erreur lors de l’exécution de la requête SQL :', error);
+    throw error;
+  }
 };
 
 // Fonction pour créer un utilisateur administrateur
@@ -24,6 +29,10 @@ export const createAdminUser = async () => {
   const adminEmail = 'admin@mail.com';
 
   try {
+    console.log(
+      "Vérification de l'existence de l'utilisateur administrateur...",
+    );
+
     // Vérifiez si l'utilisateur admin existe déjà
     const checkUser = await query('SELECT * FROM users WHERE email = $1', [
       adminEmail,
@@ -36,6 +45,7 @@ export const createAdminUser = async () => {
 
     // Hasher le mot de passe
     const hashedPassword = await bcrypt.hash('admin123', 10);
+    console.log('Mot de passe haché pour l’administrateur :', hashedPassword);
 
     // Insertion de l'utilisateur administrateur
     const insertUserQuery = `
@@ -53,15 +63,5 @@ export const createAdminUser = async () => {
   }
 };
 
-// Appel de la fonction de création de l'utilisateur administrateur
-createAdminUser()
-  .then(() => console.log('Initialisation terminée'))
-  .catch((err) =>
-    console.error(
-      "Erreur lors de l'initialisation de la base de données :",
-      err,
-    ),
-  );
-
-// Exporter `pool` explicitement
+// Exporter `pool` et `createAdminUser` explicitement
 export { pool };
