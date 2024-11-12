@@ -45,6 +45,12 @@ jobs:
             # Aller dans le dossier backend sur le VPS
             cd /var/www/nedellec-julien.fr/backend/
 
+            # Vérifiez si le fichier package.json existe
+            if [ ! -f package.json ]; then
+              echo "Le fichier package.json est manquant. Il sera copié depuis le dépôt..."
+              cp /home/ubuntu/workspace/arcadia-zoo-app-back/package.json .
+            fi
+
             # Vérifiez si le répertoire dist existe, sinon, créez-le
             mkdir -p dist/arcadia-zoo-app-back
 
@@ -55,6 +61,10 @@ jobs:
             # Vérification de la présence des fichiers transférés
             echo "Liste des fichiers dans le répertoire backend :"
             ls -la /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
+
+            # Si le fichier package.json existe, installer les dépendances
+            echo "Installation des dépendances..."
+            npm install
 
             # Créer ou mettre à jour le fichier .env avec les variables d’environnement
             echo "Création du fichier .env sur le serveur..."
@@ -71,8 +81,6 @@ jobs:
             # Si les fichiers manquent, reconstruisez sur le serveur
             if [ ! -f /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js ]; then
               echo "Le fichier main.js est manquant. Reconstruction du projet..."
-              cd /var/www/nedellec-julien.fr/backend
-              npm install
               npm run build
             fi
 
