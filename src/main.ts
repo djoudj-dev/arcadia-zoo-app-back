@@ -3,6 +3,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import * as fs from 'fs';
 import { join } from 'path';
 import { AppModule } from './app.module';
+import { createAdminUser } from './config/postgres.config';
 
 // Création du dossier uploads principal
 const uploadBasePath = join(process.cwd(), 'uploads');
@@ -38,6 +39,9 @@ async function bootstrap() {
 
   // Définir un préfixe global pour toutes les routes API
   app.setGlobalPrefix('api');
+
+  // Appel de la méthode pour créer l'utilisateur administrateur
+  await createAdminUser();
 
   await app.listen(3000, '0.0.0.0');
 }
