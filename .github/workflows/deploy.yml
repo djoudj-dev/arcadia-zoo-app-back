@@ -50,6 +50,12 @@ jobs:
               rsync -av -e "ssh -p 49999" ./package.json ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/
             fi
 
+            # Vérifiez si le fichier tsconfig.json existe, sinon, récupérez-le depuis le dépôt
+            if [ ! -f tsconfig.json ]; then
+              echo "Le fichier tsconfig.json est manquant. Il sera récupéré depuis le dépôt..."
+              rsync -av -e "ssh -p 49999" ./tsconfig.json ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/
+            fi
+
             # Vérifiez si le répertoire dist existe, sinon, créez-le
             mkdir -p dist/arcadia-zoo-app-back
 
