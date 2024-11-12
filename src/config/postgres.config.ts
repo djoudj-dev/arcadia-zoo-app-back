@@ -55,3 +55,6 @@ createAdminUser()
       err,
     ),
   );
+
+// Exporter `pool` explicitement
+export { pool };
