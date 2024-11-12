@@ -51,14 +51,14 @@ jobs:
             fi
 
             # Vérifiez si le répertoire dist existe, sinon, créez-le
-            mkdir -p dist/arcadia-zoo-app-back
+            mkdir -p dist
 
-            # Copier tous les fichiers du répertoire dist/arcadia-zoo-app-back vers le serveur
+            # Copier tous les fichiers du répertoire dist local directement dans le répertoire dist du serveur
             echo "Copie des fichiers du build sur le serveur..."
             rsync -av --delete ./dist/ ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/dist/
 
             # Vérification de la présence des fichiers transférés
-            echo "Liste des fichiers dans le répertoire backend :"
+            echo "Liste des fichiers dans le répertoire backend/dist :"
             ls -la /var/www/nedellec-julien.fr/backend/dist/
 
             # Si le fichier package.json existe, installer les dépendances
