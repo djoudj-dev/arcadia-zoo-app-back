@@ -39,17 +39,24 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
+          # Connexion SSH et exécution des commandes sur le VPS
           ssh -o StrictHostKeyChecking=no -p 49999 ubuntu@${{ secrets.VPS_HOST }} << EOF
             # Aller dans le dossier backend sur le VPS
             cd /var/www/nedellec-julien.fr/backend/
 
-            # Créer le répertoire dist/arcadia-zoo-app-back si nécessaire
+            # Vérifiez si le répertoire dist existe, sinon, créez-le
             mkdir -p dist/arcadia-zoo-app-back
 
-            # Copier les fichiers du build du projet depuis le répertoire local dist
-            rsync -a --delete /home/runner/work/arcadia-zoo-app-back/arcadia-zoo-app-back/ /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
+            # Copier les fichiers du build du projet depuis le runner (actions/checkout) vers le serveur
+            echo "Copie des fichiers du build sur le serveur..."
+            rsync -av --delete /home/runner/work/arcadia-zoo-app-back/arcadia-zoo-app-back/ /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
 
-            # Créer le fichier .env avec les variables d’environnement
+            # Vérification de la présence des fichiers transférés
+            echo "Liste des fichiers dans dist/arcadia-zoo-app-back :"
+            ls -la /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
+
+            # Créer ou mettre à jour le fichier .env avec les variables d’environnement
+            echo "Création du fichier .env sur le serveur..."
             cat > .env << EOL
             NODE_ENV=production
             DB_HOST=${DB_HOST}
@@ -61,6 +68,7 @@ jobs:
             EOL
 
             # Redémarrer l’application avec PM2 ou en arrière-plan
+            echo "Redémarrage de l'application avec PM2..."
             pm2 stop arcadia-zoo-app-back || true
             pm2 start dist/arcadia-zoo-app-back/main.js --name arcadia-zoo-app-back
           EOF
