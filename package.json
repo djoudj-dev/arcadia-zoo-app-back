@@ -1,7 +1,7 @@
 {
   "name": "arcadia-zoo-app-back",
   "version": "0.0.1",
-  "type": "module",
+  "type": "commonjs",
   "description": "",
   "author": "",
   "private": true,
