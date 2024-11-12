@@ -50,16 +50,16 @@ jobs:
               rsync -av -e "ssh -p 49999" ./package.json ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/
             fi
 
-            # Vérifiez si le répertoire dist existe, sinon, créez-le
-            mkdir -p dist/arcadia-zoo-app-back
+            # Assurez-vous que le répertoire dist existe sur le serveur
+            mkdir -p dist
 
-            # Copier tous les fichiers du répertoire dist/arcadia-zoo-app-back vers le serveur
+            # Copier tous les fichiers du répertoire dist vers le serveur (sans sous-dossier)
             echo "Copie des fichiers du build sur le serveur..."
-            rsync -av --delete ./dist/arcadia-zoo-app-back/ ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
+            rsync -av --delete ./dist/ ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/dist/
 
             # Vérification de la présence des fichiers transférés
-            echo "Liste des fichiers dans le répertoire backend :"
-            ls -la /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
+            echo "Liste des fichiers dans le répertoire backend/dist :"
+            ls -la /var/www/nedellec-julien.fr/backend/dist/
 
             # Si le fichier package.json existe, installer les dépendances
             echo "Installation des dépendances..."
@@ -77,8 +77,8 @@ jobs:
             JWT_SECRET=${JWT_SECRET}
             EOL
 
-            # Si les fichiers manquent, reconstruisez sur le serveur
-            if [ ! -f /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js ]; then
+            # Si le fichier main.js est manquant, reconstruisez sur le serveur
+            if [ ! -f /var/www/nedellec-julien.fr/backend/dist/main.js ]; then
               echo "Le fichier main.js est manquant. Reconstruction du projet..."
               npm run build
             fi
@@ -86,7 +86,7 @@ jobs:
             # Redémarrer l’application avec PM2
             echo "Redémarrage de l'application avec PM2..."
             pm2 stop arcadia-zoo-app-back || true
-            pm2 start /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js --name arcadia-zoo-app-back --update-env
+            pm2 start /var/www/nedellec-julien.fr/backend/dist/main.js --name arcadia-zoo-app-back --update-env
 
             # Vérification de l'état de l'application
             pm2 status arcadia-zoo-app-back
