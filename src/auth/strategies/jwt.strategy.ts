@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import * as dotenv from 'dotenv';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { AccountService } from 'src/modules/admin-dashboard/account-management/services/account.service';
+import { AccountService } from '../../modules/admin-dashboard/account-management/services/account.service';
 
 // Charger les variables d'environnement
 dotenv.config();

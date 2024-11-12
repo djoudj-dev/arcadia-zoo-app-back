@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Animal } from '../models/animal.model';
-import { query } from 'src/config/postgres.config';
 import * as fs from 'fs';
 import * as path from 'path';
+import { query } from '../../../../config/postgres.config';
 
 /**
  * Service pour gérer les opérations CRUD des animaux.

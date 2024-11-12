@@ -5,9 +5,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { Role } from 'src/modules/admin-dashboard/account-management/models/role.model';
-import { User } from 'src/modules/admin-dashboard/account-management/models/user.model';
 import { query } from '../../../../config/postgres.config';
+import { User } from '../models/user.model';
+import { Role } from '../models/role.model';
 
 /**
  * Service pour la gestion des comptes utilisateur, incluant les opérations CRUD et la gestion des rôles.

@@ -14,13 +14,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { multerOptionsServices } from 'src/config/multer.config';
 import { Feature } from '../models/feature.model';
 import { Service } from '../models/service.model';
 import { ServiceService } from '../services/service.service';
+import { RolesGuard } from '../../../../auth/guards/roles.guard';
+import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard';
+import { Roles } from '../../../../auth/decorators/roles.decorator';
+import { multerOptionsServices } from '../../../../config/multer.config';
 
 @Controller('admin/service-management')
 @UseGuards(JwtAuthGuard, RolesGuard)

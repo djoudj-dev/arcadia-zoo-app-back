@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { query } from 'src/config/postgres.config';
-import { Animal } from 'src/modules/admin-dashboard/animal-management/models/animal.model';
+import { query } from '../../../config/postgres.config';
+import { Animal } from '../../admin-dashboard/animal-management/models/animal.model';
 
 @Injectable()
 export class AnimalsService {

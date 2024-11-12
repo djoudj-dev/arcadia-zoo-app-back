@@ -1,27 +1,25 @@
 {
   "compilerOptions": {
-    "types": ["node", "jest"], // Déclaration des types utilisés (Node, Jest)
-    "module": "commonjs", // Utilisation de CommonJS pour la gestion des modules
-    "declaration": true, // Génère des fichiers de déclaration .d.ts
-    "removeComments": true, // Supprime les commentaires dans le code compilé
-    "emitDecoratorMetadata": true, // Génère des métadonnées pour les décorateurs
-    "experimentalDecorators": true, // Active le support des décorateurs expérimentaux
-    "target": "ES2021", // Cible ECMAScript 2021 pour la compatibilité
-    "sourceMap": true, // Crée des fichiers de carte de source pour faciliter le débogage
-    "outDir": "./dist", // Dossier de sortie pour les fichiers compilés
-    "rootDir": "./src", // Dossier source des fichiers TypeScript
-    "baseUrl": "./", // Base pour la résolution des modules
-    "incremental": true, // Active la compilation incrémentielle pour accélérer les builds
-    "skipLibCheck": true, // Ignore la vérification des types dans les fichiers de définition
-    "strict": true, // Active les vérifications strictes de type
-    "noImplicitAny": false, // Permet l'utilisation de "any" de manière implicite
-    "strictBindCallApply": false, // Désactive la vérification stricte pour `bind`, `call`, et `apply`
-    "forceConsistentCasingInFileNames": true, // Forcer la consistance dans les noms de fichiers
-    "noFallthroughCasesInSwitch": true, // Empêche l'exécution des cases suivants dans les switchs sans `break`
-    "esModuleInterop": true, // Permet l'importation de modules CommonJS comme des modules ES
-    "moduleResolution": "node", // Utilisation de la résolution des modules type Node.js
-    "allowJs": true // Permet la gestion des fichiers JS dans le projet (si vous en avez)
+    "module": "commonjs",
+    "target": "ES2021",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": "./",
+    "paths": {
+      "src/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*.ts"], // Inclut tous les fichiers TypeScript dans le dossier src
-  "exclude": ["node_modules", "dist"] // Exclut les fichiers dans node_modules et dist
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
 }

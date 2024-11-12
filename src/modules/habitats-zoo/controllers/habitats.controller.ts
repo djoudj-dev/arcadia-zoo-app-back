@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { Habitat } from 'src/modules/admin-dashboard/habitat-management/models/habitat.model';
+import { Animal } from '../../admin-dashboard/animal-management/models/animal.model';
+import { Habitat } from '../../admin-dashboard/habitat-management/models/habitat.model';
 import { HabitatsService } from '../services/habitats.service';
-import { Animal } from 'src/modules/admin-dashboard/animal-management/models/animal.model';
 
 @Controller('/api/habitats')
 export class HabitatsController {

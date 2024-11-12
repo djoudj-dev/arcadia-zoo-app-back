@@ -2,9 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { QueryResult } from 'pg';
-import { pool, query } from 'src/config/postgres.config';
 import { Feature } from '../models/feature.model';
 import { Service } from '../models/service.model';
+import { pool, query } from '../../../../config/postgres.config';
 
 @Injectable()
 export class ServiceService {
