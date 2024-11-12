@@ -10,3 +10,4 @@ services:
       - NODE_ENV=production
     volumes:
       - ./uploads:/app/uploads  # Mapping des répertoires d'upload
+      - ./dist:/app/dist  # Mapping du répertoire de distribution
