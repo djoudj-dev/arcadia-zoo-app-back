@@ -43,6 +43,9 @@ jobs:
             # Aller dans le dossier backend
             cd /var/www/nedellec-julien.fr/backend/
 
+            # Créer le répertoire si nécessaire
+            mkdir -p dist/arcadia-zoo-app-back
+
             # Copier le build du projet (dist)
             rsync -a --delete dist/arcadia-zoo-app-back/ /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
 
