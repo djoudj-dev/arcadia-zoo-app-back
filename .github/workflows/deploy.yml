@@ -8,7 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -21,13 +20,16 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x' # Use '18.x' to get the latest patch version automatically
+          node-version: '18.x'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build project
         run: npm run build
+
+      - name: Add VPS to known_hosts
+        run: ssh-keyscan -p 49999 -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to VPS
         env:
@@ -47,8 +49,8 @@ jobs:
           echo "Connecting to VPS to deploy the application..."
 
           # Use rsync to transfer files, ensuring SSH connection
-          rsync -avz -e "ssh -p $SSH_PORT" ./package.json $VPS_USER@$VPS_HOST:$VPS_DIR/
-          rsync -avz -e "ssh -p $SSH_PORT" ./dist/ $VPS_USER@$VPS_HOST:$VPS_DIR/dist/
+          rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./package.json $VPS_USER@$VPS_HOST:$VPS_DIR/
+          rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./dist/ $VPS_USER@$VPS_HOST:$VPS_DIR/dist/
 
           # Connect to VPS and execute commands
           ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST << 'EOF'
