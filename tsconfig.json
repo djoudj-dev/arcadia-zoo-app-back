@@ -9,15 +9,17 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
+    "strict": false, // Désactive toutes les vérifications strictes
+    "strictNullChecks": false, // Facultatif : désactive la vérification des nulls
+    "noImplicitAny": false, // Facultatif : permet les types `any` implicites
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true
   },
-  "include": ["test-env.js",
-  "src/**/*"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
