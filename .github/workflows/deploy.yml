@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.5.3
@@ -23,7 +21,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.19'
+          node-version: '18.x' # Use '18.x' to get the latest patch version automatically
 
       - name: Install dependencies
         run: npm ci
@@ -41,40 +39,37 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
-          # Connect to VPS with SSH and execute commands
-          ssh -o StrictHostKeyChecking=no -p 49999 ubuntu@${{ secrets.VPS_HOST }} << EOF
+          # Prepare environment variables
+          VPS_USER="ubuntu"
+          VPS_DIR="/var/www/nedellec-julien.fr/backend"
+          SSH_PORT="49999"
 
-            if [ ! -f /var/www/nedellec-julien.fr/backend/package.json ]; then
-              echo "Synchronizing package.json..."
-              rsync -avz --delete -e "ssh -p 49999" ./package.json ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/
-            fi
+          echo "Connecting to VPS to deploy the application..."
 
-            echo "Setting up environment variables..."
-            cat > /var/www/nedellec-julien.fr/backend/.env <<EOL
+          # Use rsync to transfer files, ensuring SSH connection
+          rsync -avz -e "ssh -p $SSH_PORT" ./package.json $VPS_USER@$VPS_HOST:$VPS_DIR/
+          rsync -avz -e "ssh -p $SSH_PORT" ./dist/ $VPS_USER@$VPS_HOST:$VPS_DIR/dist/
+
+          # Connect to VPS and execute commands
+          ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST << 'EOF'
+            echo "Setting up environment variables on VPS..."
+            cat > $VPS_DIR/.env <<EOL
             NODE_ENV=production
-            DB_HOST=${DB_HOST}
-            DB_PORT=${DB_PORT}
-            DB_USER=${DB_USER}
-            DB_PASSWORD=${DB_PASSWORD}
-            DB_NAME=${DB_NAME}
-            JWT_SECRET=${JWT_SECRET}
+            DB_HOST=$DB_HOST
+            DB_PORT=$DB_PORT
+            DB_USER=$DB_USER
+            DB_PASSWORD=$DB_PASSWORD
+            DB_NAME=$DB_NAME
+            JWT_SECRET=$JWT_SECRET
             EOL
 
-            cd /var/www/nedellec-julien.fr/backend/
-            echo "Installing dependencies..."
+            cd $VPS_DIR
+            echo "Checking and installing dependencies..."
             npm ci
-
-            echo "Checking for built files..."
-            ls -la /var/www/nedellec-julien.fr/backend/dist/
-
-            if [ ! -f /var/www/nedellec-julien.fr/backend/dist/main.js ]; then
-              echo "Building project since compiled files are missing..."
-              npm run build
-            fi
 
             echo "Restarting the app with PM2..."
             pm2 stop arcadia-zoo-app-back || true
-            pm2 start /var/www/nedellec-julien.fr/backend/dist/main.js --name arcadia-zoo-app-back --update-env
+            pm2 start dist/main.js --name arcadia-zoo-app-back --update-env
 
             echo "Current PM2 status:"
             pm2 status arcadia-zoo-app-back
