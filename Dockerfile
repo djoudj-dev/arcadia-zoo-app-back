@@ -31,7 +31,11 @@ COPY package.json package-lock.json ./
 RUN npm install --only=production
 
 # Copier les fichiers générés par l'étape de construction
-COPY --from=build /app/dist/arcadia-zoo-app-back .
+COPY --from=build /app/dist/arcadia-zoo-app-back /app/dist/arcadia-zoo-app-back
+
+# Ajouter un test pour voir si le fichier existe
+RUN ls -alh /app/dist/arcadia-zoo-app-back
+
 
 # Exposer le port de l'application
 EXPOSE 3000
