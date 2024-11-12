@@ -58,7 +58,7 @@ jobs:
 
             # Créer ou mettre à jour le fichier .env avec les variables d’environnement
             echo "Création du fichier .env sur le serveur..."
-            cat > .env << EOL
+            cat > /var/www/nedellec-julien.fr/backend/.env << EOL
             NODE_ENV=production
             DB_HOST=${DB_HOST}
             DB_PORT=${DB_PORT}
@@ -71,5 +71,5 @@ jobs:
             # Redémarrer l’application avec PM2 ou en arrière-plan
             echo "Redémarrage de l'application avec PM2..."
             pm2 stop arcadia-zoo-app-back || true
-            pm2 start dist/arcadia-zoo-app-back/main.js --name arcadia-zoo-app-back
+            pm2 start /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js --name arcadia-zoo-app-back --update-env
           EOF
