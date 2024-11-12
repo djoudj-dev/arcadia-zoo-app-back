@@ -41,21 +41,20 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
-          # Prepare environment variables
           VPS_USER="ubuntu"
           VPS_DIR="/var/www/nedellec-julien.fr/backend"
           SSH_PORT="49999"
 
           echo "Connecting to VPS to deploy the application..."
 
-          # Use rsync to transfer files, ensuring SSH connection
           rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./package.json $VPS_USER@$VPS_HOST:$VPS_DIR/
           rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./dist/ $VPS_USER@$VPS_HOST:$VPS_DIR/dist/
 
-          # Connect to VPS and execute commands
           ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST << 'EOF'
+            cd $VPS_DIR
+            
             echo "Setting up environment variables on VPS..."
-            cat > $VPS_DIR/.env <<EOL
+            cat > .env << 'EOL'
             NODE_ENV=production
             DB_HOST=$DB_HOST
             DB_PORT=$DB_PORT
@@ -65,7 +64,6 @@ jobs:
             JWT_SECRET=$JWT_SECRET
             EOL
 
-            cd $VPS_DIR
             echo "Checking and installing dependencies..."
             npm ci
 
