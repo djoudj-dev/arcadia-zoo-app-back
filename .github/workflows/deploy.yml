@@ -68,6 +68,14 @@ jobs:
             JWT_SECRET=${JWT_SECRET}
             EOL
 
+            # Si les fichiers manquent, reconstruisez sur le serveur
+            if [ ! -f /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js ]; then
+              echo "Le fichier main.js est manquant. Reconstruction du projet..."
+              cd /var/www/nedellec-julien.fr/backend
+              npm install
+              npm run build
+            fi
+
             # Redémarrer l’application avec PM2 ou en arrière-plan
             echo "Redémarrage de l'application avec PM2..."
             pm2 stop arcadia-zoo-app-back || true
