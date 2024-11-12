@@ -50,11 +50,11 @@ jobs:
           rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./package.json $VPS_USER@$VPS_HOST:$VPS_DIR/
           rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./dist/ $VPS_USER@$VPS_HOST:$VPS_DIR/dist/
 
-          ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST << 'EOF'
+          ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST << EOF
             cd $VPS_DIR
             
             echo "Setting up environment variables on VPS..."
-            cat > .env << 'EOL'
+            cat > .env <<EOL
             NODE_ENV=production
             DB_HOST=$DB_HOST
             DB_PORT=$DB_PORT
