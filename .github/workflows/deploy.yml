@@ -49,7 +49,7 @@ jobs:
 
             # Copier les fichiers du build du projet depuis le runner (actions/checkout) vers le serveur
             echo "Copie des fichiers du build sur le serveur..."
-            rsync -av --delete /home/runner/work/arcadia-zoo-app-back/arcadia-zoo-app-back/ /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
+            rsync -av --delete /home/runner/work/arcadia-zoo-app-back/dist/arcadia-zoo-app-back/ /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
 
             # Vérification de la présence des fichiers transférés
             echo "Liste des fichiers dans dist/arcadia-zoo-app-back :"
