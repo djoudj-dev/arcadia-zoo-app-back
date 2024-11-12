@@ -53,12 +53,12 @@ jobs:
             # Vérifiez si le répertoire dist existe, sinon, créez-le
             mkdir -p dist
 
-            # Copier tous les fichiers du répertoire dist local directement dans le répertoire dist du serveur
+            # Copier tous les fichiers du répertoire dist vers le serveur
             echo "Copie des fichiers du build sur le serveur..."
             rsync -av --delete ./dist/ ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/dist/
 
             # Vérification de la présence des fichiers transférés
-            echo "Liste des fichiers dans le répertoire backend/dist :"
+            echo "Liste des fichiers dans le répertoire backend :"
             ls -la /var/www/nedellec-julien.fr/backend/dist/
 
             # Si le fichier package.json existe, installer les dépendances
