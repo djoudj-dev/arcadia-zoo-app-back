@@ -51,11 +51,11 @@ jobs:
             fi
 
             # Vérifiez si le répertoire dist existe, sinon, créez-le
-            mkdir -p dist
+            mkdir -p dist/arcadia-zoo-app-back
 
-            # Copier tous les fichiers du répertoire dist vers le serveur
+            # Copier les fichiers depuis le répertoire dist/arcadia-zoo-app-back vers le serveur
             echo "Copie des fichiers du build sur le serveur..."
-            rsync -av --delete ./dist/ ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/dist/
+            rsync -av --delete ./dist/arcadia-zoo-app-back/ ubuntu@${{ secrets.VPS_HOST }}:/var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/
 
             # Vérification de la présence des fichiers transférés
             echo "Liste des fichiers dans le répertoire backend :"
@@ -78,10 +78,11 @@ jobs:
             EOL
 
             # Si les fichiers manquent, reconstruisez sur le serveur
-            if [ ! -f /var/www/nedellec-julien.fr/backend/dist/main.js ]; then
+            if [ ! -f /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js ]; then
               echo "Le fichier main.js est manquant. Reconstruction du projet..."
               npm run build
             fi
+
 
             # Redémarrer l’application avec PM2
             echo "Redémarrage de l'application avec PM2..."

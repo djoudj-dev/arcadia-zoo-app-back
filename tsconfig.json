@@ -7,7 +7,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "./dist/arcadia-zoo-app-back",
     "rootDir": "./src",
     "skipLibCheck": true,
     "strict": true,
@@ -21,5 +21,5 @@
     }
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dist"]
 }
