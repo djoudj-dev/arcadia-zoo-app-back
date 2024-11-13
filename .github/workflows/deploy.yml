@@ -52,6 +52,8 @@ jobs:
             DB_USER=${{ secrets.DB_USER }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_NAME=${{ secrets.DB_NAME }}
+            POSTGRESQL_URL=postgresql://arcadia_user:arcadia78%23@146.59.239.218:5432/postgres
+            POSTGRESQL_ARCADIA_URL=postgresql://arcadia_user:arcadia78%23@146.59.239.218:5432/arcadia_db
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             EOL
             
