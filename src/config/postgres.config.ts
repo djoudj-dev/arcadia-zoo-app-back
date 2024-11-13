@@ -7,11 +7,11 @@ console.log('DB_HOST:', process.env.DB_HOST);
 
 // Configuration de la connexion à PostgreSQL pour l'environnement du VPS
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 5432,
-  user: process.env.DB_USER || 'arcadia', // Valeur par défaut pour le développement
-  password: process.env.DB_PASSWORD || 'arcadia78', // Valeur par défaut pour le développement
-  database: process.env.DB_NAME || 'arcadia_db', // Nom de la base de données
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT),
+  user: process.env.DB_USER, // Valeur par défaut pour le développement
+  password: process.env.DB_PASSWORD, // Valeur par défaut pour le développement
+  database: process.env.DB_NAME, // Nom de la base de données
 });
 
 // Fonction générique pour exécuter une requête
