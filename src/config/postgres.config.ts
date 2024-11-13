@@ -1,4 +1,3 @@
-import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
 import { Pool } from 'pg';
 
@@ -21,45 +20,6 @@ export const query = async (text: string, params?: any[]) => {
   } catch (error) {
     console.error('Erreur lors de l’exécution de la requête SQL :', error);
     throw error;
-  }
-};
-
-// Fonction pour créer un utilisateur administrateur
-export const createAdminUser = async () => {
-  const adminEmail = 'admin@mail.com';
-
-  try {
-    console.log(
-      "Vérification de l'existence de l'utilisateur administrateur...",
-    );
-
-    // Vérifiez si l'utilisateur admin existe déjà
-    const checkUser = await query('SELECT * FROM users WHERE email = $1', [
-      adminEmail,
-    ]);
-
-    if (checkUser.rows.length > 0) {
-      console.log('L’utilisateur administrateur existe déjà.');
-      return;
-    }
-
-    // Hasher le mot de passe
-    const hashedPassword = await bcrypt.hash('admin123', 10);
-    console.log('Mot de passe haché pour l’administrateur :', hashedPassword);
-
-    // Insertion de l'utilisateur administrateur
-    const insertUserQuery = `
-      INSERT INTO users (name, email, password, role_id, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, NOW(), NOW())
-    `;
-    await query(insertUserQuery, ['Admin', adminEmail, hashedPassword, 1]);
-
-    console.log('Utilisateur administrateur créé avec succès.');
-  } catch (err) {
-    console.error(
-      'Erreur lors de la création de l’utilisateur administrateur :',
-      err,
-    );
   }
 };
 
