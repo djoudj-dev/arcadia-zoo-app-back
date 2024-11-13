@@ -1,8 +1,9 @@
 import * as dotenv from 'dotenv';
+import { join } from 'path';
 import { Pool } from 'pg';
 
 // Charger les variables d'environnement
-dotenv.config();
+dotenv.config({ path: join(process.cwd(), '.env') });
 console.log('DB_HOST:', process.env.DB_HOST);
 
 // Configuration de la connexion à PostgreSQL pour l'environnement du VPS
