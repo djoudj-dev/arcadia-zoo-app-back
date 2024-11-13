@@ -1,8 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { AnimalsService } from '../services/animals.service';
 import { Animal } from 'src/modules/admin-dashboard/animal-management/models/animal.model';
+import { AnimalsService } from '../services/animals.service';
 
-@Controller('/api/animals')
+@Controller('/animals')
 export class AnimalsController {
   /**
    * Injection du service AnimalsService pour la gestion des animaux.
