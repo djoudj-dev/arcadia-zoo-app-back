@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 
 // Charger les variables d'environnement
 dotenv.config();
+console.log('DB_HOST:', process.env.DB_HOST);
 
 // Configuration de la connexion à PostgreSQL pour l'environnement du VPS
 const pool = new Pool({
