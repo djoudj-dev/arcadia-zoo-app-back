@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { ServicesService } from '../services/services.service';
 import { Service } from '../../admin-dashboard/service-management/models/service.model';
 
-@Controller('/api/services')
+@Controller('/services')
 export class ServicesController {
   /**
    * Injection du service ServicesService pour la gestion des services.

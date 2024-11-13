@@ -56,21 +56,17 @@ jobs:
             echo "Setting up environment variables on VPS..."
             cat > .env <<EOL
             NODE_ENV=production
-            DB_HOST=$DB_HOST
-            DB_PORT=$DB_PORT
-            DB_USER=$DB_USER
-            DB_PASSWORD=$DB_PASSWORD
-            DB_NAME=$DB_NAME
-            JWT_SECRET=$JWT_SECRET
+            DB_HOST=postgres
+            DB_PORT=5432
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            POSTGRESQL_URL=postgresql://arcadia_user:arcadia78%23@146.59.239.218:5432/postgres
+            POSTGRESQL_ARCADIA_URL=postgresql://arcadia_user:arcadia78%23@146.59.239.218:5432/arcadia_db
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
             EOL
-
-            echo "Checking and installing dependencies..."
-            npm ci
-
-            echo "Restarting the app with PM2..."
-            pm2 stop arcadia-zoo-app-back || true
-            pm2 start dist/main.js --name arcadia-zoo-app-back --update-env
-
-            echo "Current PM2 status:"
-            pm2 status arcadia-zoo-app-back
+            
+            # Redémarrer les conteneurs
+            sudo docker compose down
+            sudo docker compose up -d --build
           EOF
