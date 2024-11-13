@@ -40,9 +40,6 @@ async function bootstrap() {
     prefix: '/api/uploads',
   });
 
-  // Définir un préfixe global pour toutes les routes API
-  app.setGlobalPrefix('api');
-
   await app.listen(3000, '0.0.0.0');
 }
 

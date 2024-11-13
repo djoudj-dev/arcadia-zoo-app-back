@@ -25,5 +25,5 @@ export const query = async (text: string, params?: any[]) => {
   }
 };
 
-// Exporter `pool` et `createAdminUser` explicitement
+// Exporter `pool`explicitement
 export { pool };
