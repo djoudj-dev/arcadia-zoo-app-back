@@ -3,7 +3,7 @@ import { Animal } from '../../admin-dashboard/animal-management/models/animal.mo
 import { Habitat } from '../../admin-dashboard/habitat-management/models/habitat.model';
 import { HabitatsService } from '../services/habitats.service';
 
-@Controller('/api/habitats')
+@Controller('/habitats')
 export class HabitatsController {
   /**
    * Injection du service HabitatsService pour la gestion des habitats.
