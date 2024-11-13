@@ -4,6 +4,8 @@ import * as fs from 'fs';
 import { join } from 'path';
 import { AppModule } from './app.module';
 
+console.log('Démarrage de l’application avec PM2');
+
 // Création du dossier uploads principal
 const uploadBasePath = join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadBasePath)) {
