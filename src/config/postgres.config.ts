@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import { Pool } from 'pg';
 
 // Charger les variables d'environnement
-dotenv.config({ path: '/var/www/nedellec-julien.fr/backend/.env' });
+dotenv.config({ path: './.env' });
 
 console.log('DB_HOST:', process.env.DB_HOST);
 

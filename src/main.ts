@@ -5,6 +5,8 @@ import { join } from 'path';
 import { AppModule } from './app.module';
 
 console.log('Démarrage de l’application avec PM2');
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 // Création du dossier uploads principal
 const uploadBasePath = join(process.cwd(), 'uploads');
