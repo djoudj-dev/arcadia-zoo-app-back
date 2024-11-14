@@ -31,6 +31,12 @@ jobs:
       - name: Add VPS to known_hosts
         run: ssh-keyscan -p 49999 -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Create .env file
+        run: |
+          echo "NODE_ENV=production" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          # ... autres variables
+
       - name: Deploy to VPS
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
@@ -62,6 +68,7 @@ jobs:
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             DB_NAME=${{ secrets.DB_NAME }}
             POSTGRESQL_ARCADIA_URL=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}?schema=arcadia
+            MONGODB_URI=mongodb://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:27017/${{ secrets.DB_NAME }}?authSource=${{ secrets.DB_NAME }}&directConnection=true
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             EOL
             
