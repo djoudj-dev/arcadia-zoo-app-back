@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
@@ -21,20 +20,11 @@ import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module
       envFilePath: `.env`,
       isGlobal: true,
       validate: (config) => {
-        if (!config.JWT_SECRET || !config.MONGODB_URI) {
+        if (!config.JWT_SECRET || !config.POSTGRESQL_ARCADIA_URL) {
           throw new Error('Configuration manquante!');
         }
         return config;
       },
-    }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
-        autoCreate: true,
-        autoIndex: true,
-      }),
-      inject: [ConfigService],
     }),
     AuthModule,
     AccountModule,
