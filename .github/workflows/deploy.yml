@@ -53,7 +53,7 @@ jobs:
 
           echo "Connecting to VPS to deploy the application..."
 
-          rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./package.json $VPS_USER@$VPS_HOST:$VPS_DIR/
+          rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./package*.json $VPS_USER@$VPS_HOST:$VPS_DIR/
           rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./dist/ $VPS_USER@$VPS_HOST:$VPS_DIR/dist/
 
           ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST << EOF
@@ -72,6 +72,10 @@ jobs:
             JWT_SECRET=$JWT_SECRET
             EOL
 
+            # Installer les dépendances
+            echo "Installation des dépendances..."
+            npm ci --production
+
             # Vérifier le contenu du fichier .env
             echo "Contenu du fichier .env :"
             cat .env
@@ -80,4 +84,4 @@ jobs:
             pm2 delete arcadia-zoo-app-back || true
             sleep 2
             pm2 start /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js --name "arcadia-zoo-app-back"
-            EOF
+EOF
