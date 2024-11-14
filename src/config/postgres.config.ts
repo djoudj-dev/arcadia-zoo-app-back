@@ -2,9 +2,9 @@ import * as dotenv from 'dotenv';
 import { Pool } from 'pg';
 
 // Charger les variables d'environnement pour le local
-// dotenv.config({ path: './.env.local' });
+dotenv.config({ path: './.env.local' });
 // Charger les variables d'environnement pour le VPS
-dotenv.config({ path: './.env' });
+// dotenv.config({ path: './.env' });
 
 // Configuration de la connexion à PostgreSQL pour l'environnement du VPS
 const pool = new Pool({
