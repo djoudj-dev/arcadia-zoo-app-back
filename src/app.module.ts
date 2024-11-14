@@ -11,6 +11,7 @@ import { ServiceModule } from './modules/admin-dashboard/service-management/serv
 import { AnimalsModule } from './modules/animals-zoo/animals.module';
 import { HabitatsModule } from './modules/habitats-zoo/habitats.module';
 import { ServicesModule } from './modules/services-zoo/services.module';
+import { CountResourceModule } from './modules/stats-board/counts-resource/count-resource.module';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { ServicesModule } from './modules/services-zoo/services.module';
         if (!config.JWT_SECRET) {
           throw new Error('JWT_SECRET is missing!');
         }
-        console.log('JWT_SECRET:', config.JWT_SECRET);  // Vérification du contenu de JWT_SECRET
+        console.log('JWT_SECRET:', config.JWT_SECRET); // Vérification du contenu de JWT_SECRET
         return config;
       },
     }),
@@ -33,6 +34,7 @@ import { ServicesModule } from './modules/services-zoo/services.module';
     AnimalsModule,
     ServiceModule,
     ServicesModule,
+    CountResourceModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],
