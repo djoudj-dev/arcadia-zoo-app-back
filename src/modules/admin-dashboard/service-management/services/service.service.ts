@@ -228,9 +228,15 @@ export class ServiceService {
         fs.unlinkSync(imagePath);
         console.log(`Image supprimée: ${imagePath}`);
       } catch (error) {
-        console.error(
-          `Erreur lors de la suppression de l'image: ${error.message}`,
-        );
+        if (error instanceof Error) {
+          console.error(
+            `Erreur lors de la suppression de l'image: ${error.message}`,
+          );
+        } else {
+          console.error(
+            `Erreur inconnue lors de la suppression de l'image`,
+          );
+        }
       }
     } else {
       console.log(`Image non trouvée pour suppression: ${imagePath}`);
