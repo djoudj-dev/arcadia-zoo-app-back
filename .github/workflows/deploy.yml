@@ -31,12 +31,6 @@ jobs:
       - name: Add VPS to known_hosts
         run: ssh-keyscan -p 49999 -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Create .env file
-        run: |
-          echo "NODE_ENV=production" >> .env
-          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
-          # ... autres variables
-
       - name: Deploy to VPS
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
@@ -53,35 +47,35 @@ jobs:
 
           echo "Connecting to VPS to deploy the application..."
 
+          # Copier tous les fichiers nécessaires
           rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./package*.json $VPS_USER@$VPS_HOST:$VPS_DIR/
           rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./dist/ $VPS_USER@$VPS_HOST:$VPS_DIR/dist/
 
-          ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST << EOF
+          ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST /bin/bash << 'EOF'
             cd $VPS_DIR
             
-            # Créer le fichier .env
-            cat > .env << EOL
+            echo "Creating .env file..."
+            cat > .env << 'ENVEND'
             NODE_ENV=production
-            DB_HOST=$DB_HOST
-            DB_PORT=$DB_PORT
-            DB_USER=$DB_USER
-            DB_PASSWORD=$DB_PASSWORD
-            DB_NAME=$DB_NAME
-            POSTGRESQL_ARCADIA_URL=postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?schema=arcadia
-            MONGODB_URI=mongodb://$DB_USER:$DB_PASSWORD@$DB_HOST:27017/$DB_NAME?authSource=$DB_NAME&directConnection=true
-            JWT_SECRET=$JWT_SECRET
-            EOL
+            DB_HOST=${DB_HOST}
+            DB_PORT=${DB_PORT}
+            DB_USER=${DB_USER}
+            DB_PASSWORD=${DB_PASSWORD}
+            DB_NAME=${DB_NAME}
+            POSTGRESQL_ARCADIA_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+            MONGODB_URI=mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:27017/${DB_NAME}?authSource=${DB_NAME}&directConnection=true
+            JWT_SECRET=${JWT_SECRET}
+            ENVEND
 
-            # Installer les dépendances
-            echo "Installation des dépendances..."
-            npm ci --production
+                        echo "Installing dependencies..."
+                        rm -rf node_modules
+                        npm install
 
-            # Vérifier le contenu du fichier .env
-            echo "Contenu du fichier .env :"
-            cat .env
+                        echo "Checking .env content:"
+                        cat .env
 
-            # Redémarrer PM2
-            pm2 delete arcadia-zoo-app-back || true
-            sleep 2
-            pm2 start /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js --name "arcadia-zoo-app-back"
+                        echo "Restarting PM2..."
+                        pm2 delete arcadia-zoo-app-back || true
+                        sleep 2
+                        NODE_ENV=production pm2 start dist/arcadia-zoo-app-back/main.js --name "arcadia-zoo-app-back"
             EOF
