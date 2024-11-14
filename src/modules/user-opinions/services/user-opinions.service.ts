@@ -12,15 +12,15 @@ export class UserOpinionsService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      console.log('Tentative de connexion à MongoDB...');
-      console.log('URL de connexion:', process.env.MONGODB_URI);
-      console.log('État de la connexion MongoDB:', this.connection.readyState);
+      console.log('[UserOpinions] Démarrage du service...');
+      console.log('[UserOpinions] URL MongoDB:', process.env.MONGODB_URI);
+      console.log('[UserOpinions] État connexion:', this.connection.readyState);
 
       // Tester la connexion avec une requête simple
       await this.userOpinionsModel.findOne().exec();
       console.log('Connexion à MongoDB réussie !');
     } catch (error) {
-      console.error('Erreur de connexion MongoDB:', error);
+      console.error('[UserOpinions] Erreur critique:', error);
       console.error(
         'Veuillez vérifier que MongoDB est bien installé et démarré',
       );
