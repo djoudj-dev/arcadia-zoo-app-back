@@ -254,6 +254,16 @@ export class ServiceService {
             (error as Error).message
           }`,
         );
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(
+            `Erreur lors de la suppression de l'image: ${error.message}`,
+          );
+        } else {
+          console.error(
+            `Erreur inconnue lors de la suppression de l'image`,
+          );
+        }
       }
     } else {
       console.log(`Image non trouvée pour suppression: ${imagePath}`);

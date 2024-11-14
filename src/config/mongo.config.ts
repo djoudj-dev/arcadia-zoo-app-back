@@ -1,11 +1,10 @@
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 
-/**
- * Chargement des variables d'environnement depuis le fichier .env.
- * Cette configuration permet d'accéder aux variables d'environnement dans le code.
- */
-dotenv.config();
+// Charger les variables d'environnement pour le local
+dotenv.config({ path: './.env.local' });
+// Charger les variables d'environnement pour le VPS
+// dotenv.config({ path: './.env' });
 
 /**
  * URI de connexion à MongoDB.
@@ -24,6 +23,21 @@ export const connectMongoDB = async () => {
   try {
     await mongoose.connect(mongoUri);
     console.log('Connexion à MongoDB réussie');
+    // Vérifier si la connexion à la base de données est établie
+    if (mongoose.connection.readyState !== 1) {
+      console.error("La connexion à la base de données n'est pas établie");
+      return;
+    }
+
+    // Vérifier si mongoose.connection.db est défini avant de l'utiliser
+    const admin = mongoose.connection.db?.admin();
+    if (!admin) {
+      console.error("L'objet admin n'est pas disponible");
+      return;
+    }
+    // Utiliser une promesse pour récupérer les bases de données
+    const result = await admin.listDatabases();
+    console.log('Bases de données disponibles :', result.databases);
   } catch (error) {
     console.error('Erreur de connexion à MongoDB', error);
     process.exit(1); // Arrêter le processus en cas d'échec de connexion
