@@ -14,7 +14,6 @@ export const UserOpinionsSchema = new Schema(
   },
   { collection: 'user_opinions' },
 );
-
 UserOpinionsSchema.pre('save', function (next) {
   this.updated_at = new Date();
   next();
