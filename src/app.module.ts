@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
@@ -12,6 +13,7 @@ import { AnimalsModule } from './modules/animals-zoo/animals.module';
 import { HabitatsModule } from './modules/habitats-zoo/habitats.module';
 import { ServicesModule } from './modules/services-zoo/services.module';
 import { CountResourceModule } from './modules/stats-board/counts-resource/count-resource.module';
+import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module';
 
 @Module({
   imports: [
@@ -19,12 +21,20 @@ import { CountResourceModule } from './modules/stats-board/counts-resource/count
       envFilePath: `.env`,
       isGlobal: true,
       validate: (config) => {
-        if (!config.JWT_SECRET) {
-          throw new Error('JWT_SECRET is missing!');
+        if (!config.JWT_SECRET || !config.MONGODB_URI) {
+          throw new Error('Configuration manquante!');
         }
-        console.log('JWT_SECRET:', config.JWT_SECRET); // Vérification du contenu de JWT_SECRET
         return config;
       },
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
+        autoCreate: true,
+        autoIndex: true,
+      }),
+      inject: [ConfigService],
     }),
     AuthModule,
     AccountModule,
@@ -35,6 +45,7 @@ import { CountResourceModule } from './modules/stats-board/counts-resource/count
     ServiceModule,
     ServicesModule,
     CountResourceModule,
+    UserOpinionsModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],
