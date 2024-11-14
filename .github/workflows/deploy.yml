@@ -60,7 +60,7 @@ jobs:
             cd $VPS_DIR
             
             # Créer le fichier .env
-            cat > .env << 'ENVFILE'
+            cat > .env << EOL
             NODE_ENV=production
             DB_HOST=$DB_HOST
             DB_PORT=$DB_PORT
@@ -70,9 +70,14 @@ jobs:
             POSTGRESQL_ARCADIA_URL=postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?schema=arcadia
             MONGODB_URI=mongodb://$DB_USER:$DB_PASSWORD@$DB_HOST:27017/$DB_NAME?authSource=$DB_NAME&directConnection=true
             JWT_SECRET=$JWT_SECRET
-            ENVFILE
+            EOL
+
+            # Vérifier le contenu du fichier .env
+            echo "Contenu du fichier .env :"
+            cat .env
 
             # Redémarrer PM2
             pm2 delete arcadia-zoo-app-back || true
+            sleep 2
             pm2 start /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js --name "arcadia-zoo-app-back"
             EOF
