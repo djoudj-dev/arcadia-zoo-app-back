@@ -84,4 +84,4 @@ jobs:
             pm2 delete arcadia-zoo-app-back || true
             sleep 2
             pm2 start /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js --name "arcadia-zoo-app-back"
-EOF
+            EOF
