@@ -1,17 +1,17 @@
 import { Module } from '@nestjs/common';
-import { pool } from '../../config/postgres.config';
+import { MongooseModule } from '@nestjs/mongoose';
 import { UserOpinionsController } from './controllers/user-opinions.controller';
+import { UserOpinionsSchema } from './schemas/user-opinions.schema';
 import { UserOpinionsService } from './services/user-opinions.service';
 
 @Module({
-  controllers: [UserOpinionsController],
-  providers: [
-    UserOpinionsService,
-    UserOpinionsModule,
-    {
-      provide: 'DatabaseConnection',
-      useValue: pool,
-    },
+  imports: [
+    MongooseModule.forFeature([
+      { name: 'UserOpinions', schema: UserOpinionsSchema },
+    ]),
   ],
+  controllers: [UserOpinionsController],
+  providers: [UserOpinionsService],
+  exports: [UserOpinionsService],
 })
 export class UserOpinionsModule {}

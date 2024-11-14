@@ -18,20 +18,22 @@ import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env`,
-      isGlobal: true,
-      validate: (config) => {
-        if (
-          !config.JWT_SECRET ||
-          !config.MONGODB_URI ||
-          !config.POSTGRESQL_ARCADIA_URL
-        ) {
+      validate: (config: Record<string, unknown>) => {
+        const requiredEnvVars = [
+          'JWT_SECRET',
+          'MONGODB_URI',
+          'POSTGRESQL_ARCADIA_URL',
+        ];
+        const missingVars = requiredEnvVars.filter((envVar) => !config[envVar]);
+
+        if (missingVars.length > 0) {
           throw new Error(
-            'Configuration manquante! JWT_SECRET, MONGODB_URI et POSTGRESQL_ARCADIA_URL sont requis',
+            `Configuration manquante! ${missingVars.join(', ')} sont requis`,
           );
         }
         return config;
       },
+      isGlobal: true,
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
