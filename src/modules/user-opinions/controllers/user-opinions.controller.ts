@@ -8,8 +8,6 @@ import {
   Post,
   Put,
   Query,
-  HttpStatus,
-  HttpCode,
 } from '@nestjs/common';
 import { UserOpinions } from '../model/user-opinions.model';
 import { UserOpinionsService } from '../services/user-opinions.service';
@@ -30,7 +28,6 @@ export class UserOpinionsController {
   }
 
   @Post()
-  @HttpCode(HttpStatus.CREATED)
   async createUserOpinion(
     @Body() userOpinion: UserOpinions,
   ): Promise<UserOpinions> {
