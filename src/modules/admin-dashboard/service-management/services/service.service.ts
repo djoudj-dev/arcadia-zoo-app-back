@@ -2,9 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { QueryResult } from 'pg';
+import { pool, query } from '../../../../config/postgres.config';
 import { Feature } from '../models/feature.model';
 import { Service } from '../models/service.model';
-import { pool, query } from '../../../../config/postgres.config';
 
 @Injectable()
 export class ServiceService {
@@ -231,45 +231,33 @@ export class ServiceService {
   ): Promise<{ message: string }> {
     this.checkUserRole(userRole);
 
-    // Récupérez les informations du service pour obtenir le chemin de l'image
     const existingService = await this.findOne(id);
     if (!existingService) {
       throw new BadRequestException(`Service avec l'ID ${id} non trouvé`);
     }
 
-    // Chemin complet vers l'image à partir du champ `images`
     const imagePath: string = path.join(
       process.cwd(),
       existingService.images || '',
     );
 
-    // Supprimez l'image si elle existe dans le système de fichiers
     if (fs.existsSync(imagePath)) {
       try {
         fs.unlinkSync(imagePath);
         console.log(`Image supprimée: ${imagePath}`);
-      } catch (error: unknown) {
-        console.error(
-          `Erreur lors de la suppression de l'image: ${
-            (error as Error).message
-          }`,
-        );
       } catch (error) {
         if (error instanceof Error) {
           console.error(
             `Erreur lors de la suppression de l'image: ${error.message}`,
           );
         } else {
-          console.error(
-            `Erreur inconnue lors de la suppression de l'image`,
-          );
+          console.error(`Erreur inconnue lors de la suppression de l'image`);
         }
       }
     } else {
       console.log(`Image non trouvée pour suppression: ${imagePath}`);
     }
 
-    // Supprimez le service de la base de données
     await query('DELETE FROM services WHERE id_service = $1', [id]);
     return { message: `Service avec l'ID ${id} supprimé avec succès` };
   }
