@@ -47,35 +47,25 @@ jobs:
 
           echo "Connecting to VPS to deploy the application..."
 
-          # Copier tous les fichiers nécessaires
-          rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./package*.json $VPS_USER@$VPS_HOST:$VPS_DIR/
+          rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./package.json $VPS_USER@$VPS_HOST:$VPS_DIR/
           rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./dist/ $VPS_USER@$VPS_HOST:$VPS_DIR/dist/
 
-          ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST /bin/bash << 'EOF'
+          ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST << EOF
             cd $VPS_DIR
             
-            echo "Creating .env file..."
-            cat > .env << 'ENVEND'
+            echo "Setting up environment variables on VPS..."
+            cat > .env <<EOL
             NODE_ENV=production
-            DB_HOST=${DB_HOST}
-            DB_PORT=${DB_PORT}
-            DB_USER=${DB_USER}
-            DB_PASSWORD=${DB_PASSWORD}
-            DB_NAME=${DB_NAME}
-            POSTGRESQL_ARCADIA_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-            MONGODB_URI=mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:27017/${DB_NAME}?authSource=${DB_NAME}&directConnection=true
-            JWT_SECRET=${JWT_SECRET}
-            ENVEND
-
-                        echo "Installing dependencies..."
-                        rm -rf node_modules
-                        npm install
-
-                        echo "Checking .env content:"
-                        cat .env
-
-                        echo "Restarting PM2..."
-                        pm2 delete arcadia-zoo-app-back || true
-                        sleep 2
-                        NODE_ENV=production pm2 start dist/arcadia-zoo-app-back/main.js --name "arcadia-zoo-app-back"
-            EOF
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            POSTGRESQL_ARCADIA_URL=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}?schema=arcadia
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            EOL
+            
+            # Redémarrer l'application avec PM2
+            pm2 stop arcadia-zoo-app-back || true
+            pm2 start /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js --name "arcadia-zoo-app"
+          EOF
