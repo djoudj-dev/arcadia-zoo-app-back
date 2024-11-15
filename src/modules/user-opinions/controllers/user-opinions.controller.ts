@@ -5,36 +5,61 @@ import {
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
-  Query,
 } from '@nestjs/common';
 import { UserOpinions } from '../model/user-opinions.model';
 import { UserOpinionsService } from '../services/user-opinions.service';
 
+/**
+ * Contrôleur gérant les endpoints pour les avis utilisateurs
+ * Route de base : /user-opinions
+ */
 @Controller('user-opinions')
 export class UserOpinionsController {
   /**
-   * Injection du service UserOpinionsService pour la gestion des avis utilisateurs.
-   * @param userOpinionsService Service de gestion des avis utilisateurs.
+   * Constructeur du contrôleur UserOpinions
+   * @param userOpinionsService Service injecté pour la gestion des avis utilisateurs
    */
   constructor(private userOpinionsService: UserOpinionsService) {}
 
-  @Get()
-  async getAllUserOpinions(
-    @Query('validated') validated?: string,
-  ): Promise<UserOpinions[]> {
-    console.log('[Controller] validated query param:', validated);
-
-    // Si validated n'est pas défini, on considère false par défaut
-    const isValidated = validated === undefined ? false : validated === 'true';
-
-    console.log('[Controller] isValidated après conversion:', isValidated);
-    console.log('[Controller] Type de isValidated:', typeof isValidated);
-
-    return this.userOpinionsService.getAllUserOpinions(isValidated);
+  /**
+   * Récupère tous les avis validés
+   * @route GET /user-opinions/validated
+   * @returns Une promesse contenant un tableau des avis validés
+   */
+  @Get('validated')
+  async getValidatedUserOpinions(): Promise<UserOpinions[]> {
+    return this.userOpinionsService.getValidatedUserOpinions();
   }
 
+  /**
+   * Récupère tous les avis sans filtrage
+   * @route GET /user-opinions/all
+   * @returns Une promesse contenant un tableau de tous les avis
+   */
+  @Get('all')
+  async getAllUserOpinions(): Promise<UserOpinions[]> {
+    return this.userOpinionsService.getAllUserOpinions();
+  }
+
+  /**
+   * Récupère les avis en attente de validation
+   * @route GET /user-opinions/pending
+   * @returns Une promesse contenant un tableau des avis en attente
+   */
+  @Get('pending')
+  async getPendingUserOpinions(): Promise<UserOpinions[]> {
+    return this.userOpinionsService.getPendingUserOpinions();
+  }
+
+  /**
+   * Crée un nouvel avis utilisateur
+   * @route POST /user-opinions
+   * @param userOpinion Les données de l'avis à créer
+   * @returns Une promesse contenant l'avis créé
+   */
   @Post()
   async createUserOpinion(
     @Body() userOpinion: UserOpinions,

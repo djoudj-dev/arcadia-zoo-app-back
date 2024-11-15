@@ -31,8 +31,17 @@ console.log("Variables d'environnement :", {
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
-        autoCreate: true,
-        autoIndex: true,
+        connectionFactory: (connection) => {
+          connection.on('connected', () => {
+            console.log('MongoDB connecté avec succès');
+          });
+          connection.on('error', (error) => {
+            console.error('Erreur de connexion MongoDB:', error);
+          });
+          return connection;
+        },
+        retryWrites: true,
+        w: 'majority',
       }),
       inject: [ConfigService],
     }),

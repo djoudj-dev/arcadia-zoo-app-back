@@ -7,7 +7,11 @@ import { UserOpinionsService } from './services/user-opinions.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'UserOpinions', schema: UserOpinionsSchema },
+      {
+        name: 'UserOpinions',
+        schema: UserOpinionsSchema,
+        collection: 'user_opinions',
+      },
     ]),
   ],
   controllers: [UserOpinionsController],
