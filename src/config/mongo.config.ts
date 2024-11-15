@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
+import mongoose from 'mongoose';
 
 // Charger les variables d'environnement pour le local
-dotenv.config({ path: './.env.local' });
+//dotenv.config({ path: './.env.local' });
 // Charger les variables d'environnement pour le VPS
-// dotenv.config({ path: './.env' });
+dotenv.config({ path: './.env' });
 
 /**
  * URI de connexion à MongoDB.
