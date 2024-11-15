@@ -15,25 +15,17 @@ import { ServicesModule } from './modules/services-zoo/services.module';
 import { CountResourceModule } from './modules/stats-board/counts-resource/count-resource.module';
 import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module';
 
+console.log("Variables d'environnement :", {
+  DB_USER: process.env.DB_USER,
+  DB_HOST: process.env.DB_HOST,
+  DB_NAME: process.env.DB_NAME,
+});
+
 @Module({
   imports: [
     ConfigModule.forRoot({
-      validate: (config: Record<string, unknown>) => {
-        const requiredEnvVars = [
-          'JWT_SECRET',
-          'MONGODB_URI',
-          'POSTGRESQL_ARCADIA_URL',
-        ];
-        const missingVars = requiredEnvVars.filter((envVar) => !config[envVar]);
-
-        if (missingVars.length > 0) {
-          throw new Error(
-            `Configuration manquante! ${missingVars.join(', ')} sont requis`,
-          );
-        }
-        return config;
-      },
       isGlobal: true,
+      envFilePath: '.env',
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],

@@ -22,9 +22,17 @@ export class UserOpinionsController {
 
   @Get()
   async getAllUserOpinions(
-    @Query('validated') validated: boolean,
+    @Query('validated') validated?: string,
   ): Promise<UserOpinions[]> {
-    return this.userOpinionsService.getAllUserOpinions(validated);
+    console.log('[Controller] validated query param:', validated);
+
+    // Si validated n'est pas défini, on considère false par défaut
+    const isValidated = validated === undefined ? false : validated === 'true';
+
+    console.log('[Controller] isValidated après conversion:', isValidated);
+    console.log('[Controller] Type de isValidated:', typeof isValidated);
+
+    return this.userOpinionsService.getAllUserOpinions(isValidated);
   }
 
   @Post()
@@ -44,6 +52,24 @@ export class UserOpinionsController {
       console.error('Erreur lors de la création:', error);
       throw error;
     }
+  }
+
+  @Put('validate/:id')
+  async validateUserOpinion(@Param('id') id: string): Promise<UserOpinions> {
+    console.log("[Controller] Validation de l'avis:", id);
+    const updatedOpinion = await this.userOpinionsService.updateUserOpinion(
+      id,
+      {
+        validated: true,
+      } as UserOpinions,
+    );
+
+    if (!updatedOpinion) {
+      throw new NotFoundException(
+        `Avis utilisateur avec l'id ${id} non trouvé`,
+      );
+    }
+    return updatedOpinion;
   }
 
   @Put(':id')
