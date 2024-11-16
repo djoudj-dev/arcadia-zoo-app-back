@@ -14,13 +14,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
+import { Roles } from '../../../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../../auth/guards/roles.guard';
+import { multerOptionsServices } from '../../../../../config/multer.config';
 import { Feature } from '../models/feature.model';
 import { Service } from '../models/service.model';
 import { ServiceService } from '../services/service.service';
-import { RolesGuard } from '../../../../auth/guards/roles.guard';
-import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard';
-import { Roles } from '../../../../auth/decorators/roles.decorator';
-import { multerOptionsServices } from '../../../../config/multer.config';
 
 @Controller('admin/service-management')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -28,20 +28,20 @@ export class ServiceController {
   constructor(private readonly serviceService: ServiceService) {}
 
   @Get()
-  @Roles('admin')
+  @Roles('admin', 'employe')
   @UseInterceptors(FileInterceptor('image', multerOptionsServices))
   async getAllServices(): Promise<Service[]> {
     return this.serviceService.getAllServices();
   }
 
   @Get('features')
-  @Roles('admin')
+  @Roles('admin', 'employe')
   async getAllFeatures(): Promise<Feature[]> {
     return this.serviceService.getAllFeatures();
   }
 
   @Post()
-  @Roles('admin')
+  @Roles('admin', 'employe')
   @UseInterceptors(FileInterceptor('image', multerOptionsServices))
   async createService(
     @Body()
@@ -79,7 +79,7 @@ export class ServiceController {
   }
 
   @Put(':id')
-  @Roles('admin')
+  @Roles('admin', 'employe')
   @UseInterceptors(FileInterceptor('image', multerOptionsServices))
   async updateService(
     @Param('id') id: number,
@@ -151,7 +151,7 @@ export class ServiceController {
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles('admin', 'employe')
   async deleteService(@Param('id') id: number): Promise<{ message: string }> {
     return this.serviceService.deleteService(id, 'admin');
   }

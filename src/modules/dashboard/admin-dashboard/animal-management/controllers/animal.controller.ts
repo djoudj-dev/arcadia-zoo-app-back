@@ -12,12 +12,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Roles } from '../../../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../../auth/guards/roles.guard';
+import { multerOptionsAnimals } from '../../../../../config/multer.config';
 import { Animal } from '../models/animal.model';
 import { AnimalService } from '../services/animal.service';
-import { Roles } from '../../../../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../../auth/guards/roles.guard';
-import { multerOptionsAnimals } from '../../../../config/multer.config';
 
 /**
  * Contrôleur pour la gestion des animaux en tant qu'admin.

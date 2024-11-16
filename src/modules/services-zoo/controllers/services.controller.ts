@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
+import { Service } from '../../dashboard/admin-dashboard/service-management/models/service.model';
 import { ServicesService } from '../services/services.service';
-import { Service } from '../../admin-dashboard/service-management/models/service.model';
 
 @Controller('/services')
 export class ServicesController {

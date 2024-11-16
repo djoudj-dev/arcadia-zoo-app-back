@@ -12,12 +12,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Roles } from '../../../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../../auth/guards/roles.guard';
+import { multerOptionsHabitats } from '../../../../../config/multer.config';
 import { Habitat } from '../models/habitat.model';
 import { HabitatService } from '../services/habitat.service';
-import { RolesGuard } from '../../../../auth/guards/roles.guard';
-import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard';
-import { Roles } from '../../../../auth/decorators/roles.decorator';
-import { multerOptionsHabitats } from '../../../../config/multer.config';
 
 /**
  * Contrôleur pour la gestion des habitats en tant qu'admin.
