@@ -122,4 +122,33 @@ export class UserOpinionsController {
     }
     return deletedOpinion;
   }
+
+  /**
+   * Refuse un avis utilisateur spécifique
+   * @route PATCH /user-opinions/:id/reject
+   * @param id Identifiant de l'avis à refuser
+   * @throws NotFoundException si l'avis n'est pas trouvé
+   * @returns Une promesse contenant l'avis refusé
+   */
+  @Patch(':id/reject')
+  async rejectUserOpinion(@Param('id') id: string) {
+    try {
+      return await this.userOpinionsService.rejectUserOpinion(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Récupère tous les avis refusés
+   * @route GET /user-opinions/rejected
+   * @returns Une promesse contenant un tableau des avis refusés
+   */
+  @Get('rejected')
+  async getRejectedUserOpinions(): Promise<UserOpinions[]> {
+    return this.userOpinionsService.getRejectedUserOpinions();
+  }
 }

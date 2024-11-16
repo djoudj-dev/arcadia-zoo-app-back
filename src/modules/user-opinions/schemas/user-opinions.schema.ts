@@ -18,6 +18,8 @@ const userOpinionsSchemaDefinition = {
   validated: { type: Boolean, default: false },
   // Date de publication de l'avis
   published_at: { type: Date },
+  // Indique si l'avis a été refusé
+  rejected: { type: Boolean, default: false },
 };
 
 // Options de configuration du schéma

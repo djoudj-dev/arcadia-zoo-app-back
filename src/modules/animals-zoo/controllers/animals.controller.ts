@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { Animal } from 'src/modules/admin-dashboard/animal-management/models/animal.model';
+import { Animal } from 'src/modules/dashboard/admin-dashboard/animal-management/models/animal.model';
 import { AnimalsService } from '../services/animals.service';
 
 @Controller('/animals')

@@ -5,11 +5,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
-import { AccountModule } from './modules/admin-dashboard/account-management/account.module';
-import { AnimalModule } from './modules/admin-dashboard/animal-management/animal.module';
-import { HabitatModule } from './modules/admin-dashboard/habitat-management/habitat.module';
-import { ServiceModule } from './modules/admin-dashboard/service-management/service.module';
 import { AnimalsModule } from './modules/animals-zoo/animals.module';
+import { AccountModule } from './modules/dashboard/admin-dashboard/account-management/account.module';
+import { AnimalModule } from './modules/dashboard/admin-dashboard/animal-management/animal.module';
+import { HabitatModule } from './modules/dashboard/admin-dashboard/habitat-management/habitat.module';
+import { ServiceModule } from './modules/dashboard/admin-dashboard/service-management/service.module';
+import { AnimalFeedingManagementModule } from './modules/dashboard/employe-dashboard/animal-feeding-management/animal-feeding-management.module';
 import { HabitatsModule } from './modules/habitats-zoo/habitats.module';
 import { ServicesModule } from './modules/services-zoo/services.module';
 import { CountResourceModule } from './modules/stats-board/counts-resource/count-resource.module';
@@ -55,6 +56,7 @@ console.log("Variables d'environnement :", {
     ServicesModule,
     CountResourceModule,
     UserOpinionsModule,
+    AnimalFeedingManagementModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

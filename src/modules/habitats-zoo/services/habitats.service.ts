@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { query } from '../../../config/postgres.config';
-import { Animal } from '../../admin-dashboard/animal-management/models/animal.model';
-import { Habitat } from '../../admin-dashboard/habitat-management/models/habitat.model';
+import { Animal } from '../../dashboard/admin-dashboard/animal-management/models/animal.model';
+import { Habitat } from '../../dashboard/admin-dashboard/habitat-management/models/habitat.model';
 
 /**
  * Service pour gérer les habitats.

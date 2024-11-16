@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { Animal } from 'src/modules/admin-dashboard/animal-management/models/animal.model';
-import { Habitat } from 'src/modules/admin-dashboard/habitat-management/models/habitat.model';
+import { Animal } from 'src/modules/dashboard/admin-dashboard/animal-management/models/animal.model';
+import { Habitat } from 'src/modules/dashboard/admin-dashboard/habitat-management/models/habitat.model';
 import { HabitatsService } from '../services/habitats.service';
 
 @Controller('/habitats')

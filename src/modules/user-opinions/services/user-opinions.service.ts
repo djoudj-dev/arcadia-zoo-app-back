@@ -121,4 +121,43 @@ export class UserOpinionsService {
       .lean()
       .exec();
   }
+
+  /**
+   * Refuse un avis utilisateur spécifique
+   * @param id Identifiant de l'avis à refuser
+   * @throws BadRequestException si l'ID est invalide
+   * @throws NotFoundException si l'avis n'est pas trouvé
+   * @returns Une promesse contenant l'avis refusé
+   */
+  async rejectUserOpinion(id: string): Promise<UserOpinions> {
+    if (!id || typeof id !== 'string') {
+      throw new BadRequestException('ID invalide');
+    }
+
+    const userOpinion = await this.userOpinionsModel.findById(id);
+
+    if (!userOpinion) {
+      throw new NotFoundException(
+        `Avis utilisateur avec l'id ${id} non trouvé`,
+      );
+    }
+
+    userOpinion.rejected = true;
+    userOpinion.accepted = false;
+    userOpinion.validated = false;
+    return await userOpinion.save();
+  }
+
+  /**
+   * Récupère tous les avis refusés
+   * @returns Une promesse contenant un tableau des avis refusés
+   */
+  async getRejectedUserOpinions(): Promise<UserOpinions[]> {
+    return this.userOpinionsModel
+      .find({
+        rejected: true,
+      })
+      .lean()
+      .exec();
+  }
 }

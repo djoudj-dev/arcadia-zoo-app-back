@@ -1,13 +1,13 @@
 import {
-  Injectable,
   BadRequestException,
   ForbiddenException,
+  Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { query } from '../../../../config/postgres.config';
-import { Habitat } from '../models/habitat.model';
 import * as fs from 'fs';
 import * as path from 'path';
+import { query } from '../../../../../config/postgres.config';
+import { Habitat } from '../models/habitat.model';
 
 /**
  * Service pour gérer les opérations CRUD des habitats.

@@ -8,12 +8,12 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { AccountService } from '../services/account.service';
-import { Roles } from '../../../../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../../../../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../../auth/guards/roles.guard';
+import { Roles } from '../../../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../../auth/guards/roles.guard';
 import { Role } from '../models/role.model';
 import { User } from '../models/user.model';
+import { AccountService } from '../services/account.service';
 
 /**
  * Contrôleur pour la gestion des comptes utilisateur et des rôles.
