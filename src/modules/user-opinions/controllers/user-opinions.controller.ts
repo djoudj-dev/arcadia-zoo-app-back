@@ -89,31 +89,23 @@ export class UserOpinionsController {
    * @throws NotFoundException si l'avis n'est pas trouvé
    * @returns Une promesse contenant l'avis validé
    */
-  @Patch('validate/:id')
-  async validateUserOpinions(@Param('id') id: string) {
-    console.log('⭐ Début de validateUserOpinions dans le contrôleur');
-    console.log('ID reçu:', id);
+  // @Patch('validate/:id')
+  // async validateUserOpinions(@Param('id') id: string) {
+  //   console.log('⭐ Début de validateUserOpinions dans le contrôleur');
+  //   console.log('ID reçu:', id);
 
-    try {
-      const result = await this.userOpinionsService.validateUserOpinions(id);
-      console.log('✅ Validation réussie:', result);
-      return result;
-    } catch (error) {
-      console.error('❌ Erreur dans le contrôleur:', error);
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(`Avis non trouvé pour l'ID: ${id}`);
-      }
-      throw error;
-    }
-  }
-
-  /**
-   * Supprime un avis utilisateur
-   * @route DELETE /user-opinions/:id
-   * @param id Identifiant de l'avis à supprimer
-   * @throws NotFoundException si l'avis n'est pas trouvé
-   * @returns Une promesse contenant l'avis supprimé
-   */
+  //   try {
+  //     const result = await this.userOpinionsService.validateUserOpinions(id);
+  //     console.log('✅ Validation réussie:', result);
+  //     return result;
+  //   } catch (error) {
+  //     console.error('❌ Erreur dans le contrôleur:', error);
+  //     if (error instanceof NotFoundException) {
+  //       throw new NotFoundException(`Avis non trouvé pour l'ID: ${id}`);
+  //     }
+  //     throw error;
+  //   }
+  // }
   @Put('validate/:id')
   async validateUserOpinion(@Param('id') id: string): Promise<UserOpinions> {
     console.log("[Controller] Validation de l'avis:", id);
