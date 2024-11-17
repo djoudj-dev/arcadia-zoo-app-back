@@ -82,6 +82,38 @@ export class UserOpinionsController {
     }
   }
 
+  /**
+   * Valide un avis utilisateur spécifique
+   * @route PATCH /user-opinions/:id/validate
+   * @param id Identifiant de l'avis à valider
+   * @throws NotFoundException si l'avis n'est pas trouvé
+   * @returns Une promesse contenant l'avis validé
+   */
+  @Patch(':id/validate')
+  async validateUserOpinions(@Param('id') id: string) {
+    console.log('⭐ Début de validateUserOpinions dans le contrôleur');
+    console.log('ID reçu:', id);
+
+    try {
+      const result = await this.userOpinionsService.validateUserOpinions(id);
+      console.log('✅ Validation réussie:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ Erreur dans le contrôleur:', error);
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(`Avis non trouvé pour l'ID: ${id}`);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Supprime un avis utilisateur
+   * @route DELETE /user-opinions/:id
+   * @param id Identifiant de l'avis à supprimer
+   * @throws NotFoundException si l'avis n'est pas trouvé
+   * @returns Une promesse contenant l'avis supprimé
+   */
   @Put('validate/:id')
   async validateUserOpinion(@Param('id') id: string): Promise<UserOpinions> {
     console.log("[Controller] Validation de l'avis:", id);
