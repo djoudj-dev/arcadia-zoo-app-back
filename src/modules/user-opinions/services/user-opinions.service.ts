@@ -76,20 +76,40 @@ export class UserOpinionsService {
    * @returns Une promesse contenant l'avis validé
    */
   async validateUserOpinions(id: string): Promise<UserOpinions> {
+    console.log('🔍 Début de validateUserOpinions dans le service');
+    console.log('ID reçu:', id);
+
     if (!id || typeof id !== 'string') {
+      console.error('❌ ID invalide:', id);
       throw new BadRequestException('ID invalide');
     }
 
-    const userOpinion = await this.userOpinionsModel.findById(id);
+    try {
+      console.log("🔎 Recherche de l'avis dans la base de données...");
+      const userOpinion = await this.userOpinionsModel.findById(id);
 
-    if (!userOpinion) {
-      throw new NotFoundException(
-        `Avis utilisateur avec l'id ${id} non trouvé`,
-      );
+      if (!userOpinion) {
+        console.error("❌ Avis non trouvé pour l'ID:", id);
+        throw new NotFoundException(
+          `Avis utilisateur avec l'id ${id} non trouvé`,
+        );
+      }
+
+      console.log('✅ Avis trouvé:', userOpinion);
+
+      // Ajout de la date de mise à jour
+      userOpinion.validated = true;
+      userOpinion.accepted = true;
+      userOpinion.updated_at = new Date();
+
+      const savedOpinion = await userOpinion.save();
+      console.log('💾 Avis sauvegardé avec succès:', savedOpinion);
+
+      return savedOpinion;
+    } catch (error) {
+      console.error('❌ Erreur lors de la validation:', error);
+      throw error;
     }
-
-    userOpinion.validated = true;
-    return await userOpinion.save();
   }
 
   /**

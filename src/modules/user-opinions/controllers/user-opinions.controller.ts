@@ -87,11 +87,17 @@ export class UserOpinionsController {
    */
   @Patch(':id/validate')
   async validateUserOpinions(@Param('id') id: string) {
+    console.log('⭐ Début de validateUserOpinions dans le contrôleur');
+    console.log('ID reçu:', id);
+
     try {
-      return await this.userOpinionsService.validateUserOpinions(id);
+      const result = await this.userOpinionsService.validateUserOpinions(id);
+      console.log('✅ Validation réussie:', result);
+      return result;
     } catch (error) {
+      console.error('❌ Erreur dans le contrôleur:', error);
       if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
+        throw new NotFoundException(`Avis non trouvé pour l'ID: ${id}`);
       }
       throw error;
     }
