@@ -89,7 +89,7 @@ export class UserOpinionsController {
    * @throws NotFoundException si l'avis n'est pas trouvé
    * @returns Une promesse contenant l'avis validé
    */
-  @Patch(':id/validate')
+  @Patch('validate/:id')
   async validateUserOpinions(@Param('id') id: string) {
     console.log('⭐ Début de validateUserOpinions dans le contrôleur');
     console.log('ID reçu:', id);
