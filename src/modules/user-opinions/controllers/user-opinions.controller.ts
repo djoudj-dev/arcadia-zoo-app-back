@@ -18,29 +18,24 @@ import { UserOpinionsService } from '../services/user-opinions.service';
 /**
  * Contrôleur gérant les endpoints pour les avis utilisateurs
  * Route de base : /user-opinions
+ *
+ * Organisation des endpoints:
+ * - Endpoints de consultation (GET)
+ * - Endpoints de création et modification (POST, PUT, PATCH)
+ * - Endpoints de modération (validate, reject)
+ * - Endpoints de suppression (DELETE)
  */
 @Controller('user-opinions')
 export class UserOpinionsController {
-  /**
-   * Constructeur du contrôleur UserOpinions
-   * @param userOpinionsService Service injecté pour la gestion des avis utilisateurs
-   */
   constructor(private userOpinionsService: UserOpinionsService) {}
 
-  /**
-   * Récupère tous les avis validés
-   * @route GET /user-opinions/validated
-   * @returns Une promesse contenant un tableau des avis validés
-   */
-  @Get('validated')
-  async getValidatedUserOpinions(): Promise<UserOpinions[]> {
-    return this.userOpinionsService.getValidatedUserOpinions();
-  }
+  // ==================== ENDPOINTS DE CONSULTATION ====================
 
   /**
    * Récupère tous les avis sans filtrage
    * @route GET /user-opinions/all
-   * @returns Une promesse contenant un tableau de tous les avis
+   * @param sort Paramètre optionnel de tri
+   * @returns Liste de tous les avis
    */
   @Get('all')
   async getAllUserOpinions(
@@ -50,9 +45,19 @@ export class UserOpinionsController {
   }
 
   /**
-   * Récupère les avis en attente de validation
+   * Récupère uniquement les avis validés
+   * @route GET /user-opinions/validated
+   * @returns Liste des avis validés
+   */
+  @Get('validated')
+  async getValidatedUserOpinions(): Promise<UserOpinions[]> {
+    return this.userOpinionsService.getValidatedUserOpinions();
+  }
+
+  /**
+   * Récupère les avis en attente de modération
    * @route GET /user-opinions/pending
-   * @returns Une promesse contenant un tableau des avis en attente
+   * @returns Liste des avis en attente
    */
   @Get('pending')
   async getPendingUserOpinions(): Promise<UserOpinions[]> {
@@ -60,24 +65,35 @@ export class UserOpinionsController {
   }
 
   /**
+   * Récupère les avis refusés
+   * @route GET /user-opinions/rejected
+   * @returns Liste des avis refusés
+   */
+  @Get('rejected')
+  async getRejectedUserOpinions(): Promise<UserOpinions[]> {
+    return this.userOpinionsService.getRejectedUserOpinions();
+  }
+
+  // ==================== ENDPOINTS DE CRÉATION ET MODIFICATION ====================
+
+  /**
    * Crée un nouvel avis utilisateur
    * @route POST /user-opinions
-   * @param userOpinion Les données de l'avis à créer
-   * @returns Une promesse contenant l'avis créé
+   * @param userOpinion Données de l'avis à créer
+   * @returns L'avis créé
    */
   @Post()
   async createUserOpinion(
     @Body() userOpinion: UserOpinions,
   ): Promise<UserOpinions> {
     try {
-      const createdOpinion = await this.userOpinionsService.createUserOpinion({
+      return await this.userOpinionsService.createUserOpinion({
         ...userOpinion,
         created_at: new Date(),
         updated_at: new Date(),
         validated: false,
         accepted: false,
       });
-      return createdOpinion;
     } catch (error) {
       console.error('Erreur lors de la création:', error);
       throw error;
@@ -85,15 +101,37 @@ export class UserOpinionsController {
   }
 
   /**
-   * Valide un avis utilisateur spécifique
+   * Met à jour un avis existant
+   * @route PUT /user-opinions/:id
+   * @param id Identifiant de l'avis
+   * @param userOpinion Nouvelles données
+   * @returns L'avis mis à jour
+   */
+  @Put(':id')
+  async updateUserOpinion(
+    @Param('id') id: string,
+    @Body() userOpinion: UserOpinions,
+  ): Promise<UserOpinions> {
+    const updatedOpinion = await this.userOpinionsService.updateUserOpinion(
+      id,
+      userOpinion,
+    );
+    if (!updatedOpinion) {
+      throw new NotFoundException(`Avis avec l'id ${id} non trouvé`);
+    }
+    return updatedOpinion;
+  }
+
+  // ==================== ENDPOINTS DE MODÉRATION ====================
+
+  /**
+   * Valide un avis utilisateur
    * @route PATCH /user-opinions/validate/:id
-   * @param id Identifiant de l'avis à valider
+   * @param id Identifiant de l'avis
+   * @returns L'avis validé
    */
   @Patch('validate/:id')
   async validateUserOpinions(@Param('id') id: string) {
-    console.log('⭐ ID reçu dans le contrôleur:', id);
-    console.log('⭐ URL complète:', `/api/user-opinions/validate/${id}`);
-
     try {
       const result = await this.userOpinionsService.validateUserOpinions(id);
       if (!result) {
@@ -101,7 +139,7 @@ export class UserOpinionsController {
       }
       return result;
     } catch (error) {
-      console.error('❌ Erreur dans le contrôleur:', error);
+      console.error('Erreur lors de la validation:', error);
       if (error instanceof BadRequestException) {
         throw error;
       }
@@ -115,60 +153,10 @@ export class UserOpinionsController {
   }
 
   /**
-   * Supprime un avis utilisateur
-   * @route DELETE /user-opinions/:id
-   * @param id Identifiant de l'avis à supprimer
-   * @throws NotFoundException si l'avis n'est pas trouvé
-   * @returns Une promesse contenant l'avis supprimé
-   */
-  // @Put('validate/:id')
-  // async validateUserOpinion(@Param('id') id: string): Promise<UserOpinions> {
-  //   console.log("[Controller] Validation de l'avis:", id);
-  //   const updatedOpinion = await this.userOpinionsService.updateUserOpinion(
-  //     id,
-  //     {
-  //       validated: true,
-  //     } as UserOpinions,
-  //   );
-
-  //   if (!updatedOpinion) {
-  //     throw new NotFoundException(
-  //       `Avis utilisateur avec l'id ${id} non trouvé`,
-  //     );
-  //   }
-  //   return updatedOpinion;
-  // }
-
-  @Put(':id')
-  async updateUserOpinion(
-    @Param('id') id: string,
-    @Body() userOpinion: UserOpinions,
-  ): Promise<UserOpinions> {
-    const updatedOpinion = await this.userOpinionsService.updateUserOpinion(
-      id,
-      userOpinion,
-    );
-    if (!updatedOpinion) {
-      throw new NotFoundException(`User opinion with id ${id} not found`);
-    }
-    return updatedOpinion;
-  }
-
-  @Delete(':id')
-  async deleteUserOpinion(
-    @Param('id') id: string,
-  ): Promise<UserOpinions | null> {
-    const deletedOpinion = await this.userOpinionsService.deleteUserOpinion(id);
-    if (!deletedOpinion) {
-      throw new NotFoundException(`User opinion with id ${id} not found`);
-    }
-    return deletedOpinion;
-  }
-
-  /**
-   * Refuse un avis utilisateur spécifique
+   * Refuse un avis utilisateur
    * @route PATCH /user-opinions/reject/:id
-   * @param id Identifiant de l'avis à refuser
+   * @param id Identifiant de l'avis
+   * @returns L'avis refusé
    */
   @Patch('reject/:id')
   async rejectUserOpinion(@Param('id') id: string) {
@@ -182,13 +170,22 @@ export class UserOpinionsController {
     }
   }
 
+  // ==================== ENDPOINTS DE SUPPRESSION ====================
+
   /**
-   * Récupère tous les avis refusés
-   * @route GET /user-opinions/rejected
-   * @returns Une promesse contenant un tableau des avis refusés
+   * Supprime un avis utilisateur
+   * @route DELETE /user-opinions/:id
+   * @param id Identifiant de l'avis
+   * @returns L'avis supprimé
    */
-  @Get('rejected')
-  async getRejectedUserOpinions(): Promise<UserOpinions[]> {
-    return this.userOpinionsService.getRejectedUserOpinions();
+  @Delete(':id')
+  async deleteUserOpinion(
+    @Param('id') id: string,
+  ): Promise<UserOpinions | null> {
+    const deletedOpinion = await this.userOpinionsService.deleteUserOpinion(id);
+    if (!deletedOpinion) {
+      throw new NotFoundException(`Avis avec l'id ${id} non trouvé`);
+    }
+    return deletedOpinion;
   }
 }
