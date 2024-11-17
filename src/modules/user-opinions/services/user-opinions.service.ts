@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
 import { UserOpinions } from '../model/user-opinions.model';
 
@@ -93,6 +94,13 @@ export class UserOpinionsService {
     }
 
     try {
+      // Vérifier si l'ID est un ObjectId MongoDB valide
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new BadRequestException(
+          `L'ID ${id} n'est pas un ObjectId valide`,
+        );
+      }
+
       console.log("🔎 Recherche de l'avis dans la base de données...");
       const userOpinion = await this.userOpinionsModel.findById(id);
 
@@ -103,9 +111,13 @@ export class UserOpinionsService {
         );
       }
 
+      // Vérifier si l'avis est déjà validé
+      if (userOpinion.validated) {
+        throw new BadRequestException(`L'avis ${id} est déjà validé`);
+      }
+
       console.log('✅ Avis trouvé:', userOpinion);
 
-      // Ajout de la date de mise à jour
       userOpinion.validated = true;
       userOpinion.accepted = true;
       userOpinion.updated_at = new Date();

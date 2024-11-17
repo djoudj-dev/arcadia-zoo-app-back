@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   Patch,
@@ -100,10 +102,18 @@ export class UserOpinionsController {
       return result;
     } catch (error) {
       console.error('❌ Erreur dans le contrôleur:', error);
+
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
       if (error instanceof NotFoundException) {
         throw new NotFoundException(`Avis non trouvé pour l'ID: ${id}`);
       }
-      throw error;
+
+      throw new InternalServerErrorException(
+        `Une erreur est survenue lors de la validation de l'avis ${id}`,
+      );
     }
   }
 
