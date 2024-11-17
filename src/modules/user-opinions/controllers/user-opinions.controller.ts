@@ -89,10 +89,10 @@ export class UserOpinionsController {
    * @route PATCH /user-opinions/validate/:id
    * @param id Identifiant de l'avis à valider
    */
-  @Patch('validate/:id')
+  @Patch('/validate/:id')
   async validateUserOpinions(@Param('id') id: string) {
     console.log('⭐ ID reçu dans le contrôleur:', id);
-    console.log('⭐ URL complète:', `/user-opinions/validate/${id}`);
+    console.log('⭐ URL complète:', `/api/user-opinions/validate/${id}`);
 
     try {
       const result = await this.userOpinionsService.validateUserOpinions(id);
@@ -170,7 +170,7 @@ export class UserOpinionsController {
    * @route PATCH /user-opinions/reject/:id
    * @param id Identifiant de l'avis à refuser
    */
-  @Patch('reject/:id')
+  @Patch('/reject/:id')
   async rejectUserOpinion(@Param('id') id: string) {
     try {
       return await this.userOpinionsService.rejectUserOpinion(id);

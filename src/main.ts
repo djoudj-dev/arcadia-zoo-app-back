@@ -23,20 +23,20 @@ uploadDirs.forEach((dir) => {
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Configuration CORS
+  // Middleware de logging pour déboguer
+  app.use((req, res, next) => {
+    console.log(`Incoming ${req.method} request to: ${req.url}`);
+    next();
+  });
+
   app.enableCors({
     origin: ['http://localhost:4200', 'https://nedellec-julien.fr'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   });
 
-  // Servir les fichiers statiques
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/api/uploads',
-  });
-
-  // Définir un préfixe global pour toutes les routes API
+  // Définir le préfixe global pour toutes les routes API
   app.setGlobalPrefix('api');
 
   await app.listen(3000, '0.0.0.0');
