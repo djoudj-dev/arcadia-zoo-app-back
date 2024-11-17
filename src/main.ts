@@ -29,6 +29,7 @@ async function bootstrap() {
     next();
   });
 
+  // Configuration CORS
   app.enableCors({
     origin: ['http://localhost:4200', 'https://nedellec-julien.fr'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -38,6 +39,12 @@ async function bootstrap() {
 
   // Définir le préfixe global pour toutes les routes API
   app.setGlobalPrefix('api');
+
+  // Configuration des fichiers statiques
+  // Important: Cette ligne doit être APRÈS setGlobalPrefix
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads', // Changement ici : on enlève le préfixe /api
+  });
 
   await app.listen(3000, '0.0.0.0');
 }
