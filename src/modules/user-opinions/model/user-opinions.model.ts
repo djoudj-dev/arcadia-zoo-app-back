@@ -19,7 +19,7 @@ export interface UserOpinions {
   // Date de création automatique du document
   readonly created_at: Date;
   // Date de dernière modification automatique
-  readonly updated_at: Date;
+  updated_at: Date;
   // Statut de rejet par un modérateur
   rejected?: boolean;
 }
