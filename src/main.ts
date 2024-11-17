@@ -40,10 +40,9 @@ async function bootstrap() {
   // Définir le préfixe global pour toutes les routes API
   app.setGlobalPrefix('api');
 
-  // Configuration des fichiers statiques
-  // Important: Cette ligne doit être APRÈS setGlobalPrefix
+  // Configuration des fichiers statiques avec le préfixe /api
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/uploads', // Changement ici : on enlève le préfixe /api
+    prefix: '/api/uploads', // On remet le préfixe /api
   });
 
   await app.listen(3000, '0.0.0.0');
