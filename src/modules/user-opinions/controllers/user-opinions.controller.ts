@@ -88,29 +88,26 @@ export class UserOpinionsController {
    * Valide un avis utilisateur spécifique
    * @route PATCH /user-opinions/:id/validate
    * @param id Identifiant de l'avis à valider
-   * @throws NotFoundException si l'avis n'est pas trouvé
-   * @returns Une promesse contenant l'avis validé
    */
   @Patch(':id/validate')
   async validateUserOpinions(@Param('id') id: string) {
-    console.log('⭐ Début de validateUserOpinions dans le contrôleur');
-    console.log('ID reçu:', id);
+    console.log('⭐ ID reçu dans le contrôleur:', id);
+    console.log('⭐ Type de ID:', typeof id);
 
     try {
       const result = await this.userOpinionsService.validateUserOpinions(id);
-      console.log('✅ Validation réussie:', result);
+      if (!result) {
+        throw new NotFoundException(`Avis non trouvé pour l'ID: ${id}`);
+      }
       return result;
     } catch (error) {
       console.error('❌ Erreur dans le contrôleur:', error);
-
       if (error instanceof BadRequestException) {
         throw error;
       }
-
       if (error instanceof NotFoundException) {
         throw new NotFoundException(`Avis non trouvé pour l'ID: ${id}`);
       }
-
       throw new InternalServerErrorException(
         `Une erreur est survenue lors de la validation de l'avis ${id}`,
       );

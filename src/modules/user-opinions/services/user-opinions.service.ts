@@ -87,6 +87,7 @@ export class UserOpinionsService {
   async validateUserOpinions(id: string): Promise<UserOpinions> {
     console.log('🔍 Début de validateUserOpinions dans le service');
     console.log('ID reçu:', id);
+    console.log('Type de ID:', typeof id);
 
     if (!id || typeof id !== 'string') {
       console.error('❌ ID invalide:', id);
@@ -96,13 +97,20 @@ export class UserOpinionsService {
     try {
       // Vérifier si l'ID est un ObjectId MongoDB valide
       if (!mongoose.Types.ObjectId.isValid(id)) {
+        console.error('❌ ID non valide pour MongoDB:', id);
         throw new BadRequestException(
           `L'ID ${id} n'est pas un ObjectId valide`,
         );
       }
 
       console.log("🔎 Recherche de l'avis dans la base de données...");
-      const userOpinion = await this.userOpinionsModel.findById(id);
+
+      // Ajout d'une vérification directe dans MongoDB
+      const exists = await this.userOpinionsModel.exists({ _id: id });
+      console.log('Existence dans la BD:', exists);
+
+      const userOpinion = await this.userOpinionsModel.findById(id).exec();
+      console.log('Résultat de la recherche:', userOpinion);
 
       if (!userOpinion) {
         console.error("❌ Avis non trouvé pour l'ID:", id);
@@ -113,6 +121,7 @@ export class UserOpinionsService {
 
       // Vérifier si l'avis est déjà validé
       if (userOpinion.validated) {
+        console.log('⚠️ Avis déjà validé');
         throw new BadRequestException(`L'avis ${id} est déjà validé`);
       }
 
