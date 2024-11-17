@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { UserOpinions } from '../model/user-opinions.model';
 import { UserOpinionsService } from '../services/user-opinions.service';
@@ -40,8 +41,10 @@ export class UserOpinionsController {
    * @returns Une promesse contenant un tableau de tous les avis
    */
   @Get('all')
-  async getAllUserOpinions(): Promise<UserOpinions[]> {
-    return this.userOpinionsService.getAllUserOpinions();
+  async getAllUserOpinions(
+    @Query('sort') sort?: string,
+  ): Promise<UserOpinions[]> {
+    return this.userOpinionsService.getAllUserOpinions(sort);
   }
 
   /**

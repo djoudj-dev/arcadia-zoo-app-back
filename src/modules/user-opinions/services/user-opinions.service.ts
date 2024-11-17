@@ -29,8 +29,16 @@ export class UserOpinionsService {
    * Récupère tous les avis utilisateurs sans filtrage
    * @returns Une promesse contenant un tableau de tous les avis
    */
-  async getAllUserOpinions(): Promise<UserOpinions[]> {
-    return this.userOpinionsModel.find().lean().exec();
+  async getAllUserOpinions(sort?: string): Promise<UserOpinions[]> {
+    let query = this.userOpinionsModel.find();
+
+    if (sort) {
+      const [field, order] = sort.split(',');
+      const sortOrder = order === 'desc' ? -1 : 1;
+      query = query.sort({ [field]: sortOrder });
+    }
+
+    return query.lean().exec();
   }
 
   /**
