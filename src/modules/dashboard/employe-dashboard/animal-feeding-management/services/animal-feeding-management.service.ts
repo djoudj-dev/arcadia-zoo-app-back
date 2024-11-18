@@ -58,16 +58,17 @@ export class AnimalFeedingManagementService {
     animalFeedingData: AnimalFeedingManagement,
     userId: number,
   ): Promise<AnimalFeedingManagement> {
-    // Vérifier si l'utilisateur existe
+    // Vérifier si l'utilisateur existe et récupérer ses informations
     const user = await this.accountService.findOne(userId);
     if (!user) {
       throw new NotFoundException(`Utilisateur avec l'ID ${userId} non trouvé`);
     }
 
-    // Créer l'enregistrement avec l'ID utilisateur
+    // Créer l'enregistrement avec l'ID utilisateur et son nom
     const newAnimalFeeding = new this.animalFeedingModel({
       ...animalFeedingData,
       user_id: userId,
+      user_name: user.name,
     });
     return await newAnimalFeeding.save();
   }

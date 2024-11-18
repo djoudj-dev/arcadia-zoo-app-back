@@ -34,7 +34,7 @@ export class AccountController {
    * Récupère tous les utilisateurs existants.
    * @returns Une promesse d'un tableau d'objets User
    */
-  @Roles('admin')
+  @Roles('admin', 'employe', 'veterinaire')
   @Get()
   async getAllUsers(): Promise<User[]> {
     return this.accountService.getAllUsers();

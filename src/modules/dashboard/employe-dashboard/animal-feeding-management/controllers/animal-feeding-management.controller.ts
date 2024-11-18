@@ -39,7 +39,7 @@ export class AnimalFeedingManagementController {
    * @returns Une promesse d'un tableau d'objets AnimalFeedingManagement
    */
   @Get('history/:id')
-  @Roles('employe')
+  @Roles('employe', 'veterinaire')
   async getAnimalFeedingHistory(
     @Param('id') animalId: number,
   ): Promise<AnimalFeedingManagement[]> {
@@ -54,6 +54,7 @@ export class AnimalFeedingManagementController {
    * @returns Une promesse d'un objet AnimalFeedingManagement
    */
   @Get(':id')
+  @Roles('employe', 'veterinaire')
   async getAnimalFeedingById(
     id: number,
   ): Promise<AnimalFeedingManagement | null> {
@@ -66,6 +67,7 @@ export class AnimalFeedingManagementController {
    * @returns Une promesse d'un tableau d'objets AnimalFeedingManagement
    */
   @Get('employe/:id')
+  @Roles('employe', 'veterinaire')
   async getAnimalFeedingByEmployeId(
     id: number,
   ): Promise<AnimalFeedingManagement[]> {
@@ -127,6 +129,8 @@ export class AnimalFeedingManagementController {
       id: number;
       employeId: number;
       animalId: number;
+      userId: number;
+      userName: string;
       foodType: string;
       quantity: number;
       feedingTime: Date;
@@ -141,6 +145,8 @@ export class AnimalFeedingManagementController {
       food_type: feedingData.foodType,
       quantity: feedingData.quantity,
       unit: 'kg',
+      user_id: feedingData.userId,
+      user_name: feedingData.userName,
       employe_id: feedingData.employeId,
       status: 'completed' as const,
       notes: feedingData.notes || '',
@@ -155,7 +161,7 @@ export class AnimalFeedingManagementController {
   }
 
   @Get('my-feedings')
-  @Roles('employe')
+  @Roles('employe', 'veterinaire')
   async getMyFeedings(@Request() req): Promise<AnimalFeedingManagement[]> {
     return this.animalFeedingManagementService.getAnimalFeedingByUserId(
       req.user.id,

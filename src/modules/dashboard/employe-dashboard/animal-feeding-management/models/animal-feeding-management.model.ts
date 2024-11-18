@@ -10,4 +10,6 @@ export interface AnimalFeedingManagement {
   readonly status: 'planned' | 'completed' | 'cancelled';
   readonly created_at: Date;
   readonly updated_at: Date;
+  readonly user_id: number;
+  readonly user_name: string;
 }

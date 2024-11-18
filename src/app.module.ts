@@ -11,10 +11,12 @@ import { AnimalModule } from './modules/dashboard/admin-dashboard/animal-managem
 import { HabitatModule } from './modules/dashboard/admin-dashboard/habitat-management/habitat.module';
 import { ServiceModule } from './modules/dashboard/admin-dashboard/service-management/service.module';
 import { AnimalFeedingManagementModule } from './modules/dashboard/employe-dashboard/animal-feeding-management/animal-feeding-management.module';
+import { VeterinaryReportsModule } from './modules/dashboard/veterinary-dashboard/veterinary-reports/veterinary-reports.module';
 import { HabitatsModule } from './modules/habitats-zoo/habitats.module';
 import { ServicesModule } from './modules/services-zoo/services.module';
 import { CountResourceModule } from './modules/stats-board/counts-resource/count-resource.module';
 import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module';
+import { HabitatCommentModule } from './modules/dashboard/veterinary-dashboard/habitat-comment/habitat-comment.module';
 
 console.log("Variables d'environnement :", {
   DB_USER: process.env.DB_USER,
@@ -57,6 +59,8 @@ console.log("Variables d'environnement :", {
     CountResourceModule,
     UserOpinionsModule,
     AnimalFeedingManagementModule,
+    VeterinaryReportsModule,
+    HabitatCommentModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

@@ -18,6 +18,7 @@ const animalFeedingManagementSchemaDefinition = {
   notes: { type: String },
   // ID de l'utilisateur PostgreSQL
   user_id: { type: Number, required: true },
+  user_name: { type: String, required: true },
   // ID de l'employé responsable
   employe_id: { type: Number, required: true },
   // Statut du repas (planifié, effectué, annulé)
