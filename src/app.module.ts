@@ -9,14 +9,15 @@ import { AnimalsModule } from './modules/animals-zoo/animals.module';
 import { AccountModule } from './modules/dashboard/admin-dashboard/account-management/account.module';
 import { AnimalModule } from './modules/dashboard/admin-dashboard/animal-management/animal.module';
 import { HabitatModule } from './modules/dashboard/admin-dashboard/habitat-management/habitat.module';
+import { OpeningHoursManagementModule } from './modules/dashboard/admin-dashboard/opening-hours-management/opening-hours-management.module';
 import { ServiceModule } from './modules/dashboard/admin-dashboard/service-management/service.module';
 import { AnimalFeedingManagementModule } from './modules/dashboard/employe-dashboard/animal-feeding-management/animal-feeding-management.module';
+import { HabitatCommentModule } from './modules/dashboard/veterinary-dashboard/habitat-comment/habitat-comment.module';
 import { VeterinaryReportsModule } from './modules/dashboard/veterinary-dashboard/veterinary-reports/veterinary-reports.module';
 import { HabitatsModule } from './modules/habitats-zoo/habitats.module';
 import { ServicesModule } from './modules/services-zoo/services.module';
 import { CountResourceModule } from './modules/stats-board/counts-resource/count-resource.module';
 import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module';
-import { HabitatCommentModule } from './modules/dashboard/veterinary-dashboard/habitat-comment/habitat-comment.module';
 
 console.log("Variables d'environnement :", {
   DB_USER: process.env.DB_USER,
@@ -61,6 +62,7 @@ console.log("Variables d'environnement :", {
     AnimalFeedingManagementModule,
     VeterinaryReportsModule,
     HabitatCommentModule,
+    OpeningHoursManagementModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

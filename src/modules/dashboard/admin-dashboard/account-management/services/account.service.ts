@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { query } from '../../../../../config/postgres.config';
@@ -227,5 +228,42 @@ export class AccountService {
         name: user.role_name || 'Rôle non défini',
       },
     };
+  }
+
+  /**
+   * Met à jour le mot de passe d'un utilisateur
+   * @param userId ID de l'utilisateur
+   * @param currentPassword Mot de passe actuel
+   * @param newPassword Nouveau mot de passe
+   * @returns Message de confirmation
+   */
+  async updatePassword(
+    userId: number,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
+    // Récupérer l'utilisateur
+    const user = await this.findOne(userId);
+    if (!user) {
+      throw new NotFoundException(`Utilisateur avec l'ID ${userId} non trouvé`);
+    }
+
+    // Vérifier le mot de passe actuel
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Le mot de passe actuel est incorrect');
+    }
+
+    // Hasher et enregistrer le nouveau mot de passe
+    const hashedPassword = await this.hashPassword(newPassword);
+    await query(
+      'UPDATE users SET password = $1, updated_at = NOW() WHERE id = $2',
+      [hashedPassword, userId],
+    );
+
+    return { message: 'Mot de passe mis à jour avec succès' };
   }
 }

@@ -36,7 +36,6 @@ export class HabitatCommentController {
   async getHabitatCommentById(
     @Param('id') id: number,
   ): Promise<HabitatComment[]> {
-    console.log('ID reçu dans le contrôleur:', id);
     return this.habitatCommentService.getHabitatCommentByHabitatId(Number(id));
   }
 
@@ -48,7 +47,6 @@ export class HabitatCommentController {
     @Body() habitatCommentData: HabitatComment,
     @Request() req,
   ): Promise<HabitatComment> {
-    console.log('Données reçues dans le contrôleur:', habitatCommentData);
     return this.habitatCommentService.createHabitatComment(
       habitatCommentData,
       req.user.id,

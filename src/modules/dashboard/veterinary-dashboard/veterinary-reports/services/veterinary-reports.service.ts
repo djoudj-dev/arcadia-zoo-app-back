@@ -1,7 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { VeterinaryReports } from '../models/veterinary-reports.model';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class VeterinaryReportsService {
@@ -15,11 +21,27 @@ export class VeterinaryReportsService {
   }
 
   async getVeterinaryReportById(id: string): Promise<VeterinaryReports> {
-    const report = await this.veterinaryReportsModel.findById(id).exec();
-    if (!report) {
-      throw new NotFoundException('Rapport vétérinaire non trouvé');
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID de rapport invalide');
+      }
+
+      const report = await this.veterinaryReportsModel.findById(id).exec();
+      if (!report) {
+        throw new NotFoundException('Rapport vétérinaire non trouvé');
+      }
+      return report;
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération du rapport',
+      );
     }
-    return report;
   }
 
   async createVeterinaryReport(
@@ -48,6 +70,37 @@ export class VeterinaryReportsService {
       .exec();
     if (!result) {
       throw new NotFoundException('Rapport vétérinaire non trouvé');
+    }
+  }
+
+  async updateReportStatus(
+    id: string,
+    is_processed: boolean,
+  ): Promise<VeterinaryReports> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('ID de rapport invalide');
+      }
+
+      const report = await this.veterinaryReportsModel
+        .findByIdAndUpdate(id, { is_treated: is_processed }, { new: true })
+        .exec();
+
+      if (!report) {
+        throw new NotFoundException('Rapport vétérinaire non trouvé');
+      }
+
+      return report;
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Erreur lors de la mise à jour du statut',
+      );
     }
   }
 }

@@ -6,12 +6,14 @@ import {
   Param,
   Post,
   Put,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { Roles } from '../../../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../../auth/guards/roles.guard';
 import { Role } from '../models/role.model';
+import { UpdatePasswordDto } from '../models/upate-password.dto';
 import { User } from '../models/user.model';
 import { AccountService } from '../services/account.service';
 
@@ -89,5 +91,24 @@ export class AccountController {
   @Get('roles')
   async getAllRoles(): Promise<Role[]> {
     return this.accountService.getAllRoles();
+  }
+
+  /**
+   * Met à jour le mot de passe de l'utilisateur connecté
+   * @param req Requête contenant l'utilisateur authentifié
+   * @param passwordData Données du changement de mot de passe
+   * @returns Message de confirmation
+   */
+  @Post('update-password')
+  @UseGuards(JwtAuthGuard)
+  async updatePassword(
+    @Request() req,
+    @Body() passwordData: UpdatePasswordDto,
+  ): Promise<{ message: string }> {
+    return this.accountService.updatePassword(
+      req.user.id,
+      passwordData.currentPassword,
+      passwordData.newPassword,
+    );
   }
 }
