@@ -4,13 +4,11 @@ import * as dotenv from 'dotenv';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AccountService } from '../../modules/dashboard/admin-dashboard/account-management/services/account.service';
 
-// Charger les variables d'environnement
 dotenv.config();
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private accountService: AccountService) {
-    console.log('JWT_SECRET:', process.env.JWT_SECRET); // Ajout d'un log ici pour vérifier la clé
+  constructor(private readonly accountService: AccountService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -21,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     const user = await this.accountService.findOne(payload.sub);
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Utilisateur introuvable');
     }
     return user;
   }

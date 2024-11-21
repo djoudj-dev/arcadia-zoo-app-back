@@ -64,6 +64,8 @@ jobs:
             POSTGRESQL_ARCADIA_URL=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}?schema=arcadia
             MONGODB_URI=mongodb://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:27017/${{ secrets.DB_NAME }}?authSource=arcadia_db&directConnection=true
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_EXPIRES_IN=15m
+            JWT_REFRESH_EXPIRES_IN=7d
             MAIL_HOST=smtp.gmail.com
             MAIL_USER=${{ secrets.MAIL_USER }}
             MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}

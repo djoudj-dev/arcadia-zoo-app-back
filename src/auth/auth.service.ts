@@ -1,9 +1,8 @@
-// src/auth/auth.service.ts
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { AccountService } from '../modules/dashboard/admin-dashboard/account-management/services/account.service';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -25,12 +24,34 @@ export class AuthService {
 
   async login(user: any) {
     const payload = { username: user.email, sub: user.id, role: user.role };
-    const token = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '15m',
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: '7d',
+    });
+
     return {
       user: {
         ...user,
-        token,
+        token: accessToken,
+        refreshToken,
       },
     };
+  }
+
+  async refreshTokens(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken);
+      const user = await this.accountService.findOne(payload.sub);
+
+      if (!user) {
+        throw new UnauthorizedException('Utilisateur non trouvé');
+      }
+
+      return this.login(user);
+    } catch (error) {
+      throw new UnauthorizedException('Refresh token invalide ou expiré');
+    }
   }
 }
