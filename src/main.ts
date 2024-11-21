@@ -20,6 +20,12 @@ uploadDirs.forEach((dir) => {
   }
 });
 
+// Ajoutez après la création des dossiers uploads
+const templateDir = join(process.cwd(), 'src/modules/mail/templates');
+if (!fs.existsSync(templateDir)) {
+  fs.mkdirSync(templateDir, { recursive: true });
+}
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 

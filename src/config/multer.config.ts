@@ -38,3 +38,11 @@ export const multerOptionsAnimals = createMulterOptions(
 export const multerOptionsServices = createMulterOptions(
   join(process.cwd(), 'uploads/services'),
 );
+
+export const createTemplateDirectory = () => {
+  const templateDir = join(process.cwd(), 'src/modules/mail/templates');
+  if (!fs.existsSync(templateDir)) {
+    fs.mkdirSync(templateDir, { recursive: true });
+  }
+  return templateDir;
+};

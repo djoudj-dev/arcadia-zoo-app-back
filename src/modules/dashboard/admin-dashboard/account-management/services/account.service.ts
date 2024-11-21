@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { MailService } from 'src/modules/mail/service/mail.service';
 import { query } from '../../../../../config/postgres.config';
 import { Role } from '../models/role.model';
 import { User } from '../models/user.model';
@@ -15,6 +16,8 @@ import { User } from '../models/user.model';
  */
 @Injectable()
 export class AccountService {
+  constructor(private mailService: MailService) {}
+
   /**
    * Récupère tous les utilisateurs avec leurs rôles associés.
    * @returns Une promesse d'un tableau d'objets User
@@ -50,6 +53,7 @@ export class AccountService {
     if (!userData.role_id) {
       throw new BadRequestException("Le rôle de l'utilisateur est requis.");
     }
+
     const role = await this.findRoleById(userData.role_id);
     if (!role) {
       throw new NotFoundException(
@@ -57,17 +61,37 @@ export class AccountService {
       );
     }
 
-    const hashedPassword = userData.password
-      ? await this.hashPassword(userData.password)
-      : '';
+    // Générer un mot de passe temporaire
+    const temporaryPassword = this.generateTemporaryPassword();
+    const hashedPassword = await this.hashPassword(temporaryPassword);
+
     const res = await query(
-      'INSERT INTO users (name, email, password, role_id) VALUES ($1, $2, $3, $4) RETURNING *',
+      'INSERT INTO users (name, email, password, role_id, password_change_required) VALUES ($1, $2, $3, $4, true) RETURNING *',
       [userData.name, userData.email, hashedPassword, userData.role_id],
     );
 
     const newUser = res.rows[0];
     newUser.role = role;
+
+    // Envoyer l'email de bienvenue avec le mot de passe temporaire
+    await this.mailService.sendWelcomeEmail(
+      { name: newUser.name, email: newUser.email },
+      temporaryPassword,
+    );
+
     return this.formatUser(newUser);
+  }
+
+  private generateTemporaryPassword(): string {
+    const length = 12;
+    const charset =
+      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charset.length);
+      password += charset[randomIndex];
+    }
+    return password;
   }
 
   /**
@@ -263,6 +287,9 @@ export class AccountService {
       'UPDATE users SET password = $1, updated_at = NOW() WHERE id = $2',
       [hashedPassword, userId],
     );
+
+    // Envoyer l'email de confirmation
+    await this.mailService.sendPasswordChangeConfirmation(user);
 
     return { message: 'Mot de passe mis à jour avec succès' };
   }

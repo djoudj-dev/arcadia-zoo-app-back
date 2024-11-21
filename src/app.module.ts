@@ -15,6 +15,7 @@ import { AnimalFeedingManagementModule } from './modules/dashboard/employe-dashb
 import { HabitatCommentModule } from './modules/dashboard/veterinary-dashboard/habitat-comment/habitat-comment.module';
 import { VeterinaryReportsModule } from './modules/dashboard/veterinary-dashboard/veterinary-reports/veterinary-reports.module';
 import { HabitatsModule } from './modules/habitats-zoo/habitats.module';
+import { MailModule } from './modules/mail/mail.module';
 import { ServicesModule } from './modules/services-zoo/services.module';
 import { CountResourceModule } from './modules/stats-board/counts-resource/count-resource.module';
 import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module';
@@ -63,6 +64,7 @@ console.log("Variables d'environnement :", {
     VeterinaryReportsModule,
     HabitatCommentModule,
     OpeningHoursManagementModule,
+    MailModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],
