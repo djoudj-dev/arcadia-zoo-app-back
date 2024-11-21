@@ -8,14 +8,17 @@ import {
   Put,
   Request,
   UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { Roles } from '../../../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../../auth/guards/roles.guard';
 import { Role } from '../models/role.model';
-import { UpdatePasswordDto } from '../models/upate-password.dto';
+import { UpdatePasswordDto } from '../dto/upate-password.dto';
 import { User } from '../models/user.model';
 import { AccountService } from '../services/account.service';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 /**
  * Contrôleur pour la gestion des comptes utilisateur et des rôles.
@@ -50,8 +53,19 @@ export class AccountController {
    */
   @Roles('admin')
   @Post()
-  async createUser(@Body() userData: Partial<User>): Promise<User> {
-    return this.accountService.createUser(userData, 'admin');
+  async createUser(@Body() userData: CreateUserDto): Promise<User> {
+    try {
+      return await this.accountService.createUser(userData, 'admin');
+    } catch (error: any) {
+      console.error('Erreur création utilisateur:', error);
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Erreur lors de la création: ' + error.message,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**

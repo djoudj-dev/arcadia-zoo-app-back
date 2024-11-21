@@ -4,12 +4,15 @@ import {
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  ConflictException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/modules/mail/service/mail.service';
 import { query } from '../../../../../config/postgres.config';
 import { Role } from '../models/role.model';
 import { User } from '../models/user.model';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 /**
  * Service pour la gestion des comptes utilisateur, incluant les opérations CRUD et la gestion des rôles.
@@ -48,38 +51,63 @@ export class AccountService {
    * @throws BadRequestException Si le rôle de l'utilisateur est manquant
    * @throws NotFoundException Si le rôle spécifié n'existe pas
    */
-  async createUser(userData: Partial<User>, userRole: string): Promise<User> {
-    this.checkAdminRole(userRole);
-    if (!userData.role_id) {
-      throw new BadRequestException("Le rôle de l'utilisateur est requis.");
-    }
+  async createUser(userData: CreateUserDto, userRole: string): Promise<User> {
+    try {
+      this.checkAdminRole(userRole);
 
-    const role = await this.findRoleById(userData.role_id);
-    if (!role) {
-      throw new NotFoundException(
-        `Rôle avec l'ID ${userData.role_id} non trouvé`,
+      // Vérifier si l'email existe déjà
+      const existingUser = await query('SELECT * FROM users WHERE email = $1', [
+        userData.email,
+      ]);
+
+      if (existingUser.rows.length > 0) {
+        throw new ConflictException(
+          'Un utilisateur avec cet email existe déjà',
+        );
+      }
+
+      const role = await this.findRoleById(userData.role_id);
+      if (!role) {
+        throw new NotFoundException(
+          `Rôle avec l'ID ${userData.role_id} non trouvé`,
+        );
+      }
+
+      // Générer un mot de passe temporaire
+      const temporaryPassword = this.generateTemporaryPassword();
+      const hashedPassword = await this.hashPassword(temporaryPassword);
+
+      const res = await query(
+        `INSERT INTO users (name, email, password, role_id, password_change_required, created_at, updated_at) 
+         VALUES ($1, $2, $3, $4, true, NOW(), NOW()) 
+         RETURNING *`,
+        [userData.name, userData.email, hashedPassword, userData.role_id],
+      );
+
+      const newUser = res.rows[0];
+      newUser.role = role;
+
+      // Envoyer l'email de bienvenue
+      await this.mailService.sendWelcomeEmail(
+        { name: newUser.name, email: newUser.email },
+        temporaryPassword,
+      );
+
+      return this.formatUser(newUser);
+    } catch (error: unknown) {
+      console.error('Erreur service création utilisateur:', error);
+      if (
+        error instanceof ConflictException ||
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        "Erreur lors de la création de l'utilisateur: " +
+          (error instanceof Error ? error.message : 'Erreur inconnue'),
       );
     }
-
-    // Générer un mot de passe temporaire
-    const temporaryPassword = this.generateTemporaryPassword();
-    const hashedPassword = await this.hashPassword(temporaryPassword);
-
-    const res = await query(
-      'INSERT INTO users (name, email, password, role_id, password_change_required) VALUES ($1, $2, $3, $4, true) RETURNING *',
-      [userData.name, userData.email, hashedPassword, userData.role_id],
-    );
-
-    const newUser = res.rows[0];
-    newUser.role = role;
-
-    // Envoyer l'email de bienvenue avec le mot de passe temporaire
-    await this.mailService.sendWelcomeEmail(
-      { name: newUser.name, email: newUser.email },
-      temporaryPassword,
-    );
-
-    return this.formatUser(newUser);
   }
 
   private generateTemporaryPassword(): string {

@@ -13,7 +13,8 @@ dotenv.config();
     MailerModule.forRoot({
       transport: {
         host: process.env.MAIL_HOST || 'smtp.gmail.com',
-        secure: false,
+        port: 587, // Utilisez 465 pour SSL
+        secure: false, // false pour STARTTLS, true pour SSL
         auth: {
           user: process.env.MAIL_USER,
           pass: process.env.MAIL_PASSWORD,
