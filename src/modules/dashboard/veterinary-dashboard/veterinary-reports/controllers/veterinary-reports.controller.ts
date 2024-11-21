@@ -17,7 +17,6 @@ import { VeterinaryReports } from '../models/veterinary-reports.model';
 import { VeterinaryReportsService } from '../services/veterinary-reports.service';
 
 @Controller('veterinary-reports')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class VeterinaryReportsController {
   constructor(
     private readonly veterinaryReportsService: VeterinaryReportsService,
@@ -49,6 +48,7 @@ export class VeterinaryReportsController {
    * @param report Données du rapport vétérinaire
    */
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('veterinaire')
   async createVeterinaryReport(
     @Body() reportsCommentData: VeterinaryReports,
@@ -64,6 +64,7 @@ export class VeterinaryReportsController {
    * @param report Données du rapport vétérinaire
    */
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async updateVeterinaryReport(
     @Param('id') id: number,
     @Body() veterinaryReportsData: VeterinaryReports,
@@ -79,11 +80,13 @@ export class VeterinaryReportsController {
    * @param id ID du rapport vétérinaire
    */
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async deleteVeterinaryReport(@Param('id') id: string): Promise<void> {
     return this.veterinaryReportsService.deleteVeterinaryReport(id);
   }
 
   @Patch(':id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   async updateReportStatus(
     @Param('id') id: string,
