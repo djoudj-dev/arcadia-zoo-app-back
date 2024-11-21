@@ -12,16 +12,19 @@ dotenv.config();
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: process.env.MAIL_HOST || 'smtp.gmail.com',
-        port: 587, // Utilisez 465 pour SSL
-        secure: false, // false pour STARTTLS, true pour SSL
+        host: process.env.MAIL_HOST,
+        port: 587,
+        secure: false,
         auth: {
           user: process.env.MAIL_USER,
           pass: process.env.MAIL_PASSWORD,
         },
+        tls: {
+          rejectUnauthorized: false,
+        },
       },
       defaults: {
-        from: `"Arcadia Zoo" <${process.env.MAIL_FROM}>`,
+        from: process.env.MAIL_FROM,
       },
       template: {
         dir: join(__dirname, 'template'),
