@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 
 // Charger les variables d'environnement pour le VPS
 dotenv.config({ path: './.env' });
-
+console.log('Mongo URI:', process.env.MONGODB_URI); // Affichez la chaîne de connexion MongoDB
+console.log('JWT Secret:', process.env.JWT_SECRET); // Affichez le secret JWT
 /**
  * URI de connexion à MongoDB.
  * Si la variable d'environnement `MONGO_URI` est définie, elle sera utilisée,
