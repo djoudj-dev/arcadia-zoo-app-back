@@ -16,7 +16,7 @@ dotenv.config();
     AccountModule,
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'votre_secret_de_dev',
+      secret: process.env.JWT_SECRET || 'PMVDW6WQOBMtROSOm7RpkNU2s',
       signOptions: { expiresIn: '1h' },
     }),
   ],
@@ -27,7 +27,7 @@ export class AuthModule {
   constructor() {
     console.log(
       'AuthModule initialisé avec la clé secrète:',
-      process.env.JWT_SECRET || 'votre_secret_de_dev',
+      process.env.JWT_SECRET || 'PMVDW6WQOBMtROSOm7RpkNU2s',
     );
   }
 }
