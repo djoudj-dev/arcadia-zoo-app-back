@@ -75,5 +75,5 @@ jobs:
             
             # Redémarrer l'application avec PM2
             pm2 stop arcadia-zoo-app-back || true
-            pm2 start /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js --name "arcadia-zoo-app"
+            pm2 start /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js --name "arcadia-backend"
           EOF
