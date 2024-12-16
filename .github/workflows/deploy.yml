@@ -23,7 +23,9 @@ jobs:
           node-version: '18.x'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm audit fix --force || echo "⚠️ Some vulnerabilities could not be fixed automatically."
 
       - name: Build project
         run: npm run build
@@ -39,41 +41,52 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
+          set -e  # Arrête le script en cas d'erreur
+
           VPS_USER="ubuntu"
           VPS_DIR="/var/www/nedellec-julien.fr/backend"
           SSH_PORT="49999"
 
-          echo "Connecting to VPS to deploy the application..."
+          echo "🔗 Connecting to VPS to deploy the application..."
 
+          # Synchronisation des fichiers
           rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./package.json $VPS_USER@$VPS_HOST:$VPS_DIR/
           rsync -avz -e "ssh -p $SSH_PORT -o StrictHostKeyChecking=no" ./dist/ $VPS_USER@$VPS_HOST:$VPS_DIR/dist/
 
-          ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST << EOF
+          # Configuration sur le serveur distant
+          ssh -o StrictHostKeyChecking=no -p $SSH_PORT $VPS_USER@$VPS_HOST << 'EOF'
+            set -e
+
+            echo "📂 Navigating to application directory..."
             cd $VPS_DIR
-            
-            echo "Setting up environment variables on VPS..."
-            cat > .env <<'EOL'
+
+            echo "⚙️ Setting up environment variables..."
+            cat > .env <<EOL
             NODE_ENV=production
-            DB_HOST=${{ secrets.DB_HOST }}
-            DB_PORT=${{ secrets.DB_PORT }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_NAME=${{ secrets.DB_NAME }}
-            POSTGRESQL_ARCADIA_URL=postgresql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}?schema=arcadia
-            MONGODB_URI=mongodb://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:27017/${{ secrets.DB_NAME }}?authSource=arcadia_db&directConnection=true
-            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            DB_HOST=$DB_HOST
+            DB_PORT=$DB_PORT
+            DB_USER=$DB_USER
+            DB_PASSWORD=$DB_PASSWORD
+            DB_NAME=$DB_NAME
+            POSTGRESQL_ARCADIA_URL=postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?schema=arcadia
+            MONGODB_URI=mongodb://$DB_USER:$DB_PASSWORD@$DB_HOST:27017/$DB_NAME?authSource=arcadia_db&directConnection=true
+            JWT_SECRET=$JWT_SECRET
             JWT_EXPIRES_IN=15m
             JWT_REFRESH_EXPIRES_IN=7d
             MAIL_HOST=smtp.gmail.com
-            MAIL_USER=${{ secrets.MAIL_USER }}
-            MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-            MAIL_FROM=${{ secrets.MAIL_FROM }}
-            ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+            MAIL_USER=$MAIL_USER
+            MAIL_PASSWORD=$MAIL_PASSWORD
+            MAIL_FROM=$MAIL_FROM
+            ADMIN_EMAIL=$ADMIN_EMAIL
             EOL
-            
-            # Redémarrer l'application avec PM2
+
+            echo "🔄 Restarting application using PM2..."
             pm2 stop arcadia-zoo-app-back || true
-            pm2 start /var/www/nedellec-julien.fr/backend/dist/arcadia-zoo-app-back/main.js --name "arcadia-backend"
+            pm2 start dist/arcadia-zoo-app-back/main.js --name "arcadia-backend"
           EOF
