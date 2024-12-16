@@ -21,7 +21,7 @@ export const connectMongoDB = async () => {
   try {
     await mongoose.connect(mongoUri);
     console.log('Connexion à MongoDB réussie');
-    // Vérifier si la connexion à la base de données est établie
+    // Vérifier si la connexion à la base de données est établie.
     if (mongoose.connection.readyState !== 1) {
       console.error("La connexion à la base de données n'est pas établie");
       return;
