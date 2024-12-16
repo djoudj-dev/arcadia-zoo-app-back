@@ -10,7 +10,7 @@ dotenv.config({ path: './.env' });
 const pool = new Pool({
   host: process.env.DB_HOST || 'localhost', // Valeur par défaut pour le développement
   port: Number(process.env.DB_PORT) || 5432, // Valeur par défaut pour le développement
-  user: process.env.DB_USER || 'arcadia', // Valeur par défaut pour le développement
+  user: process.env.DB_USER || 'arcadia_user', // Valeur par défaut pour le développement
   password: process.env.DB_PASSWORD || 'arcadia78', // Valeur par défaut pour le développement
   database: process.env.DB_NAME || 'arcadia_db', // Nom de la base de données
 });
