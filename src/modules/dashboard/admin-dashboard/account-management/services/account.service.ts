@@ -1,25 +1,24 @@
 import {
-  BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
-  ConflictException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/modules/mail/service/mail.service';
 import { query } from '../../../../../config/postgres.config';
+import { CreateUserDto } from '../dto/create-user.dto';
 import { Role } from '../models/role.model';
 import { User } from '../models/user.model';
-import { CreateUserDto } from '../dto/create-user.dto';
 
 /**
  * Service pour la gestion des comptes utilisateur, incluant les opérations CRUD et la gestion des rôles.
  */
 @Injectable()
 export class AccountService {
-  constructor(private mailService: MailService) {}
+  constructor(readonly mailService: MailService) {}
 
   /**
    * Récupère tous les utilisateurs avec leurs rôles associés.
@@ -142,12 +141,12 @@ export class AccountService {
       throw new NotFoundException(`Utilisateur avec l'ID ${id} non trouvé`);
     }
 
-    const name = userData.name || null;
-    const email = userData.email || null;
+    const name = userData.name ?? null;
+    const email = userData.email ?? null;
     const password = userData.password
       ? await this.hashPassword(userData.password)
       : null;
-    const role_id = userData.role_id || null;
+    const role_id = userData.role_id ?? null;
 
     const res = await query(
       `UPDATE users SET 
