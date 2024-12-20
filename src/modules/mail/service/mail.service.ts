@@ -1,31 +1,57 @@
-import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
-import { User } from 'src/modules/dashboard/admin-dashboard/account-management/models/user.model';
+import { Inject, Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as handlebars from 'handlebars';
+import { Transporter } from 'nodemailer';
+import { join } from 'path';
 
 @Injectable()
 export class MailService {
-  constructor(private mailerService: MailerService) {}
+  constructor(
+    @Inject('MAILER_TRANSPORT') readonly transport: Transporter,
+    @Inject('TEMPLATE_DIR') readonly templateDir: string,
+  ) {}
 
-  async sendPasswordChangeConfirmation(user: User) {
-    try {
-      const result = await this.mailerService.sendMail({
-        to: user.email,
-        subject: 'Confirmation de changement de mot de passe - Arcadia Zoo',
-        template: './password-changed',
-        context: {
-          name: user.name,
-        },
-      });
+  private async compileTemplate(templateName: string, context: any) {
+    const templatePath = join(this.templateDir, `${templateName}.hbs`);
+    const template = await fs.promises.readFile(templatePath, 'utf-8');
+    const compiledTemplate = handlebars.compile(template);
+    return compiledTemplate(context);
+  }
 
-      console.log('Email de confirmation envoyé à:', user.email);
-      return result;
-    } catch (error) {
-      console.error(
-        "Erreur lors de l'envoi de l'email de confirmation:",
-        error,
-      );
-      throw error;
-    }
+  async sendMail(options: {
+    to: string;
+    subject: string;
+    template: string;
+    context: any;
+  }) {
+    const html = await this.compileTemplate(options.template, options.context);
+    return this.transport.sendMail({
+      from: process.env.MAIL_FROM,
+      to: options.to,
+      subject: options.subject,
+      html,
+    });
+  }
+
+  async sendWelcomeEmail(user: any, temporaryPassword: string) {
+    return this.sendMail({
+      to: user.email,
+      subject: 'Bienvenue sur Arcadia Zoo',
+      template: 'welcome',
+      context: {
+        name: user.name,
+        temporaryPassword,
+      },
+    });
+  }
+
+  async sendPasswordChangeConfirmation(user: any) {
+    return this.sendMail({
+      to: user.email,
+      subject: 'Confirmation de changement de mot de passe - Arcadia Zoo',
+      template: 'password-changed',
+      context: { name: user.name },
+    });
   }
 
   async sendContactEmail(contactData: {
@@ -33,55 +59,11 @@ export class MailService {
     email: string;
     message: string;
   }) {
-    try {
-      const adminEmail = process.env.ADMIN_EMAIL || process.env.MAIL_USER;
-      const fromEmail = process.env.MAIL_FROM || 'noreply@arcadia-zoo.fr';
-
-      console.log('Données de contact:', contactData);
-      console.log('Configuration email:', {
-        from: fromEmail,
-        to: adminEmail,
-        template: './contact',
-        context: contactData,
-      });
-
-      const result = await this.mailerService.sendMail({
-        from: `"Arcadia Zoo" <${fromEmail}>`,
-        to: adminEmail,
-        subject: 'Nouveau message de contact - Arcadia Zoo',
-        template: './contact',
-        context: contactData,
-      });
-
-      console.log('Résultat envoi email:', result);
-      return result;
-    } catch (error) {
-      console.error('Erreur complète:', error);
-      throw error;
-    }
-  }
-
-  async sendWelcomeEmail(
-    user: { name: string; email: string },
-    temporaryPassword: string,
-  ) {
-    try {
-      const result = await this.mailerService.sendMail({
-        to: user.email,
-        subject: 'Bienvenue sur Arcadia Zoo - Vos identifiants de connexion',
-        template: './welcome',
-        context: {
-          name: user.name,
-          email: user.email,
-          temporaryPassword: temporaryPassword,
-        },
-      });
-
-      console.log('Email de bienvenue envoyé à:', user.email);
-      return result;
-    } catch (error) {
-      console.error("Erreur lors de l'envoi de l'email de bienvenue:", error);
-      throw error;
-    }
+    return this.sendMail({
+      to: process.env.ADMIN_EMAIL ?? process.env.MAIL_USER,
+      subject: 'Nouveau message de contact - Arcadia Zoo',
+      template: 'contact',
+      context: contactData,
+    });
   }
 }
