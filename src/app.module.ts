@@ -19,13 +19,6 @@ import { MailModule } from './modules/mail/mail.module';
 import { ServicesModule } from './modules/services-zoo/services.module';
 import { CountResourceModule } from './modules/stats-board/counts-resource/count-resource.module';
 import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module';
-
-console.log("Variables d'environnement :", {
-  DB_USER: process.env.DB_USER,
-  DB_HOST: process.env.DB_HOST,
-  DB_NAME: process.env.DB_NAME,
-});
-
 @Module({
   imports: [
     ConfigModule.forRoot({
