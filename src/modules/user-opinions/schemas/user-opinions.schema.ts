@@ -4,22 +4,20 @@ import { Model, Schema } from 'mongoose';
 const userOpinionsSchemaDefinition = {
   // Identifiant unique auto-incrémenté pour chaque avis
   id_opinion: { type: Number, unique: true },
+  // Identifiant de l'utilisateur qui a donné l'avis
+  user_id: { type: Number, required: true },
   // Nom de l'utilisateur qui a donné l'avis
-  name: { type: String, required: true },
-  // Date de création de l'avis (format string)
-  date: { type: String, required: true },
+  user_name: { type: String, required: true },
+  // Note donnée par l'utilisateur (entre 1 et 5)
+  rating: { type: Number, required: true, min: 1, max: 5 },
   // Contenu du message/commentaire
-  message: { type: String, required: true },
-  // Note donnée par l'utilisateur (entre 0 et 5)
-  rating: { type: Number, required: true, min: 0, max: 5 },
-  // Indique si l'avis a été accepté par un modérateur
-  accepted: { type: Boolean, default: false },
-  // Indique si l'avis a été validé selon les critères
-  validated: { type: Boolean, default: false },
-  // Date de publication de l'avis
-  published_at: { type: Date },
-  // Indique si l'avis a été refusé
-  rejected: { type: Boolean, default: false },
+  comment: { type: String, required: true },
+  // Statut de l'avis (pending, approved, rejected)
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending',
+  },
 };
 
 // Options de configuration du schéma
@@ -37,9 +35,6 @@ export const UserOpinionsSchema = new Schema(
   userOpinionsSchemaDefinition,
   schemaOptions,
 );
-
-// Création d'un index sur id_opinion pour optimiser les recherches
-UserOpinionsSchema.index({ id_opinion: 1 });
 
 // Fonction pour générer un nouvel id_opinion
 async function generateIdOpinion(this: any): Promise<number> {
