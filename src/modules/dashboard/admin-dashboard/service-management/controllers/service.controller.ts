@@ -103,7 +103,7 @@ export class ServiceController {
       if (!existingService) {
         throw new NotFoundException(`Service avec ID ${id} non trouvé`);
       }
-      serviceData.images = existingService.images || ''; // Assurez-vous que `images` a une valeur par défaut
+      serviceData.images = existingService.images ?? ''; // Assurez-vous que `images` a une valeur par défaut
 
       // Conserver les `features` existantes si aucune n'est spécifiée
       if (!serviceData.features) {

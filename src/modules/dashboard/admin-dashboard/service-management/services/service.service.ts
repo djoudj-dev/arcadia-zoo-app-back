@@ -89,13 +89,7 @@ export class ServiceService {
         [feature.name, feature.type],
       );
 
-      if (
-        featureRes &&
-        featureRes.rowCount !== undefined &&
-        featureRes.rowCount !== null &&
-        featureRes.rowCount > 0
-      ) {
-        // Si la feature existe, récupérez son id
+      if (featureRes?.rowCount && featureRes?.rows?.[0]) {
         featureId = featureRes.rows[0].id_feature;
       } else {
         // Sinon, insérez la feature et récupérez son id
@@ -129,7 +123,7 @@ export class ServiceService {
     this.checkUserRole(userRole);
 
     const { name, description, images } = serviceData;
-    if (!name || !description || (!images && !images)) {
+    if (!name || !description || !images) {
       throw new BadRequestException(
         'Les champs "name", "description" et "images" sont requis.',
       );
@@ -170,12 +164,7 @@ export class ServiceService {
           [feature.name, feature.type],
         );
 
-        if (
-          featureRes &&
-          featureRes.rowCount !== undefined &&
-          featureRes.rowCount !== null &&
-          featureRes.rowCount > 0
-        ) {
+        if (featureRes?.rowCount && featureRes?.rows?.[0]) {
           featureId = featureRes.rows[0].id_feature;
         } else {
           const newFeatureRes = await query(
@@ -238,7 +227,7 @@ export class ServiceService {
 
     const imagePath: string = path.join(
       process.cwd(),
-      existingService.images || '',
+      existingService.images ?? '',
     );
 
     if (fs.existsSync(imagePath)) {
@@ -284,17 +273,7 @@ export class ServiceService {
   }
 
   async findById(id: number): Promise<Service | null> {
-    const res = await query(
-      `
-      SELECT *
-      FROM services
-      WHERE id_service = $1`,
-      [id],
-    );
-    if (res.rowCount === 0) {
-      return null;
-    }
-    return this.formatService(res.rows[0]);
+    return this.findOne(id);
   }
 
   private formatService(row: any): Service {
