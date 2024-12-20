@@ -5,7 +5,7 @@ const initializeAdminUser = async () => {
   try {
     // Vérifie si l'utilisateur admin existe déjà
     const res = await query('SELECT COUNT(*) FROM users WHERE email = $1', [
-      'nedellec.julien.78@gmail.com',
+      'admin1@mail.com',
     ]);
 
     if (parseInt(res.rows[0].count, 10) === 0) {
@@ -15,7 +15,7 @@ const initializeAdminUser = async () => {
       // Insérer l'utilisateur admin
       await query(
         'INSERT INTO users (name, email, password, role_id) VALUES ($1, $2, $3, $4)',
-        ['Admin', 'nedellec.julien.78@gmail.com', hashedPassword, 1],
+        ['Admin', 'admin1@mail.com', hashedPassword, 1],
       );
 
       console.log('Utilisateur administrateur initial créé.');
