@@ -43,9 +43,6 @@ export const AnimalFeedingManagementSchema = new Schema(
   schemaOptions,
 );
 
-// Index sur id_feeding pour optimiser les recherches
-AnimalFeedingManagementSchema.index({ id_feeding: 1 });
-
 // Fonction pour générer un nouvel id_feeding
 async function generateIdFeeding(this: any): Promise<number> {
   try {
