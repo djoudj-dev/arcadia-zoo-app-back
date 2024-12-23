@@ -85,7 +85,7 @@ export class AnimalController {
     @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
     if (images) {
-      animalData.images = `uploads/animals/${images.filename}`;
+      animalData.images = `/uploads/animals/${images.filename}`;
     }
     return this.animalService.updateAnimal(id, animalData, 'admin');
   }
