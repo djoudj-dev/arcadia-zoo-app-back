@@ -87,7 +87,7 @@ export class AnimalController {
 
     if (images) {
       // Si une nouvelle image est téléchargée
-      animalData.images = images.filename;
+      animalData.images = `uploads/animals/${images.filename}`;
     } else if (animalData.images?.startsWith('data:image')) {
       // Si l'image est en base64, gardons l'ancienne image
       animalData.images = existingAnimal.images;
