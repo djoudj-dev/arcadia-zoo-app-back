@@ -86,9 +86,10 @@ export class AnimalController {
     const existingAnimal = await this.animalService.findOne(id);
 
     if (images) {
-      animalData.images = `/api/uploads/animals/${images.filename}`;
-    } else {
-      // Garde l'ancienne image si aucune nouvelle n'est fournie
+      // Si une nouvelle image est téléchargée
+      animalData.images = images.filename;
+    } else if (animalData.images?.startsWith('data:image')) {
+      // Si l'image est en base64, gardons l'ancienne image
       animalData.images = existingAnimal.images;
     }
 
