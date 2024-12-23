@@ -70,21 +70,18 @@ export class AnimalService {
     userRole: string,
   ): Promise<Animal> {
     this.checkAdminRole(userRole);
-    const existingAnimal = await this.findOne(id);
-    if (!existingAnimal) {
-      throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
-    }
+    console.log('Service - Données reçues:', animalData);
 
     const res = await query(
       `UPDATE animals SET 
-         name = COALESCE($1, name),
-         species = COALESCE($2, species),
-         characteristics = COALESCE($3, characteristics),
-         weight_range = COALESCE($4, weight_range),
-         diet = COALESCE($5, diet),
-         habitat_id = COALESCE($6, habitat_id),
-         images = COALESCE($7, images),
-         vet_note = COALESCE($8, vet_note),
+         name = $1,
+         species = $2,
+         characteristics = $3,
+         weight_range = $4,
+         diet = $5,
+         habitat_id = $6,
+         images = $7,
+         vet_note = $8,
          updated_at = NOW()
        WHERE id_animal = $9 RETURNING *`,
       [
@@ -94,12 +91,13 @@ export class AnimalService {
         animalData.weightRange,
         animalData.diet,
         animalData.habitat_id,
-        animalData.images || existingAnimal.images,
-        animalData.vetNote || existingAnimal.vetNote,
+        animalData.images,
+        animalData.vetNote,
         id,
       ],
     );
 
+    console.log('Service - Résultat de la mise à jour:', res.rows[0]);
     return this.formatAnimal(res.rows[0]);
   }
 
