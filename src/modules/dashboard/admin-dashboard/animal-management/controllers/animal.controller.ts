@@ -19,38 +19,17 @@ import { multerOptionsAnimals } from '../../../../../config/multer.config';
 import { Animal } from '../models/animal.model';
 import { AnimalService } from '../services/animal.service';
 
-/**
- * Contrôleur pour la gestion des animaux en tant qu'admin.
- * Protégé par les gardes d'authentification et de rôles.
- */
 @Controller('admin/animal-management')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AnimalController {
-  /**
-   * Injection du service AnimalService pour accéder aux opérations de gestion d'animal.
-   * @param animalService Service pour les opérations CRUD des animaux
-   */
   constructor(private readonly animalService: AnimalService) {}
 
-  /**
-   * Récupère tous les animaux existants.
-   * @returns Une promesse d'un tableau d'objets Animal
-   */
   @Roles('admin')
   @Get()
   async getAllAnimals(): Promise<Animal[]> {
     return this.animalService.getAllAnimals();
   }
 
-  /**
-   * Crée un nouvel animal avec image.
-   * Utilise le rôle "admin" pour limiter l'accès à cette opération.
-   * Intercepte l'upload de fichier pour sauvegarder l'image de l'animal.
-   * @param animalData Données de l'animal partiellement remplies
-   * @param images Fichier d'image téléchargé pour l'animal
-   * @returns La promesse de l'objet Animal créé
-   * @throws BadRequestException Si le fichier image est manquant
-   */
   @Roles('admin')
   @Post()
   @UseInterceptors(FileInterceptor('images', multerOptionsAnimals))
@@ -61,21 +40,11 @@ export class AnimalController {
     if (images) {
       animalData.images = images.filename;
     } else {
-      console.error('Le champ "images" est requis.');
       throw new BadRequestException('Le champ "images" est requis.');
     }
     return this.animalService.createAnimal(animalData, 'admin');
   }
 
-  /**
-   * Met à jour un animal existant.
-   * Accessible uniquement aux administrateurs.
-   * Permet également la mise à jour de l'image de l'animal.
-   * @param id Identifiant de l'animal à mettre à jour
-   * @param animalData Données de l'animal partiellement remplies
-   * @param images Nouveau fichier image (optionnel)
-   * @returns La promesse de l'objet Animal mis à jour
-   */
   @Put(':id')
   @UseInterceptors(FileInterceptor('images', multerOptionsAnimals))
   async updateAnimal(
@@ -83,47 +52,30 @@ export class AnimalController {
     @Body() animalData: Partial<Animal>,
     @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
-    console.log('1. Données reçues du frontend:', animalData);
-    console.log('2. Image reçue:', images);
-
     const existingAnimal = await this.animalService.findOne(id);
-    console.log('3. Animal existant:', existingAnimal);
-
-    let updatedImagePath = existingAnimal.images;
+    if (!existingAnimal) {
+      throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
+    }
 
     if (images) {
-      updatedImagePath = `uploads/animals/${images.filename}`;
+      animalData.images = `uploads/animals/${images.filename}`;
     } else if (
       animalData.images &&
       !animalData.images.startsWith('data:image')
     ) {
-      updatedImagePath = animalData.images;
+      animalData.images = existingAnimal.images;
     }
 
-    const updatedAnimalData = {
-      ...existingAnimal,
-      ...animalData,
-      images: updatedImagePath,
-    };
-
-    console.log('4. Données finales envoyées au service:', updatedAnimalData);
-
-    const updatedAnimal = await this.animalService.updateAnimal(
+    return this.animalService.updateAnimal(
       id,
-      updatedAnimalData,
+      {
+        ...existingAnimal,
+        ...animalData,
+      },
       'admin',
     );
-    console.log('5. Réponse du service:', updatedAnimal);
-
-    return updatedAnimal;
   }
 
-  /**
-   * Supprime un animal existant.
-   * Accessible uniquement aux administrateurs.
-   * @param id Identifiant de l'animal à supprimer
-   * @returns La promesse de l'objet Animal supprimé
-   */
   @Roles('admin')
   @Delete(':id')
   async deleteAnimal(@Param('id') id: number): Promise<Animal> {
