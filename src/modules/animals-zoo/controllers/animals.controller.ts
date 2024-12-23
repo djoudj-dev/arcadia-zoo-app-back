@@ -8,7 +8,7 @@ export class AnimalsController {
    * Injection du service AnimalsService pour la gestion des animaux.
    * @param animalsService Service de gestion des animaux.
    */
-  constructor(private animalsService: AnimalsService) {}
+  constructor(readonly animalsService: AnimalsService) {}
 
   @Get()
   async getAllAnimals(): Promise<Animal[]> {
