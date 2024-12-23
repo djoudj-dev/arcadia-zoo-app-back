@@ -12,8 +12,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import fs from 'fs';
-import path from 'path';
 import { Roles } from '../../../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../../auth/guards/roles.guard';
@@ -56,45 +54,14 @@ export class AnimalController {
   ): Promise<Animal> {
     console.log('Données reçues:', { id, animalData, images });
 
-    const existingAnimal = await this.animalService.findOne(id);
-    if (!existingAnimal) {
-      throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
-    }
-
-    if (images) {
-      const oldImagePath = existingAnimal.images
-        ? path.join(process.cwd(), existingAnimal.images)
-        : null;
-      if (oldImagePath && fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
-      }
-      animalData.images = `uploads/animals/${images.filename}`;
-    }
-
-    const updatedAnimalData: Partial<Animal> = {
-      ...existingAnimal,
+    const updateData: Partial<Animal> = {
       ...animalData,
-      images: images
-        ? `uploads/animals/${images.filename}`
-        : existingAnimal.images,
+      images: images ? `uploads/animals/${images.filename}` : animalData.images,
       updated_at: new Date(),
     };
 
-    const updatedAnimal = await this.animalService.updateAnimal(
-      id,
-      updatedAnimalData,
-      'admin',
-    );
-
-    console.log('Animal mis à jour:', updatedAnimal);
-
-    if (!updatedAnimal) {
-      throw new BadRequestException(
-        "Erreur lors de la mise à jour de l'animal",
-      );
-    }
-
-    return updatedAnimal;
+    console.log('Données envoyées au service:', updateData);
+    return this.animalService.updateAnimal(id, updateData, 'admin');
   }
 
   @Roles('admin')
