@@ -70,16 +70,23 @@ export class AnimalController {
   /**
    * Met à jour un animal existant.
    * Accessible uniquement aux administrateurs.
+   * Permet également la mise à jour de l'image de l'animal.
    * @param id Identifiant de l'animal à mettre à jour
    * @param animalData Données de l'animal partiellement remplies
+   * @param images Nouveau fichier image (optionnel)
    * @returns La promesse de l'objet Animal mis à jour
    */
   @Roles('admin')
   @Put(':id')
+  @UseInterceptors(FileInterceptor('images', multerOptionsAnimals))
   async updateAnimal(
     @Param('id') id: number,
     @Body() animalData: Partial<Animal>,
+    @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
+    if (images) {
+      animalData.images = `uploads/animals/${images.filename}`;
+    }
     return this.animalService.updateAnimal(id, animalData, 'admin');
   }
 
