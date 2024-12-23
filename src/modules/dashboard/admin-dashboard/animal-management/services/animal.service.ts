@@ -22,6 +22,16 @@ export class AnimalService {
   }
 
   /**
+   * Récupère un animal spécifique par son ID.
+   * @param id Identifiant de l'animal
+   * @returns La promesse de l'objet Animal trouvé
+   */
+  async getAnimalById(id: number): Promise<Animal | null> {
+    const res = await query('SELECT * FROM animals WHERE id_animal = $1', [id]);
+    return res.rows[0] ? this.formatAnimal(res.rows[0]) : null;
+  }
+
+  /**
    * Crée un nouvel animal après validation des données et du rôle d'utilisateur.
    * @param animalData Données de l'animal partiellement remplies
    * @param userRole Rôle de l'utilisateur pour vérification des autorisations
