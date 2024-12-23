@@ -76,7 +76,6 @@ export class AnimalController {
    * @param images Nouveau fichier image (optionnel)
    * @returns La promesse de l'objet Animal mis à jour
    */
-  @Roles('admin')
   @Put(':id')
   @UseInterceptors(FileInterceptor('images', multerOptionsAnimals))
   async updateAnimal(
@@ -84,8 +83,13 @@ export class AnimalController {
     @Body() animalData: Partial<Animal>,
     @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
+    const existingAnimal = await this.animalService.findOne(id);
+
     if (images) {
       animalData.images = images.filename;
+    } else if (!animalData.images) {
+      // Garde l'ancienne image si aucune nouvelle n'est fournie
+      animalData.images = existingAnimal.images;
     }
 
     return this.animalService.updateAnimal(id, animalData, 'admin');
