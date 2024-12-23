@@ -72,27 +72,46 @@ export class AnimalService {
     this.checkAdminRole(userRole);
     console.log('Service - Données reçues:', animalData);
 
+    // Récupérer l'animal existant
+    const existingAnimal = await this.findOne(id);
+    if (!existingAnimal) {
+      throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
+    }
+
+    // Préparer les données à mettre à jour
+    const updateData = {
+      name: animalData.name || existingAnimal.name,
+      species: animalData.species || existingAnimal.species,
+      characteristics:
+        animalData.characteristics || existingAnimal.characteristics,
+      weight_range: animalData.weightRange || existingAnimal.weightRange,
+      diet: animalData.diet || existingAnimal.diet,
+      habitat_id: animalData.habitat_id || existingAnimal.habitat_id,
+      images: animalData.images || existingAnimal.images,
+      vet_note: animalData.vetNote || existingAnimal.vetNote,
+    };
+
     const res = await query(
       `UPDATE animals SET 
-         name = $1,
-         species = $2,
-         characteristics = $3,
-         weight_range = $4,
-         diet = $5,
-         habitat_id = $6,
-         images = $7,
-         vet_note = $8,
-         updated_at = NOW()
-       WHERE id_animal = $9 RETURNING *`,
+        name = $1,
+        species = $2,
+        characteristics = $3,
+        weight_range = $4,
+        diet = $5,
+        habitat_id = $6,
+        images = $7,
+        vet_note = $8,
+        updated_at = NOW()
+      WHERE id_animal = $9 RETURNING *`,
       [
-        animalData.name,
-        animalData.species,
-        animalData.characteristics,
-        animalData.weightRange,
-        animalData.diet,
-        animalData.habitat_id,
-        animalData.images,
-        animalData.vetNote,
+        updateData.name,
+        updateData.species,
+        updateData.characteristics,
+        updateData.weight_range,
+        updateData.diet,
+        updateData.habitat_id,
+        updateData.images,
+        updateData.vet_note,
         id,
       ],
     );
