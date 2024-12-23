@@ -83,18 +83,39 @@ export class AnimalController {
     @Body() animalData: Partial<Animal>,
     @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
+    console.log('1. Données reçues du frontend:', animalData);
+    console.log('2. Image reçue:', images);
+
     const existingAnimal = await this.animalService.findOne(id);
+    console.log('3. Animal existant:', existingAnimal);
+
+    let updatedImagePath = existingAnimal.images;
 
     if (images) {
-      animalData.images = `uploads/animals/${images.filename}`;
+      updatedImagePath = `uploads/animals/${images.filename}`;
     } else if (
-      !animalData.images ||
-      animalData.images?.startsWith('data:image')
+      animalData.images &&
+      !animalData.images.startsWith('data:image')
     ) {
-      animalData.images = existingAnimal.images;
+      updatedImagePath = animalData.images;
     }
 
-    return this.animalService.updateAnimal(id, animalData, 'admin');
+    const updatedAnimalData = {
+      ...existingAnimal,
+      ...animalData,
+      images: updatedImagePath,
+    };
+
+    console.log('4. Données finales envoyées au service:', updatedAnimalData);
+
+    const updatedAnimal = await this.animalService.updateAnimal(
+      id,
+      updatedAnimalData,
+      'admin',
+    );
+    console.log('5. Réponse du service:', updatedAnimal);
+
+    return updatedAnimal;
   }
 
   /**
