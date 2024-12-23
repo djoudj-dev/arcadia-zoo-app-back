@@ -12,14 +12,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import fs from 'fs';
+import path from 'path';
 import { Roles } from '../../../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../../auth/guards/roles.guard';
 import { multerOptionsAnimals } from '../../../../../config/multer.config';
 import { Animal } from '../models/animal.model';
 import { AnimalService } from '../services/animal.service';
-import path from 'path';
-import fs from 'fs';
 
 @Controller('admin/animal-management')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -54,6 +54,8 @@ export class AnimalController {
     @Body() animalData: Partial<Animal>,
     @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
+    console.log('Données reçues:', { id, animalData, images });
+
     const existingAnimal = await this.animalService.findOne(id);
     if (!existingAnimal) {
       throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
@@ -69,14 +71,30 @@ export class AnimalController {
       animalData.images = `uploads/animals/${images.filename}`;
     }
 
-    return this.animalService.updateAnimal(
+    const updatedAnimalData: Partial<Animal> = {
+      ...existingAnimal,
+      ...animalData,
+      images: images
+        ? `uploads/animals/${images.filename}`
+        : existingAnimal.images,
+      updated_at: new Date(),
+    };
+
+    const updatedAnimal = await this.animalService.updateAnimal(
       id,
-      {
-        ...existingAnimal,
-        ...animalData,
-      },
+      updatedAnimalData,
       'admin',
     );
+
+    console.log('Animal mis à jour:', updatedAnimal);
+
+    if (!updatedAnimal) {
+      throw new BadRequestException(
+        "Erreur lors de la mise à jour de l'animal",
+      );
+    }
+
+    return updatedAnimal;
   }
 
   @Roles('admin')
