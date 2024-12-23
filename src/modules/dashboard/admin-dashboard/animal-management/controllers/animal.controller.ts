@@ -18,6 +18,8 @@ import { RolesGuard } from '../../../../../auth/guards/roles.guard';
 import { multerOptionsAnimals } from '../../../../../config/multer.config';
 import { Animal } from '../models/animal.model';
 import { AnimalService } from '../services/animal.service';
+import path from 'path';
+import fs from 'fs';
 
 @Controller('admin/animal-management')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -58,12 +60,13 @@ export class AnimalController {
     }
 
     if (images) {
+      const oldImagePath = existingAnimal.images
+        ? path.join(process.cwd(), existingAnimal.images)
+        : null;
+      if (oldImagePath && fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
       animalData.images = `uploads/animals/${images.filename}`;
-    } else if (
-      animalData.images &&
-      !animalData.images.startsWith('data:image')
-    ) {
-      animalData.images = existingAnimal.images;
     }
 
     return this.animalService.updateAnimal(
