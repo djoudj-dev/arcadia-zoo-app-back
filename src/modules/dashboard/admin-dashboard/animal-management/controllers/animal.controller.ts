@@ -52,16 +52,36 @@ export class AnimalController {
     @Body() animalData: Partial<Animal>,
     @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
-    console.log('Données reçues:', { id, animalData, images });
+    console.log('=== DÉBUT UPDATE ANIMAL ===');
+    console.log('ID reçu:', id);
+    console.log('Body brut:', animalData);
+    console.log('Image reçue:', images);
+
+    // Log du FormData reçu
+    const formDataKeys = Object.keys(animalData);
+    console.log('Clés du FormData:', formDataKeys);
 
     const updateData: Partial<Animal> = {
       ...animalData,
       images: images ? `uploads/animals/${images.filename}` : animalData.images,
-      updated_at: new Date(),
     };
 
-    console.log('Données envoyées au service:', updateData);
-    return this.animalService.updateAnimal(id, updateData, 'admin');
+    console.log('Données finales envoyées au service:', updateData);
+
+    try {
+      const result = await this.animalService.updateAnimal(
+        id,
+        updateData,
+        'admin',
+      );
+      console.log('Résultat de la mise à jour:', result);
+      return result;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour:', error);
+      throw error;
+    } finally {
+      console.log('=== FIN UPDATE ANIMAL ===');
+    }
   }
 
   @Roles('admin')
