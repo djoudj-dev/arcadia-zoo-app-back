@@ -59,7 +59,7 @@ export class AnimalController {
     @UploadedFile() images: Express.Multer.File,
   ): Promise<Animal> {
     if (images) {
-      animalData.images = `uploads/animals/${images.filename}`;
+      animalData.images = images.filename;
     } else {
       console.error('Le champ "images" est requis.');
       throw new BadRequestException('Le champ "images" est requis.');
@@ -85,7 +85,7 @@ export class AnimalController {
     @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
     if (images) {
-      animalData.images = `uploads/animals/${images.filename}`;
+      animalData.images = images.filename;
     }
 
     return this.animalService.updateAnimal(id, animalData, 'admin');
