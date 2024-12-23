@@ -17,7 +17,7 @@ dotenv.config();
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET ?? 'PMVDW6WQOBMtROSOm7RpkNU2s',
-      signOptions: { expiresIn: '1h' },
+      signOptions: { expiresIn: '15m' },
     }),
   ],
   providers: [AuthService, JwtStrategy, JwtAuthGuard],

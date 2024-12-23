@@ -13,6 +13,14 @@ export class AuthController {
 
   @Post('token/refresh')
   async refreshToken(@Body() body: { refreshToken: string }) {
-    return this.authService.refreshTokens(body.refreshToken);
+    console.log('Tentative de rafraîchissement du token');
+    try {
+      const result = await this.authService.refreshTokens(body.refreshToken);
+      console.log('Token rafraîchi avec succès');
+      return result;
+    } catch (error) {
+      console.error('Erreur lors du rafraîchissement du token:', error);
+      throw error;
+    }
   }
 }
