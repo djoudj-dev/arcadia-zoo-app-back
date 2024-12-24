@@ -1,18 +1,19 @@
 import * as dotenv from 'dotenv';
 import { Pool } from 'pg';
 
-// Charger les variables d'environnement pour le local
-//dotenv.config({ path: './.env.local' });
-// Charger les variables d'environnement pour le VPS
-dotenv.config({ path: './.env' });
+// Détecter l'environnement (par défaut : développement local)
+const environment = process.env.NODE_ENV || 'local';
 
-// Configuration de la connexion à PostgreSQL pour l'environnement du VPS
+// Charger le fichier `.env` approprié
+dotenv.config({ path: `./.env.${environment}` });
+
+// Configuration de la connexion à PostgreSQL
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost', // Valeur par défaut pour le développement
-  port: Number(process.env.DB_PORT) || 5432, // Valeur par défaut pour le développement
-  user: process.env.DB_USER || 'arcadia', // Valeur par défaut pour le développement
-  password: process.env.DB_PASSWORD || 'arcadia78', // Valeur par défaut pour le développement
-  database: process.env.DB_NAME || 'arcadia_db', // Nom de la base de données
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT) || 5432,
+  user: process.env.DB_USER || 'arcadia',
+  password: process.env.DB_PASSWORD || 'arcadia78',
+  database: process.env.DB_NAME || 'arcadia_db',
 });
 
 // Fonction générique pour exécuter une requête
@@ -25,5 +26,5 @@ export const query = async (text: string, params?: any[]) => {
   }
 };
 
-// Exporter `pool`explicitement
+// Exporter `pool` explicitement
 export { pool };

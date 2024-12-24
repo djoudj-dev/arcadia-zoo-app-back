@@ -35,6 +35,7 @@ jobs:
 
       - name: Deploy to VPS
         env:
+          NODE_ENV: production
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}
           DB_USER: ${{ secrets.DB_USER }}
@@ -47,7 +48,7 @@ jobs:
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
-          set -e  # Arrête le script en cas d'erreur
+          set -e
 
           VPS_USER="ubuntu"
           VPS_DIR="/var/www/nedellec-julien.fr/backend"
@@ -67,18 +68,14 @@ jobs:
             cd $VPS_DIR
 
             echo "⚙️ Setting up environment variables..."
-            cat > .env <<EOL
+            cat > .env.production <<EOL
             NODE_ENV=production
             DB_HOST=$DB_HOST
             DB_PORT=$DB_PORT
             DB_USER=$DB_USER
             DB_PASSWORD=$DB_PASSWORD
             DB_NAME=$DB_NAME
-            POSTGRESQL_ARCADIA_URL=postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?schema=arcadia
-            MONGODB_URI=mongodb://$DB_USER:$DB_PASSWORD@$DB_HOST:27017/$DB_NAME?authSource=arcadia_db&directConnection=true
             JWT_SECRET=$JWT_SECRET
-            JWT_EXPIRES_IN=15m
-            JWT_REFRESH_EXPIRES_IN=7d
             MAIL_HOST=smtp.gmail.com
             MAIL_USER=$MAIL_USER
             MAIL_PASSWORD=$MAIL_PASSWORD
@@ -87,6 +84,6 @@ jobs:
             EOL
 
             echo "🔄 Restarting application using PM2..."
-            pm2 stop arcadia-zoo-app-back || true
-            pm2 start dist/arcadia-zoo-app-back/main.js --name "arcadia-backend"
+            pm2 stop arcadia-backend || true
+            pm2 start dist/main.js --name "arcadia-backend"
           EOF
