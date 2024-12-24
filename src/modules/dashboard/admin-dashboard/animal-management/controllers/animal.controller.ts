@@ -12,6 +12,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { getApiUrl } from 'src/config/constants';
 import { Roles } from '../../../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../../auth/guards/roles.guard';
@@ -57,13 +58,36 @@ export class AnimalController {
     console.log('Body brut:', animalData);
     console.log('Image reçue:', images);
 
-    // Log du FormData reçu
     const formDataKeys = Object.keys(animalData);
     console.log('Clés du FormData:', formDataKeys);
 
+    const getImagePath = (
+      image?: Express.Multer.File,
+      currentPath?: string,
+    ): string => {
+      if (image) {
+        return `uploads/animals/${image.filename}`;
+      }
+      if (!currentPath) return '';
+
+      const apiUrl = getApiUrl();
+      if (currentPath.includes(apiUrl)) {
+        const relativePath = currentPath.split(apiUrl)[1];
+        return relativePath.startsWith('/')
+          ? relativePath.substring(1)
+          : relativePath;
+      }
+
+      if (currentPath.startsWith('uploads/')) {
+        return currentPath;
+      }
+
+      return `uploads/animals/${currentPath}`;
+    };
+
     const updateData: Partial<Animal> = {
       ...animalData,
-      images: images ? `uploads/animals/${images.filename}` : animalData.images,
+      images: getImagePath(images, animalData.images),
     };
 
     console.log('Données finales envoyées au service:', updateData);
