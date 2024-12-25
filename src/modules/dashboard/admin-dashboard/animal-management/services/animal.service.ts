@@ -70,14 +70,21 @@ export class AnimalService {
     userRole: string,
   ): Promise<Animal> {
     this.checkAdminRole(userRole);
-    console.log('Service - Données reçues:', animalData);
+    console.log('=== DÉBUT UPDATE ANIMAL SERVICE ===');
+    console.log(
+      '1. Données reçues brutes:',
+      JSON.stringify(animalData, null, 2),
+    );
+    console.log('2. Type de name:', typeof animalData.name);
+    console.log('3. Valeur de name:', animalData.name);
 
     const existingAnimal = await this.findOne(id);
+    console.log('4. Animal existant:', JSON.stringify(existingAnimal, null, 2));
+
     if (!existingAnimal) {
       throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
     }
 
-    // Préparation des données avec vérification explicite
     const updateData = {
       name:
         typeof animalData.name === 'string'
@@ -113,7 +120,10 @@ export class AnimalService {
           : existingAnimal.vetNote,
     };
 
-    console.log('Données à mettre à jour:', updateData);
+    console.log(
+      '5. Données préparées pour update:',
+      JSON.stringify(updateData, null, 2),
+    );
 
     const res = await query(
       `UPDATE animals SET 
@@ -140,8 +150,18 @@ export class AnimalService {
       ],
     );
 
-    console.log('Résultat de la requête SQL:', res.rows[0]);
-    return this.formatAnimal(res.rows[0]);
+    console.log(
+      '6. Résultat requête SQL:',
+      JSON.stringify(res.rows[0], null, 2),
+    );
+    const formattedResult = this.formatAnimal(res.rows[0]);
+    console.log(
+      '7. Résultat final formaté:',
+      JSON.stringify(formattedResult, null, 2),
+    );
+    console.log('=== FIN UPDATE ANIMAL SERVICE ===');
+
+    return formattedResult;
   }
 
   async deleteAnimal(id: number, userRole: string): Promise<Animal> {
