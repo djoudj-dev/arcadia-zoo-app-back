@@ -78,17 +78,17 @@ export class AnimalService {
       throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
     }
 
-    // Préparer les données à mettre à jour
+    // Préparer les données à mettre à jour en priorisant les nouvelles valeurs
     const updateData = {
-      name: animalData.name || existingAnimal.name,
-      species: animalData.species || existingAnimal.species,
+      name: animalData.name ?? existingAnimal.name,
+      species: animalData.species ?? existingAnimal.species,
       characteristics:
-        animalData.characteristics || existingAnimal.characteristics,
-      weight_range: animalData.weightRange || existingAnimal.weightRange,
-      diet: animalData.diet || existingAnimal.diet,
-      habitat_id: animalData.habitat_id || existingAnimal.habitat_id,
-      images: animalData.images || existingAnimal.images,
-      vet_note: animalData.vetNote || existingAnimal.vetNote,
+        animalData.characteristics ?? existingAnimal.characteristics,
+      weight_range: animalData.weightRange ?? existingAnimal.weightRange,
+      diet: animalData.diet ?? existingAnimal.diet,
+      habitat_id: animalData.habitat_id ?? existingAnimal.habitat_id,
+      images: animalData.images ?? existingAnimal.images,
+      vet_note: animalData.vetNote ?? existingAnimal.vetNote,
     };
 
     const res = await query(
