@@ -84,34 +84,30 @@ export class AnimalService {
         throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
       }
 
-      console.log('Données reçues:', {
-        name: animalData.name,
-        currentName: existingAnimal.name,
-      });
+      console.log('Données à mettre à jour:', animalData);
 
-      // Correction de la requête SQL
       const res = await client.query(
         `UPDATE animals SET 
-          name = $1,
-          species = $2,
-          characteristics = $3,
-          weight_range = $4,
-          diet = $5,
-          habitat_id = $6,
-          images = $7,
-          vet_note = $8,
+          name = COALESCE($1, name),
+          species = COALESCE($2, species),
+          characteristics = COALESCE($3, characteristics),
+          weight_range = COALESCE($4, weight_range),
+          diet = COALESCE($5, diet),
+          habitat_id = COALESCE($6, habitat_id),
+          images = COALESCE($7, images),
+          vet_note = COALESCE($8, vet_note),
           updated_at = NOW()
         WHERE id_animal = $9 
         RETURNING *;`,
         [
-          animalData.name || existingAnimal.name,
-          animalData.species || existingAnimal.species,
-          animalData.characteristics || existingAnimal.characteristics,
-          animalData.weightRange || existingAnimal.weightRange,
-          animalData.diet || existingAnimal.diet,
-          animalData.habitat_id || existingAnimal.habitat_id,
-          animalData.images || existingAnimal.images,
-          animalData.vetNote || existingAnimal.vetNote,
+          animalData.name,
+          animalData.species,
+          animalData.characteristics,
+          animalData.weightRange,
+          animalData.diet,
+          animalData.habitat_id,
+          animalData.images,
+          animalData.vetNote,
           id,
         ],
       );
