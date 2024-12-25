@@ -89,7 +89,7 @@ export class AnimalService {
         currentName: existingAnimal.name,
       });
 
-      // Mise à jour avec transaction
+      // Correction de la requête SQL
       const res = await client.query(
         `UPDATE animals SET 
           name = $1,
@@ -102,24 +102,28 @@ export class AnimalService {
           vet_note = $8,
           updated_at = NOW()
         WHERE id_animal = $9 
-        RETURNING *`,
+        RETURNING *;`,
         [
-          animalData.name,
-          animalData.species,
-          animalData.characteristics,
-          animalData.weightRange,
-          animalData.diet,
-          animalData.habitat_id,
-          animalData.images,
-          animalData.vetNote,
+          animalData.name || existingAnimal.name,
+          animalData.species || existingAnimal.species,
+          animalData.characteristics || existingAnimal.characteristics,
+          animalData.weightRange || existingAnimal.weightRange,
+          animalData.diet || existingAnimal.diet,
+          animalData.habitat_id || existingAnimal.habitat_id,
+          animalData.images || existingAnimal.images,
+          animalData.vetNote || existingAnimal.vetNote,
           id,
         ],
       );
 
-      console.log('Résultat de la requête:', res.rows[0]);
+      if (!res.rows[0]) {
+        throw new Error('La mise à jour a échoué');
+      }
 
       await client.query('COMMIT');
-      return this.formatAnimal(res.rows[0]);
+      const formattedResult = this.formatAnimal(res.rows[0]);
+      console.log('Résultat final:', formattedResult);
+      return formattedResult;
     } catch (error) {
       await client.query('ROLLBACK');
       console.error('Erreur lors de la mise à jour:', error);
