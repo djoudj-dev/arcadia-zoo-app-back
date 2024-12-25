@@ -2,8 +2,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Pool } from 'pg';
 import { query } from '../../../../../config/postgres.config';
 import { Animal } from '../models/animal.model';
+
+const pool = new Pool();
 
 @Injectable()
 export class AnimalService {
@@ -72,70 +75,57 @@ export class AnimalService {
     this.checkAdminRole(userRole);
     console.log('=== DÉBUT UPDATE ANIMAL SERVICE ===');
 
+    const client = await pool.connect();
     try {
+      await client.query('BEGIN');
+
       const existingAnimal = await this.findOne(id);
       if (!existingAnimal) {
         throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
       }
 
-      // Log de débogage détaillé
-      console.log('Environment:', process.env.NODE_ENV);
-      console.log('Database connection:', process.env.DATABASE_URL);
+      console.log('Données reçues:', {
+        name: animalData.name,
+        currentName: existingAnimal.name,
+      });
 
-      // Requête SQL directe pour debug
-      const debugQuery = await query(
-        'SELECT current_user, current_database();',
+      // Mise à jour avec transaction
+      const res = await client.query(
+        `UPDATE animals SET 
+          name = $1,
+          species = $2,
+          characteristics = $3,
+          weight_range = $4,
+          diet = $5,
+          habitat_id = $6,
+          images = $7,
+          vet_note = $8,
+          updated_at = NOW()
+        WHERE id_animal = $9 
+        RETURNING *`,
+        [
+          animalData.name,
+          animalData.species,
+          animalData.characteristics,
+          animalData.weightRange,
+          animalData.diet,
+          animalData.habitat_id,
+          animalData.images,
+          animalData.vetNote,
+          id,
+        ],
       );
-      console.log('Database context:', debugQuery.rows[0]);
 
-      // Tentative de mise à jour avec une requête plus simple
-      const res = await query(
-        `UPDATE animals 
-         SET name = $1, 
-             updated_at = NOW() 
-         WHERE id_animal = $2 
-         RETURNING *;`,
-        [animalData.name, id],
-      );
+      console.log('Résultat de la requête:', res.rows[0]);
 
-      console.log('Résultat requête simple:', res.rows[0]);
-
-      // Si la requête simple fonctionne, on fait la mise à jour complète
-      if (res.rows[0]) {
-        const fullUpdateRes = await query(
-          `UPDATE animals SET 
-            name = $1,
-            species = $2,
-            characteristics = $3,
-            weight_range = $4,
-            diet = $5,
-            habitat_id = $6,
-            images = $7,
-            vet_note = $8,
-            updated_at = NOW()
-          WHERE id_animal = $9 
-          RETURNING *;`,
-          [
-            animalData.name,
-            animalData.species,
-            animalData.characteristics,
-            animalData.weightRange,
-            animalData.diet,
-            animalData.habitat_id,
-            animalData.images,
-            animalData.vetNote,
-            id,
-          ],
-        );
-
-        console.log('Résultat mise à jour complète:', fullUpdateRes.rows[0]);
-        return this.formatAnimal(fullUpdateRes.rows[0]);
-      }
-
-      throw new Error('La mise à jour a échoué');
+      await client.query('COMMIT');
+      return this.formatAnimal(res.rows[0]);
     } catch (error) {
+      await client.query('ROLLBACK');
       console.error('Erreur lors de la mise à jour:', error);
       throw error;
+    } finally {
+      client.release();
     }
   }
 
