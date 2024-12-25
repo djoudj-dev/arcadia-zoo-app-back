@@ -79,50 +79,59 @@ export class AnimalService {
     try {
       await client.query('BEGIN');
 
+      // Vérification de l'existence de l'animal
       const existingAnimal = await this.findOne(id);
       if (!existingAnimal) {
         throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
       }
 
-      // Nettoyage et validation des données
-      const cleanedData = {
-        name: animalData.name?.trim(),
-        species: animalData.species,
-        characteristics: animalData.characteristics,
-        weight_range: animalData.weightRange,
-        diet: animalData.diet,
-        habitat_id: Number(animalData.habitat_id),
-        images: animalData.images,
-        vet_note: animalData.vetNote === '' ? null : animalData.vetNote,
+      // Construction de la requête dynamique
+      const updateFields: string[] = [];
+      const values: any[] = [];
+      let paramCount = 1;
+
+      // Mapping des champs
+      const fieldMapping = {
+        name: 'name',
+        species: 'species',
+        characteristics: 'characteristics',
+        weightRange: 'weight_range',
+        diet: 'diet',
+        habitat_id: 'habitat_id',
+        images: 'images',
+        vetNote: 'vet_note',
       };
 
-      console.log('Données nettoyées:', cleanedData);
+      // Construction dynamique de la requête
+      for (const [key, dbField] of Object.entries(fieldMapping)) {
+        if (animalData[key] !== undefined) {
+          updateFields.push(`${dbField} = $${paramCount}`);
+          let value = animalData[key];
+          if (key === 'vetNote' && value === '') {
+            value = null;
+          } else if (key === 'habitat_id') {
+            value = Number(value);
+          }
+          values.push(value);
+          paramCount++;
+        }
+      }
 
-      const res = await client.query(
-        `UPDATE animals 
-         SET name = $1,
-             species = $2,
-             characteristics = $3,
-             weight_range = $4,
-             diet = $5,
-             habitat_id = $6,
-             images = $7,
-             vet_note = $8,
-             updated_at = NOW()
-         WHERE id_animal = $9
-         RETURNING *;`,
-        [
-          cleanedData.name,
-          cleanedData.species,
-          cleanedData.characteristics,
-          cleanedData.weight_range,
-          cleanedData.diet,
-          cleanedData.habitat_id,
-          cleanedData.images,
-          cleanedData.vet_note,
-          id,
-        ],
-      );
+      // Ajout du timestamp
+      updateFields.push(`updated_at = NOW()`);
+
+      // Construction de la requête finale
+      const query = `
+        UPDATE animals 
+        SET ${updateFields.join(', ')}
+        WHERE id_animal = $${paramCount}
+        RETURNING *;
+      `;
+
+      // Ajout de l'ID à la fin des paramètres
+      values.push(id);
+
+      const res = await client.query(query, values);
 
       if (!res.rows[0]) {
         throw new Error('La mise à jour a échoué');
