@@ -71,77 +71,72 @@ export class AnimalService {
   ): Promise<Animal> {
     this.checkAdminRole(userRole);
     console.log('=== DÉBUT UPDATE ANIMAL SERVICE ===');
-    console.log(
-      '1. Données reçues brutes:',
-      JSON.stringify(animalData, null, 2),
-    );
 
-    const existingAnimal = await this.findOne(id);
-    console.log('2. Animal existant:', JSON.stringify(existingAnimal, null, 2));
+    try {
+      const existingAnimal = await this.findOne(id);
+      if (!existingAnimal) {
+        throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
+      }
 
-    if (!existingAnimal) {
-      throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
+      // Log de débogage détaillé
+      console.log('Environment:', process.env.NODE_ENV);
+      console.log('Database connection:', process.env.DATABASE_URL);
+
+      // Requête SQL directe pour debug
+      const debugQuery = await query(
+        'SELECT current_user, current_database();',
+      );
+      console.log('Database context:', debugQuery.rows[0]);
+
+      // Tentative de mise à jour avec une requête plus simple
+      const res = await query(
+        `UPDATE animals 
+         SET name = $1, 
+             updated_at = NOW() 
+         WHERE id_animal = $2 
+         RETURNING *;`,
+        [animalData.name, id],
+      );
+
+      console.log('Résultat requête simple:', res.rows[0]);
+
+      // Si la requête simple fonctionne, on fait la mise à jour complète
+      if (res.rows[0]) {
+        const fullUpdateRes = await query(
+          `UPDATE animals SET 
+            name = $1,
+            species = $2,
+            characteristics = $3,
+            weight_range = $4,
+            diet = $5,
+            habitat_id = $6,
+            images = $7,
+            vet_note = $8,
+            updated_at = NOW()
+          WHERE id_animal = $9 
+          RETURNING *;`,
+          [
+            animalData.name,
+            animalData.species,
+            animalData.characteristics,
+            animalData.weightRange,
+            animalData.diet,
+            animalData.habitat_id,
+            animalData.images,
+            animalData.vetNote,
+            id,
+          ],
+        );
+
+        console.log('Résultat mise à jour complète:', fullUpdateRes.rows[0]);
+        return this.formatAnimal(fullUpdateRes.rows[0]);
+      }
+
+      throw new Error('La mise à jour a échoué');
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour:', error);
+      throw error;
     }
-
-    // Préparation des données avec vérification explicite et logs
-    const updateData = {
-      name: animalData.name || existingAnimal.name,
-      species: animalData.species || existingAnimal.species,
-      characteristics:
-        animalData.characteristics || existingAnimal.characteristics,
-      weight_range: animalData.weightRange || existingAnimal.weightRange,
-      diet: animalData.diet || existingAnimal.diet,
-      habitat_id: animalData.habitat_id || existingAnimal.habitat_id,
-      images: animalData.images || existingAnimal.images,
-      vet_note: animalData.vetNote || existingAnimal.vetNote,
-    };
-
-    console.log(
-      '3. Données préparées pour update:',
-      JSON.stringify(updateData, null, 2),
-    );
-    console.log('4. Requête SQL qui va être exécutée avec les paramètres:', [
-      updateData.name,
-      updateData.species,
-      updateData.characteristics,
-      updateData.weight_range,
-      updateData.diet,
-      updateData.habitat_id,
-      updateData.images,
-      updateData.vet_note,
-      id,
-    ]);
-
-    const res = await query(
-      `UPDATE animals SET 
-        name = $1,
-        species = $2,
-        characteristics = $3,
-        weight_range = $4,
-        diet = $5,
-        habitat_id = $6,
-        images = $7,
-        vet_note = $8,
-        updated_at = NOW()
-      WHERE id_animal = $9 RETURNING *;`,
-      [
-        updateData.name,
-        updateData.species,
-        updateData.characteristics,
-        updateData.weight_range,
-        updateData.diet,
-        updateData.habitat_id,
-        updateData.images,
-        updateData.vet_note,
-        id,
-      ],
-    );
-
-    console.log(
-      '5. Résultat de la requête:',
-      JSON.stringify(res.rows[0], null, 2),
-    );
-    return this.formatAnimal(res.rows[0]);
   }
 
   async deleteAnimal(id: number, userRole: string): Promise<Animal> {
