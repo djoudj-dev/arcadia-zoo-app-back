@@ -75,55 +75,42 @@ export class AnimalService {
       '1. Données reçues brutes:',
       JSON.stringify(animalData, null, 2),
     );
-    console.log('2. Type de name:', typeof animalData.name);
-    console.log('3. Valeur de name:', animalData.name);
 
     const existingAnimal = await this.findOne(id);
-    console.log('4. Animal existant:', JSON.stringify(existingAnimal, null, 2));
+    console.log('2. Animal existant:', JSON.stringify(existingAnimal, null, 2));
 
     if (!existingAnimal) {
       throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
     }
 
+    // Préparation des données avec vérification explicite et logs
     const updateData = {
-      name:
-        typeof animalData.name === 'string'
-          ? animalData.name
-          : existingAnimal.name,
-      species:
-        typeof animalData.species === 'string'
-          ? animalData.species
-          : existingAnimal.species,
+      name: animalData.name || existingAnimal.name,
+      species: animalData.species || existingAnimal.species,
       characteristics:
-        typeof animalData.characteristics === 'string'
-          ? animalData.characteristics
-          : existingAnimal.characteristics,
-      weight_range:
-        typeof animalData.weightRange === 'string'
-          ? animalData.weightRange
-          : existingAnimal.weightRange,
-      diet:
-        typeof animalData.diet === 'string'
-          ? animalData.diet
-          : existingAnimal.diet,
-      habitat_id:
-        typeof animalData.habitat_id === 'number'
-          ? animalData.habitat_id
-          : existingAnimal.habitat_id,
-      images:
-        typeof animalData.images === 'string'
-          ? animalData.images
-          : existingAnimal.images,
-      vet_note:
-        typeof animalData.vetNote === 'string'
-          ? animalData.vetNote
-          : existingAnimal.vetNote,
+        animalData.characteristics || existingAnimal.characteristics,
+      weight_range: animalData.weightRange || existingAnimal.weightRange,
+      diet: animalData.diet || existingAnimal.diet,
+      habitat_id: animalData.habitat_id || existingAnimal.habitat_id,
+      images: animalData.images || existingAnimal.images,
+      vet_note: animalData.vetNote || existingAnimal.vetNote,
     };
 
     console.log(
-      '5. Données préparées pour update:',
+      '3. Données préparées pour update:',
       JSON.stringify(updateData, null, 2),
     );
+    console.log('4. Requête SQL qui va être exécutée avec les paramètres:', [
+      updateData.name,
+      updateData.species,
+      updateData.characteristics,
+      updateData.weight_range,
+      updateData.diet,
+      updateData.habitat_id,
+      updateData.images,
+      updateData.vet_note,
+      id,
+    ]);
 
     const res = await query(
       `UPDATE animals SET 
@@ -136,7 +123,7 @@ export class AnimalService {
         images = $7,
         vet_note = $8,
         updated_at = NOW()
-      WHERE id_animal = $9 RETURNING *`,
+      WHERE id_animal = $9 RETURNING *;`,
       [
         updateData.name,
         updateData.species,
@@ -151,17 +138,10 @@ export class AnimalService {
     );
 
     console.log(
-      '6. Résultat requête SQL:',
+      '5. Résultat de la requête:',
       JSON.stringify(res.rows[0], null, 2),
     );
-    const formattedResult = this.formatAnimal(res.rows[0]);
-    console.log(
-      '7. Résultat final formaté:',
-      JSON.stringify(formattedResult, null, 2),
-    );
-    console.log('=== FIN UPDATE ANIMAL SERVICE ===');
-
-    return formattedResult;
+    return this.formatAnimal(res.rows[0]);
   }
 
   async deleteAnimal(id: number, userRole: string): Promise<Animal> {
