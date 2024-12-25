@@ -73,79 +73,41 @@ export class AnimalService {
     userRole: string,
   ): Promise<Animal> {
     this.checkAdminRole(userRole);
-    console.log('=== DÉBUT UPDATE ANIMAL SERVICE ===');
 
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
-      // Vérification de l'existence de l'animal
-      const existingAnimal = await this.findOne(id);
-      if (!existingAnimal) {
-        throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
-      }
-
-      // Construction de la requête dynamique
-      const updateFields: string[] = [];
-      const values: any[] = [];
-      let paramCount = 1;
-
-      // Mapping des champs
-      const fieldMapping = {
-        name: 'name',
-        species: 'species',
-        characteristics: 'characteristics',
-        weightRange: 'weight_range',
-        diet: 'diet',
-        habitat_id: 'habitat_id',
-        images: 'images',
-        vetNote: 'vet_note',
-      };
-
-      // Construction dynamique de la requête
-      for (const [key, dbField] of Object.entries(fieldMapping)) {
-        if (animalData[key] !== undefined) {
-          updateFields.push(`${dbField} = $${paramCount}`);
-          let value = animalData[key];
-          if (key === 'vetNote' && value === '') {
-            value = null;
-          } else if (key === 'habitat_id') {
-            value = Number(value);
-          }
-          values.push(value);
-          paramCount++;
-        }
-      }
-
-      // Ajout du timestamp
-      updateFields.push(`updated_at = NOW()`);
-
-      // Construction de la requête finale
-      const query = `
-        UPDATE animals 
-        SET ${updateFields.join(', ')}
-        WHERE id_animal = $${paramCount}
-        RETURNING *;
-      `;
-
-      // Ajout de l'ID à la fin des paramètres
-      values.push(id);
-
-      const res = await client.query(query, values);
-
-      if (!res.rows[0]) {
-        throw new Error('La mise à jour a échoué');
-      }
-
-      await client.query('COMMIT');
-      return this.formatAnimal(res.rows[0]);
-    } catch (error) {
-      await client.query('ROLLBACK');
-      console.error('Erreur lors de la mise à jour:', error);
-      throw error;
-    } finally {
-      client.release();
+    const existingAnimal = await this.findOne(id);
+    if (!existingAnimal) {
+      throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
     }
+
+    const res = await query(
+      `UPDATE animals SET 
+        name = COALESCE($1, name),
+        species = COALESCE($2, species),
+        characteristics = COALESCE($3, characteristics),
+        weight_range = COALESCE($4, weight_range),
+        diet = COALESCE($5, diet),
+        habitat_id = COALESCE($6, habitat_id),
+        images = COALESCE($7, images),
+        vet_note = CASE 
+          WHEN $8 = '' THEN NULL 
+          ELSE COALESCE($8, vet_note)
+        END,
+        updated_at = NOW()
+      WHERE id_animal = $9 RETURNING *`,
+      [
+        animalData.name,
+        animalData.species,
+        animalData.characteristics,
+        animalData.weightRange,
+        animalData.diet,
+        animalData.habitat_id,
+        animalData.images,
+        animalData.vetNote,
+        id,
+      ],
+    );
+
+    return this.formatAnimal(res.rows[0]);
   }
 
   async deleteAnimal(id: number, userRole: string): Promise<Animal> {
