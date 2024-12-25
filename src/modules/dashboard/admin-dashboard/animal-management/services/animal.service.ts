@@ -77,6 +77,44 @@ export class AnimalService {
       throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
     }
 
+    // Préparation des données avec vérification explicite
+    const updateData = {
+      name:
+        typeof animalData.name === 'string'
+          ? animalData.name
+          : existingAnimal.name,
+      species:
+        typeof animalData.species === 'string'
+          ? animalData.species
+          : existingAnimal.species,
+      characteristics:
+        typeof animalData.characteristics === 'string'
+          ? animalData.characteristics
+          : existingAnimal.characteristics,
+      weight_range:
+        typeof animalData.weightRange === 'string'
+          ? animalData.weightRange
+          : existingAnimal.weightRange,
+      diet:
+        typeof animalData.diet === 'string'
+          ? animalData.diet
+          : existingAnimal.diet,
+      habitat_id:
+        typeof animalData.habitat_id === 'number'
+          ? animalData.habitat_id
+          : existingAnimal.habitat_id,
+      images:
+        typeof animalData.images === 'string'
+          ? animalData.images
+          : existingAnimal.images,
+      vet_note:
+        typeof animalData.vetNote === 'string'
+          ? animalData.vetNote
+          : existingAnimal.vetNote,
+    };
+
+    console.log('Données à mettre à jour:', updateData);
+
     const res = await query(
       `UPDATE animals SET 
         name = $1,
@@ -90,14 +128,14 @@ export class AnimalService {
         updated_at = NOW()
       WHERE id_animal = $9 RETURNING *`,
       [
-        animalData.name,
-        animalData.species,
-        animalData.characteristics,
-        animalData.weightRange,
-        animalData.diet,
-        animalData.habitat_id,
-        animalData.images,
-        animalData.vetNote,
+        updateData.name,
+        updateData.species,
+        updateData.characteristics,
+        updateData.weight_range,
+        updateData.diet,
+        updateData.habitat_id,
+        updateData.images,
+        updateData.vet_note,
         id,
       ],
     );
