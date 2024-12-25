@@ -86,18 +86,14 @@ export class AnimalService {
 
       // Nettoyage et validation des données
       const cleanedData = {
-        name: animalData.name?.trim() || existingAnimal.name,
-        species: animalData.species || existingAnimal.species,
-        characteristics:
-          animalData.characteristics || existingAnimal.characteristics,
-        weight_range: animalData.weightRange || existingAnimal.weightRange,
-        diet: animalData.diet || existingAnimal.diet,
-        habitat_id: animalData.habitat_id || existingAnimal.habitat_id,
-        images: animalData.images || existingAnimal.images,
-        vet_note:
-          animalData.vetNote === ''
-            ? null
-            : animalData.vetNote || existingAnimal.vetNote,
+        name: animalData.name?.trim(),
+        species: animalData.species,
+        characteristics: animalData.characteristics,
+        weight_range: animalData.weightRange,
+        diet: animalData.diet,
+        habitat_id: Number(animalData.habitat_id),
+        images: animalData.images,
+        vet_note: animalData.vetNote === '' ? null : animalData.vetNote,
       };
 
       console.log('Données nettoyées:', cleanedData);

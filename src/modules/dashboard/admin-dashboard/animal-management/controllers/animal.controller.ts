@@ -12,7 +12,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { getApiUrl } from 'src/config/constants';
 import { Roles } from '../../../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../../auth/guards/roles.guard';
@@ -68,21 +67,11 @@ export class AnimalController {
       if (image) {
         return `uploads/animals/${image.filename}`;
       }
+
       if (!currentPath) return '';
 
-      const apiUrl = getApiUrl();
-      if (currentPath.includes(apiUrl)) {
-        const relativePath = currentPath.split(apiUrl)[1];
-        return relativePath.startsWith('/')
-          ? relativePath.substring(1)
-          : relativePath;
-      }
-
-      if (currentPath.startsWith('uploads/')) {
-        return currentPath;
-      }
-
-      return `uploads/animals/${currentPath}`;
+      const cleanPath = currentPath.replace(/^.*uploads\/animals\//, '');
+      return `uploads/animals/${cleanPath}`;
     };
 
     const updateData: Partial<Animal> = {
