@@ -84,30 +84,46 @@ export class AnimalService {
         throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
       }
 
-      console.log('Données à mettre à jour:', animalData);
+      // Nettoyage et validation des données
+      const cleanedData = {
+        name: animalData.name?.trim() || existingAnimal.name,
+        species: animalData.species || existingAnimal.species,
+        characteristics:
+          animalData.characteristics || existingAnimal.characteristics,
+        weight_range: animalData.weightRange || existingAnimal.weightRange,
+        diet: animalData.diet || existingAnimal.diet,
+        habitat_id: animalData.habitat_id || existingAnimal.habitat_id,
+        images: animalData.images || existingAnimal.images,
+        vet_note:
+          animalData.vetNote === ''
+            ? null
+            : animalData.vetNote || existingAnimal.vetNote,
+      };
+
+      console.log('Données nettoyées:', cleanedData);
 
       const res = await client.query(
-        `UPDATE animals SET 
-          name = COALESCE($1, name),
-          species = COALESCE($2, species),
-          characteristics = COALESCE($3, characteristics),
-          weight_range = COALESCE($4, weight_range),
-          diet = COALESCE($5, diet),
-          habitat_id = COALESCE($6, habitat_id),
-          images = COALESCE($7, images),
-          vet_note = COALESCE($8, vet_note),
-          updated_at = NOW()
-        WHERE id_animal = $9 
-        RETURNING *;`,
+        `UPDATE animals 
+         SET name = $1,
+             species = $2,
+             characteristics = $3,
+             weight_range = $4,
+             diet = $5,
+             habitat_id = $6,
+             images = $7,
+             vet_note = $8,
+             updated_at = NOW()
+         WHERE id_animal = $9
+         RETURNING *;`,
         [
-          animalData.name,
-          animalData.species,
-          animalData.characteristics,
-          animalData.weightRange,
-          animalData.diet,
-          animalData.habitat_id,
-          animalData.images,
-          animalData.vetNote,
+          cleanedData.name,
+          cleanedData.species,
+          cleanedData.characteristics,
+          cleanedData.weight_range,
+          cleanedData.diet,
+          cleanedData.habitat_id,
+          cleanedData.images,
+          cleanedData.vet_note,
           id,
         ],
       );
@@ -117,9 +133,7 @@ export class AnimalService {
       }
 
       await client.query('COMMIT');
-      const formattedResult = this.formatAnimal(res.rows[0]);
-      console.log('Résultat final:', formattedResult);
-      return formattedResult;
+      return this.formatAnimal(res.rows[0]);
     } catch (error) {
       await client.query('ROLLBACK');
       console.error('Erreur lors de la mise à jour:', error);
