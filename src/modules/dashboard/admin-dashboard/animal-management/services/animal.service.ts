@@ -71,12 +71,18 @@ export class AnimalService {
     id: number,
     animalData: Partial<Animal>,
     userRole: string,
+    image?: Express.Multer.File, // Ajoutez le paramètre image
   ): Promise<Animal> {
     this.checkAdminRole(userRole);
 
     const existingAnimal = await this.findOne(id);
     if (!existingAnimal) {
       throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
+    }
+
+    // Mettez à jour le chemin de l'image si une nouvelle image est fournie
+    if (image) {
+      animalData.images = `uploads/animals/${image.filename}`;
     }
 
     const res = await query(
