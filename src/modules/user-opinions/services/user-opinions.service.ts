@@ -85,10 +85,6 @@ export class UserOpinionsService {
    * @returns Une promesse contenant l'avis validé
    */
   async validateUserOpinions(id: string): Promise<UserOpinions> {
-    console.log('🔍 Début de validateUserOpinions dans le service');
-    console.log('ID reçu:', id);
-    console.log('Type de ID:', typeof id);
-
     if (!id || typeof id !== 'string') {
       console.error('❌ ID invalide:', id);
       throw new BadRequestException('ID invalide');
