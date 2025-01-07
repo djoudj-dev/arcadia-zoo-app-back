@@ -67,9 +67,7 @@ export class AnimalController {
       if (image) {
         return `uploads/animals/${image.filename}`;
       }
-
       if (!currentPath) return '';
-
       const cleanPath = currentPath.replace(/^.*uploads\/animals\//, '');
       return `uploads/animals/${cleanPath}`;
     };
