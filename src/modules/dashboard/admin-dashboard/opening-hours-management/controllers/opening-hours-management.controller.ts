@@ -19,20 +19,13 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { OpeningHours, ParkStatus } from '../models/opening-hours.model';
 import { OpeningHoursService } from '../services/opening-hours.service';
 
-/**
- * Contrôleur de gestion des horaires d'ouverture.
- * Ce contrôleur expose les différentes routes permettant de gérer les horaires d'ouverture.
- */
+/** Gestion des horaires d'ouverture du parc */
 @Controller('opening-hours')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class OpeningHoursManagementController {
   constructor(private readonly openingHoursService: OpeningHoursService) {}
 
-  /**
-   * Récupère les horaires d'ouverture actuels
-   * @returns Une promesse de l'objet OpeningHours actuel
-   * @throws NotFoundException Si aucun horaire d'ouverture n'est trouvé
-   */
+  /** Récupère les horaires d'ouverture actuels */
   @Get('current')
   @Public()
   async getCurrentOpeningHours(): Promise<OpeningHours> {
@@ -53,33 +46,19 @@ export class OpeningHoursManagementController {
     }
   }
 
-  /**
-   * Récupère tous les horaires d'ouverture
-   * @returns Une promesse d'un tableau d'objets OpeningHours
-   * @throws NotFoundException Si aucun horaire d'ouverture n'est trouvé
-   */
+  /** Liste toutes les configurations d'horaires */
   @Get()
   async getAllOpeningHours(): Promise<OpeningHours[]> {
     return this.openingHoursService.getAllOpeningHours();
   }
 
-  /**
-   * Récupère un horaire d'ouverture par son ID
-   * @param id ID de l'horaire d'ouverture
-   * @returns Une promesse de l'objet OpeningHours
-   * @throws NotFoundException Si aucun horaire d'ouverture n'est trouvé
-   */
+  /** Récupère une configuration d'horaires par ID */
   @Get(':id')
   async getOpeningHoursById(@Param('id') id: string): Promise<OpeningHours> {
     return this.openingHoursService.getOpeningHoursById(id);
   }
 
-  /**
-   * Crée un nouvel horaire d'ouverture
-   * @param openingHoursData Données de l'horaire d'ouverture
-   * @returns Une promesse de l'objet OpeningHours créé
-   * @throws BadRequestException Si les données de l'horaire d'ouverture sont incorrectes
-   */
+  /** Crée une nouvelle configuration d'horaires */
   @Post()
   @Roles('admin')
   async createOpeningHours(
@@ -88,11 +67,7 @@ export class OpeningHoursManagementController {
     return this.openingHoursService.createOpeningHours(openingHoursData);
   }
 
-  /**
-   * Met à jour le statut d'ouverture du parc
-   * @param status Nouveau statut du parc
-   * @returns Le nouveau statut
-   */
+  /** Met à jour le statut d'ouverture du parc */
   @Put('status')
   @Roles('admin')
   async updateParkStatus(@Body() status: ParkStatus): Promise<ParkStatus> {
@@ -111,13 +86,7 @@ export class OpeningHoursManagementController {
     }
   }
 
-  /**
-   * Met à jour un horaire d'ouverture
-   * @param id ID de l'horaire d'ouverture
-   * @param data Données de l'horaire d'ouverture à mettre à jour
-   * @returns Une promesse de l'objet OpeningHours mis à jour
-   * @throws NotFoundException Si aucun horaire d'ouverture n'est trouvé
-   */
+  /** Met à jour une configuration d'horaires */
   @Put(':id')
   @Roles('admin')
   async updateOpeningHours(
@@ -180,12 +149,7 @@ export class OpeningHoursManagementController {
     return timeFormat.test(time);
   }
 
-  /**
-   * Supprime un horaire d'ouverture
-   * @param id ID de l'horaire d'ouverture à supprimer
-   * @returns Une promesse de l'objet OpeningHours supprimé
-   * @throws NotFoundException Si aucun horaire d'ouverture n'est trouvé
-   */
+  /** Supprime une configuration d'horaires */
   @Delete(':id')
   @Roles('admin')
   async deleteOpeningHours(@Param('id') id: string): Promise<void> {
