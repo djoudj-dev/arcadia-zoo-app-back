@@ -9,6 +9,10 @@
         "include": "modules/mail/template/**/*",
         "outDir": "dist/arcadia-zoo-app-back/",
         "watchAssets": true
+      },
+      {
+        "include": "modules/mail/templates/**/*",
+        "outDir": "dist/src"
       }
     ],
     "watchAssets": true

@@ -35,13 +35,30 @@ async function bootstrap() {
     next();
   });
 
+  // Middleware pour les en-têtes de sécurité
+  app.use((req, res, next) => {
+    res.header(
+      'Content-Security-Policy',
+      "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com; " +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+        "img-src 'self' data: https://*.googleapis.com https://*.gstatic.com; " +
+        "font-src 'self' https://fonts.gstatic.com; " +
+        "frame-src 'self' https://www.google.com/; " +
+        "connect-src 'self' https://*.googleapis.com",
+    );
+    next();
+  });
+
   // Configuration CORS
   app.enableCors({
     origin: ['http://localhost:4200', 'https://nedellec-julien.fr'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id'],
     credentials: true,
   });
+
+  console.log('CORS configuration applied');
 
   // Définir le préfixe global pour toutes les routes API
   app.setGlobalPrefix('api');
@@ -52,6 +69,7 @@ async function bootstrap() {
   });
 
   await app.listen(3000, '0.0.0.0');
+  console.log('NestJS server is running on http://localhost:3000');
 }
 
 bootstrap();
