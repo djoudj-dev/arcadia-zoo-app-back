@@ -49,7 +49,40 @@ export class OpeningHoursService {
   async createOpeningHours(
     openingHoursData: Partial<OpeningHours>,
   ): Promise<OpeningHours> {
+    // Validation des données reçues
+    if (!openingHoursData || !Array.isArray(openingHoursData.openingHours)) {
+      throw new BadRequestException(
+        "Les horaires d'ouverture doivent être un tableau valide.",
+      );
+    }
+
+    const isValid = openingHoursData.openingHours.every((item) => {
+      return item.days && item.hours && typeof item.isOpen === 'boolean';
+    });
+
+    if (!isValid) {
+      throw new BadRequestException(
+        'Certains horaires sont mal formatés ou incomplets.',
+      );
+    }
+
+    if (typeof openingHoursData.parkStatus !== 'boolean') {
+      throw new BadRequestException(
+        'Le statut du parc (parkStatus) doit être un booléen.',
+      );
+    }
+
+    if (
+      !openingHoursData.statusMessage ||
+      typeof openingHoursData.statusMessage !== 'string'
+    ) {
+      throw new BadRequestException(
+        'Le message de statut (statusMessage) est manquant ou invalide.',
+      );
+    }
+
     try {
+      // Si `isCurrent` est activé, désactivez les autres configurations actuelles
       if (openingHoursData.isCurrent) {
         await this.openingHoursModel.updateMany(
           {},
@@ -57,16 +90,36 @@ export class OpeningHoursService {
         );
       }
 
+      // Création du document
       const newOpeningHours = new this.openingHoursModel({
         ...openingHoursData,
-        isCurrent: openingHoursData.isCurrent ?? false,
+        isCurrent: openingHoursData.isCurrent ?? false, // Par défaut `false`
         _id: new mongoose.Types.ObjectId(),
+        createdAt: new Date(),
       });
 
-      return await newOpeningHours.save();
+      console.log('Données pour la création :', newOpeningHours);
+
+      // Sauvegarde dans la base de données
+      const savedOpeningHours = await newOpeningHours.save();
+
+      console.log('Horaires créés avec succès :', savedOpeningHours);
+
+      return savedOpeningHours;
     } catch (error) {
+      console.error(
+        "Erreur lors de la création des horaires d'ouverture :",
+        error,
+      );
+
+      if (error.name === 'ValidationError') {
+        throw new BadRequestException(
+          `Erreur de validation : ${error.message}`,
+        );
+      }
+
       throw new InternalServerErrorException(
-        "Erreur lors de la création des horaires d'ouverture",
+        "Erreur lors de la création des horaires d'ouverture.",
       );
     }
   }
