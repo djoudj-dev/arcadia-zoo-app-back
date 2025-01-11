@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { join } from 'path';
 import { AppModule } from './app.module';
 
-// Création du dossier uploads principal
+// Création du dossier uploads principal.
 const uploadBasePath = join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadBasePath)) {
   fs.mkdirSync(uploadBasePath);
