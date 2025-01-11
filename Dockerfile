@@ -1,36 +1,32 @@
-# Étape de build
+# Étape 1 : Construction de l'application
 FROM node:18-alpine AS builder
-
 WORKDIR /app
 
-# Copie des fichiers de dépendances
+# Copier les fichiers package.json et package-lock.json
 COPY package*.json ./
 
-# Installation des dépendances
-RUN npm ci
+# Installer les dépendances
+RUN npm install
 
-# Copie du reste du code source
+# Copier le reste des fichiers du projet
 COPY . .
 
-# Build de l'application
+# Construire l'application NestJS
 RUN npm run build
 
-# Étape de production
+# Étape 2 : Image finale pour exécution
 FROM node:18-alpine
-
 WORKDIR /app
 
-# Copie des fichiers de dépendances
-COPY package*.json ./
-
-# Installation des dépendances de production uniquement
-RUN npm ci --only=production
-
-# Copie des fichiers buildés depuis l'étape précédente
+# Copier uniquement les fichiers nécessaires depuis l'étape de construction
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
 
-# Exposition du port
+# Installer uniquement les dépendances de production
+RUN npm install --only=production
+
+# Exposer le port utilisé par l'application
 EXPOSE 3000
 
-# Commande de démarrage
-CMD ["npm", "run", "start:prod"]
+# Commande pour démarrer l'application
+CMD ["node", "dist/main.js"]
