@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -23,25 +23,11 @@ import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
     }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
-        connectionFactory: (connection) => {
-          connection.on('connected', () => {
-            console.log('MongoDB connecté avec succès');
-          });
-          connection.on('error', (error) => {
-            console.error('Erreur de connexion MongoDB:', error);
-          });
-          return connection;
-        },
-        retryWrites: true,
-        w: 'majority',
-      }),
-      inject: [ConfigService],
+    MongooseModule.forRoot(process.env.MONGODB_URI, {
+      authSource: 'admin',
+      retryWrites: true,
+      w: 'majority',
     }),
     AuthModule,
     AccountModule,
