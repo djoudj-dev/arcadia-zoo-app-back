@@ -26,7 +26,7 @@ dotenv.config();
     },
     {
       provide: 'TEMPLATE_DIR',
-      useValue: join(__dirname, 'template'),
+      useValue: join(process.cwd(), 'src/modules/mail/templates'),
     },
     MailService,
   ],

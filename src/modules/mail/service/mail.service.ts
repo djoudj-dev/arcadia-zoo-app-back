@@ -40,7 +40,9 @@ export class MailService {
       template: 'welcome',
       context: {
         name: user.name,
-        temporaryPassword,
+        email: user.email,
+        password: temporaryPassword,
+        year: new Date().getFullYear(),
       },
     });
   }
