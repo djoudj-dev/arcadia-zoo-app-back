@@ -8,17 +8,17 @@ COPY package*.json ./
 # Installer les dépendances
 RUN npm install
 
-# Copier le reste des fichiers du projet
+# Copier tout le code de l'application
 COPY . .
 
-# Construire l'application NestJS
+# Construire l'application
 RUN npm run build
 
 # Étape 2 : Image finale pour exécution
 FROM node:18-alpine
 WORKDIR /app
 
-# Copier uniquement les fichiers nécessaires depuis l'étape de construction
+# Copier les fichiers nécessaires depuis l'étape de construction
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 
