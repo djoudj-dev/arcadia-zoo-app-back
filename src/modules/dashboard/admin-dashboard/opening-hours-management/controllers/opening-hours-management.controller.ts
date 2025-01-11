@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import * as mongoose from 'mongoose';
@@ -28,7 +29,8 @@ export class OpeningHoursManagementController {
   /** Récupère les horaires d'ouverture actuels */
   @Get('current')
   @Public()
-  async getCurrentOpeningHours(): Promise<OpeningHours> {
+  async getCurrentOpeningHours(@Req() req): Promise<OpeningHours> {
+    console.log('Authorization header:', req.headers.authorization);
     try {
       const currentHours =
         await this.openingHoursService.getCurrentOpeningHours();
@@ -64,25 +66,14 @@ export class OpeningHoursManagementController {
   async createOpeningHours(
     @Body() openingHoursData: Partial<OpeningHours>,
   ): Promise<OpeningHours> {
-    return this.openingHoursService.createOpeningHours(openingHoursData);
-  }
-
-  /** Met à jour le statut d'ouverture du parc */
-  @Put('status')
-  @Roles('admin')
-  async updateParkStatus(@Body() status: ParkStatus): Promise<ParkStatus> {
     try {
-      if (typeof status.isOpen !== 'boolean') {
-        throw new BadRequestException('Le statut isOpen doit être un booléen');
-      }
-      return await this.openingHoursService.updateParkStatus(status);
-    } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
-      throw new InternalServerErrorException(
-        'Erreur lors de la mise à jour du statut du parc',
+      console.log('Données reçues pour création :', openingHoursData);
+      return await this.openingHoursService.createOpeningHours(
+        openingHoursData,
       );
+    } catch (error) {
+      console.error('Erreur lors de la création des horaires :', error);
+      throw error;
     }
   }
 
@@ -139,6 +130,25 @@ export class OpeningHoursManagementController {
       }
       throw new InternalServerErrorException(
         "Erreur lors de la mise à jour des horaires d'ouverture",
+      );
+    }
+  }
+
+  /** Met à jour le statut d'ouverture du parc */
+  @Put('status')
+  @Roles('admin')
+  async updateParkStatus(@Body() status: ParkStatus): Promise<ParkStatus> {
+    try {
+      if (typeof status.isOpen !== 'boolean') {
+        throw new BadRequestException('Le statut isOpen doit être un booléen');
+      }
+      return await this.openingHoursService.updateParkStatus(status);
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Erreur lors de la mise à jour du statut du parc',
       );
     }
   }

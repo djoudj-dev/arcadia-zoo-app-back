@@ -3,10 +3,10 @@ import { Model, Schema } from 'mongoose';
 // Définition du schéma pour les avis utilisateurs
 const userOpinionsSchemaDefinition = {
   id_opinion: { type: Number, unique: true },
-  user_id: { type: Number, required: true },
-  user_name: { type: String, required: true },
+  user_id: { type: Number },
+  name: { type: String, required: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
-  comment: { type: String, required: true },
+  message: { type: String, required: true },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
