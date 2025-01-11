@@ -28,7 +28,6 @@ RUN apk add --no-cache netcat-openbsd && \
 # Copier les fichiers de configuration
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist/ ./dist/
-COPY .env ./
 
 # Installer les dépendances et créer les répertoires
 RUN npm ci --only=production && \
