@@ -23,7 +23,7 @@ import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: '.env.local',
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
