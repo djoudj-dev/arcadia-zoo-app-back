@@ -3,9 +3,6 @@ import mongoose from 'mongoose';
 
 // Charger les variables d'environnement
 dotenv.config({ path: './.env' });
-console.log('Mongo URI:', process.env.MONGODB_URI);
-console.log('MONGODB_URI:', process.env.MONGODB_URI);
-console.log('JWT Secret:', process.env.JWT_SECRET);
 
 dotenv.config({ path: './.env' });
 
