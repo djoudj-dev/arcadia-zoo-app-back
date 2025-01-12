@@ -12,7 +12,16 @@ export class MailService {
   ) {}
 
   private async compileTemplate(templateName: string, context: any) {
-    const templatePath = join(this.templateDir, `${templateName}.hbs`);
+    const templatePath = join(
+      process.cwd(),
+      'dist/modules/mail/templates',
+      `${templateName}.hbs`,
+    );
+    if (!fs.existsSync(templatePath)) {
+      throw new Error(
+        `Template ${templateName}.hbs non trouvé dans ${templatePath}`,
+      );
+    }
     const template = await fs.promises.readFile(templatePath, 'utf-8');
     const compiledTemplate = handlebars.compile(template);
     return compiledTemplate(context);

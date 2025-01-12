@@ -1,34 +1,59 @@
-name: Deploy to Docker
+name: Docker CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [develop] # Se déclenche sur les pushs vers develop
+  pull_request:
+    branches: [main] # Se déclenche sur les PR vers main
+  workflow_dispatch: # Permet le déclenchement manuel
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Log in to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD1 }}
+          password: ${{ secrets.DOCKER_PASSWORD1}}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/arcadia-zoo-app-back:latest
-            ${{ secrets.DOCKER_USERNAME }}/arcadia-zoo-app-back:${{ github.sha }}
+          tags: djoudj/arcadia-zoo-app-back:latest
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Arrêter et supprimer l'ancien conteneur backend
+            CONTAINER_ID=$(docker ps -q --filter ancestor=djoudj/arcadia-zoo-app-back:latest)
+            if [ ! -z "$CONTAINER_ID" ]; then
+              echo "Arrêt du conteneur existant: $CONTAINER_ID"
+              docker stop $CONTAINER_ID
+              docker rm $CONTAINER_ID
+            fi
+
+            # Tirer la nouvelle image
+            echo "Récupération de la dernière version de l'image"
+            docker pull djoudj/arcadia-zoo-app-back:latest
+
+            # Démarrer le nouveau conteneur
+            echo "Démarrage du nouveau conteneur"
+            docker run -d \
+              --name arcadia-back-$(date +%s) \
+              -p 3000:3000 \
+              --restart always \
+              --network coolify-infra \
+              djoudj/arcadia-zoo-app-back:latest
+
+            echo "Déploiement terminé avec succès"

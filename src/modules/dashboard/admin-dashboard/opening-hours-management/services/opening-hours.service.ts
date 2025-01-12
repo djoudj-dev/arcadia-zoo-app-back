@@ -12,8 +12,10 @@ import { OpeningHours, ParkStatus } from '../models/opening-hours.model';
 @Injectable()
 export class OpeningHoursService {
   constructor(
-    @InjectModel('OpeningHours') private openingHoursModel: Model<OpeningHours>,
-    @InjectModel('ParkStatus') private parkStatusModel: Model<ParkStatus>,
+    @InjectModel('OpeningHours')
+    private readonly openingHoursModel: Model<OpeningHours>,
+    @InjectModel('ParkStatus')
+    private readonly parkStatusModel: Model<ParkStatus>,
   ) {}
 
   async getAllOpeningHours(): Promise<OpeningHours[]> {
@@ -72,12 +74,9 @@ export class OpeningHoursService {
       );
     }
 
-    if (
-      !openingHoursData.statusMessage ||
-      typeof openingHoursData.statusMessage !== 'string'
-    ) {
+    if (typeof openingHoursData.statusMessage !== 'string') {
       throw new BadRequestException(
-        'Le message de statut (statusMessage) est manquant ou invalide.',
+        'Le message de statut (statusMessage) doit être une chaîne de caractères',
       );
     }
 
@@ -93,7 +92,8 @@ export class OpeningHoursService {
       // Création du document
       const newOpeningHours = new this.openingHoursModel({
         ...openingHoursData,
-        isCurrent: openingHoursData.isCurrent ?? false, // Par défaut `false`
+        statusMessage: openingHoursData.statusMessage || 'Le parc est ouvert',
+        isCurrent: openingHoursData.isCurrent ?? false,
         _id: new mongoose.Types.ObjectId(),
         createdAt: new Date(),
       });
