@@ -21,9 +21,20 @@ uploadDirs.forEach((dir) => {
 });
 
 // Ajoutez après la création des dossiers uploads
-const templateDir = join(process.cwd(), 'src/modules/mail/templates');
+const templateDir = join(process.cwd(), 'dist/modules/mail/templates');
 if (!fs.existsSync(templateDir)) {
   fs.mkdirSync(templateDir, { recursive: true });
+}
+
+// Copier les fichiers templates depuis src vers dist
+const srcTemplateDir = join(process.cwd(), 'src/modules/mail/templates');
+if (fs.existsSync(srcTemplateDir)) {
+  const files = fs.readdirSync(srcTemplateDir);
+  files.forEach((file) => {
+    const srcPath = join(srcTemplateDir, file);
+    const destPath = join(templateDir, file);
+    fs.copyFileSync(srcPath, destPath);
+  });
 }
 
 async function bootstrap() {
@@ -40,22 +51,41 @@ async function bootstrap() {
     res.header(
       'Content-Security-Policy',
       "default-src 'self'; " +
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com; " +
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-        "img-src 'self' data: https://*.googleapis.com https://*.gstatic.com; " +
-        "font-src 'self' https://fonts.gstatic.com; " +
-        "frame-src 'self' https://www.google.com/; " +
-        "connect-src 'self' https://*.googleapis.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' " +
+        'https://*.googleapis.com https://*.gstatic.com https://maps.google.com; ' +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
+        "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com; " +
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; " +
+        "frame-src 'self' https://www.google.com/ https://*.google.com; " +
+        "connect-src 'self' https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com; " +
+        "worker-src 'self' blob:; " +
+        "child-src 'self' blob: https://*.google.com; " +
+        "object-src 'none'",
     );
+
+    // Ajouter les en-têtes pour le partitionnement des cookies
+    res.header('Storage-Access-Policy', 'unpartitioned-storage');
+    res.header('Partitioned-Cookie', 'none');
+
     next();
   });
 
+  // Convertir la chaîne de domaines en tableau
+  const corsOrigins = process.env.CORS_ORIGIN?.split(',');
+
   // Configuration CORS
   app.enableCors({
-    origin: ['http://localhost:4200', 'https://nedellec-julien.fr'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id'],
+    origin: corsOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'x-request-id',
+      'Partitioned-Cookie',
+      'Storage-Access-Policy',
+    ],
     credentials: true,
+    exposedHeaders: ['Storage-Access-Policy'],
   });
 
   console.log('CORS configuration applied');
