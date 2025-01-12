@@ -34,6 +34,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: '20m'
           script: |
             # Arrêter et supprimer l'ancien conteneur backend
             CONTAINER_ID=$(docker ps -q --filter ancestor=djoudj/arcadia-zoo-app-back:latest)
