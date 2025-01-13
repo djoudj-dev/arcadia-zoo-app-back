@@ -64,8 +64,11 @@ export class AnimalController {
       image?: Express.Multer.File,
       currentPath?: string | object,
     ): string => {
+      const baseUrl =
+        process.env.API_URL || 'https://api.nedellec-julien.fr/api';
+
       if (image) {
-        return `uploads/animals/${image.filename}`;
+        return `${baseUrl}/uploads/animals/${image.filename}`;
       }
       if (
         !currentPath ||
@@ -73,8 +76,13 @@ export class AnimalController {
         currentPath === '{}'
       )
         return '';
+
+      if (currentPath.startsWith('http')) {
+        return currentPath;
+      }
+
       const cleanPath = currentPath.replace(/^.*uploads\/animals\//, '');
-      return `uploads/animals/${cleanPath}`;
+      return `${baseUrl}/uploads/animals/${cleanPath}`;
     };
 
     const updateData: Partial<Animal> = {
