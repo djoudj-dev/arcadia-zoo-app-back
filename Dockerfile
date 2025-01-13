@@ -14,7 +14,7 @@ RUN npm install
 COPY src/ ./src/
 
 # Construire l'application
-RUN npm run build
+RUN mkdir -p dist/modules/mail && npm run build
 
 # Étape 2 : Image finale pour exécution
 FROM node:18-alpine
