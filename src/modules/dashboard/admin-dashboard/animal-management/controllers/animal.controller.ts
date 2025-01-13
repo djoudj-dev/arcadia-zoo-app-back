@@ -52,23 +52,14 @@ export class AnimalController {
     @Body() animalData: Partial<Animal>,
     @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
-    console.log('=== DÉBUT UPDATE ANIMAL ===');
-    console.log('ID reçu:', id);
-    console.log('Body brut:', animalData);
-    console.log('Image reçue:', images);
-
-    const formDataKeys = Object.keys(animalData);
-    console.log('Clés du FormData:', formDataKeys);
-
     const getImagePath = (
       image?: Express.Multer.File,
       currentPath?: string | object,
     ): string => {
-      const baseUrl =
-        process.env.API_URL || 'https://api.nedellec-julien.fr/api';
+      const baseUrl = process.env.API_URL || 'https://api.nedellec-julien.fr';
 
       if (image) {
-        return `${baseUrl}/uploads/animals/${image.filename}`;
+        return `${baseUrl}/api/uploads/animals/${image.filename}`;
       }
       if (
         !currentPath ||
@@ -82,7 +73,7 @@ export class AnimalController {
       }
 
       const cleanPath = currentPath.replace(/^.*uploads\/animals\//, '');
-      return `${baseUrl}/uploads/animals/${cleanPath}`;
+      return `${baseUrl}/api/uploads/animals/${cleanPath}`;
     };
 
     const updateData: Partial<Animal> = {

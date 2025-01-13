@@ -54,10 +54,10 @@ async function bootstrap() {
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' " +
         'https://*.googleapis.com https://*.gstatic.com https://maps.google.com; ' +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
-        "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com; " +
+        "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://api.nedellec-julien.fr; " +
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; " +
         "frame-src 'self' https://www.google.com/ https://*.google.com; " +
-        "connect-src 'self' https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com; " +
+        "connect-src 'self' https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com https://api.nedellec-julien.fr; " +
         "worker-src 'self' blob:; " +
         "child-src 'self' blob: https://*.google.com; " +
         "object-src 'none'",
