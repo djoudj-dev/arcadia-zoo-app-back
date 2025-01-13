@@ -155,7 +155,7 @@ export class OpeningHoursManagementController {
 
   private isValidTimeFormat(time: string): boolean {
     const timeFormat =
-      /^([0-1]?[0-9]|2[0-3])h[0-5][0-9]\s*-\s*([0-1]?[0-9]|2[0-3])h[0-5][0-9]$/;
+      /^([0-1]?\d|2[0-3])h[0-5]\d\s*-\s*([0-1]?\d|2[0-3])h[0-5]\d$/;
     return timeFormat.test(time);
   }
 
