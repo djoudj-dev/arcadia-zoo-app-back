@@ -15,8 +15,9 @@ FROM node:18-alpine
 WORKDIR /app
 
 # Copier uniquement les fichiers nécessaires à l'exécution
+COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist/ ./dist/
-RUN npm ci --only=production && mkdir -p /app/uploads
+RUN npm install --omit=dev && mkdir -p /app/uploads
 
 # Exposer le port de l'application
 EXPOSE 3000
