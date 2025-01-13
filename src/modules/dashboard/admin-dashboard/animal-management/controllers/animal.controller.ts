@@ -62,12 +62,17 @@ export class AnimalController {
 
     const getImagePath = (
       image?: Express.Multer.File,
-      currentPath?: string,
+      currentPath?: string | object,
     ): string => {
       if (image) {
         return `uploads/animals/${image.filename}`;
       }
-      if (!currentPath) return '';
+      if (
+        !currentPath ||
+        typeof currentPath !== 'string' ||
+        currentPath === '{}'
+      )
+        return '';
       const cleanPath = currentPath.replace(/^.*uploads\/animals\//, '');
       return `uploads/animals/${cleanPath}`;
     };
