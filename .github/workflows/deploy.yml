@@ -9,6 +9,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [20.12]
+
     steps:
       # Étape 1 : Checkout du code source
       - name: Checkout code
@@ -20,13 +24,48 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ matrix.node-version }}
 
-      # Étape 3 : Installer les dépendances et construire le projet NestJS
-      - name: Install dependencies and build NestJS
+      # Installation des dépendances avec npm clean-install
+      - name: Install dependencies
+        run: npm ci
+
+      # Audit de sécurité
+      - name: Audit
+        run: npm audit
+
+      # Vérification de la signature des audits
+      - name: Audit Signature
+        run: npm audit signatures
+
+      # Tests
+      - name: Test
+        run: npm run test
+
+      # Création du fichier .env
+      - name: Create environment file
         run: |
-          npm ci
-          npm run build
+          echo "Creating .env file..."
+          echo "NODE_ENV=production" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "JWT_EXPIRES_IN=15m" >> .env
+          echo "JWT_REFRESH_EXPIRES_IN=7d" >> .env
+          echo "POSTGRESQL_ARCADIA_URL=${{ secrets.POSTGRESQL_ARCADIA_URL }}" >> .env
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
+          echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env
+          echo "MAIL_USER=${{ secrets.MAIL_USER }}" >> .env
+          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+          echo "MAIL_FROM=${{ secrets.MAIL_FROM }}" >> .env
+          echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
+          echo "CORS_ORIGIN=${{ secrets.CORS_ORIGIN }}" >> .env
+
+      # Build
+      - name: Build
+        run: npm run build
 
       # Étape 4 : Configurer Docker Buildx
       - name: Set up Docker Buildx
@@ -45,8 +84,6 @@ jobs:
         with:
           context: .
           push: true
-          build-args: |
-            UPLOAD_PATH=/app/uploads
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/arcadia-zoo-app-back:latest
             ${{ secrets.DOCKER_USERNAME }}/arcadia-zoo-app-back:${{ github.sha }}
