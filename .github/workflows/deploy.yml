@@ -45,6 +45,8 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            UPLOAD_PATH=/app/uploads
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/arcadia-zoo-app-back:latest
             ${{ secrets.DOCKER_USERNAME }}/arcadia-zoo-app-back:${{ github.sha }}
