@@ -13,8 +13,9 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist/ ./dist/
 RUN npm install --omit=dev && mkdir -p /app/uploads
 
-# Définir le volume pour les uploads
-VOLUME ["/app/uploads"]
+ARG UPLOAD_PATH=/app/uploads
+RUN mkdir -p ${UPLOAD_PATH} && chown -R node:node ${UPLOAD_PATH}
+VOLUME ${UPLOAD_PATH}
 
 EXPOSE 3000
 CMD ["node", "dist/main.js"]
