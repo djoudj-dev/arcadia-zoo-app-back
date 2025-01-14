@@ -1,24 +1,29 @@
+import * as fs from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
-import * as fs from 'fs';
 
-const UPLOAD_BASE_PATH = '/app/uploads'; // Chemin absolu dans le conteneur
+const UPLOAD_BASE_PATH = '/data/coolify/arcadia-zoo-back/uploads'; // Changement ici
 
 function createMulterOptions(uploadDirectory: string) {
   const absolutePath = join(UPLOAD_BASE_PATH, uploadDirectory);
 
+  console.log(`Creating upload directory: ${absolutePath}`);
+
   if (!fs.existsSync(absolutePath)) {
+    console.log(`Directory doesn't exist, creating it...`);
     fs.mkdirSync(absolutePath, { recursive: true });
   }
 
   return {
     storage: diskStorage({
       destination: (req, file, cb) => {
+        console.log(`Saving file to: ${absolutePath}`);
         cb(null, absolutePath);
       },
       filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         const filename = `${uniqueSuffix}-${file.originalname}`;
+        console.log(`Generated filename: ${filename}`);
         cb(null, filename);
       },
     }),
