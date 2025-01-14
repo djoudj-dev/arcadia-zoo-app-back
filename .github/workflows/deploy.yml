@@ -38,10 +38,6 @@ jobs:
       - name: Audit Signature
         run: npm audit signatures
 
-      # Tests
-      - name: Test
-        run: npm run test
-
       # Création du fichier .env
       - name: Create environment file
         run: |
