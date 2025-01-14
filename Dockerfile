@@ -2,21 +2,37 @@ FROM node:18.19-alpine3.19 AS builder
 
 WORKDIR /app
 
+# Installer les dépendances
 COPY package*.json ./
 RUN npm ci
 
+# Copier les fichiers sources
 COPY . .
-RUN npm run build && ls -la dist/
+
+# Construire le projet
+RUN npm run build && \
+    echo "=== Contenu après build ===" && \
+    ls -la && \
+    echo "=== Contenu du dossier dist/src ===" && \
+    ls -la dist/src || true
 
 FROM node:18.19-alpine3.19
 
 WORKDIR /app
 
-COPY --from=builder /app/dist ./dist
+# Copier uniquement les fichiers nécessaires de l'étape builder
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./
+COPY --from=builder /app/node_modules ./node_modules
 
-RUN npm ci --only=production && ls -la dist/
+# Vérification des fichiers copiés
+RUN echo "=== Contenu final ===" && \
+    ls -la && \
+    echo "=== Contenu du dossier dist/src ===" && \
+    ls -la dist/src || true
 
+# Exposer le port
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+# Commande de démarrage
+CMD ["node", "dist/src/main"]
