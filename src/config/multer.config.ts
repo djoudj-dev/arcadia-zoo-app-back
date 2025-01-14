@@ -2,15 +2,19 @@ import { diskStorage } from 'multer';
 import { join } from 'path';
 import * as fs from 'fs';
 
+const UPLOAD_BASE_PATH = '/app/uploads'; // Chemin absolu dans le conteneur
+
 function createMulterOptions(uploadDirectory: string) {
-  if (!fs.existsSync(uploadDirectory)) {
-    fs.mkdirSync(uploadDirectory, { recursive: true });
+  const absolutePath = join(UPLOAD_BASE_PATH, uploadDirectory);
+
+  if (!fs.existsSync(absolutePath)) {
+    fs.mkdirSync(absolutePath, { recursive: true });
   }
 
   return {
     storage: diskStorage({
       destination: (req, file, cb) => {
-        cb(null, uploadDirectory);
+        cb(null, absolutePath);
       },
       filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -29,15 +33,9 @@ function createMulterOptions(uploadDirectory: string) {
 }
 
 // Utilisation pour les différents types d'uploads
-export const multerOptionsHabitats = createMulterOptions(
-  join(process.cwd(), 'uploads/habitats'),
-);
-export const multerOptionsAnimals = createMulterOptions(
-  join(process.cwd(), 'uploads/animals'),
-);
-export const multerOptionsServices = createMulterOptions(
-  join(process.cwd(), 'uploads/services'),
-);
+export const multerOptionsHabitats = createMulterOptions('habitats');
+export const multerOptionsAnimals = createMulterOptions('animals');
+export const multerOptionsServices = createMulterOptions('services');
 
 export const createTemplateDirectory = () => {
   const templateDir = join(process.cwd(), 'src/modules/mail/templates');

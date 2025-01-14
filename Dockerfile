@@ -10,8 +10,9 @@ RUN npm run build
 FROM node:18-alpine
 WORKDIR /app
 
-# Créer un utilisateur non-root
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# Créer un utilisateur avec des UID/GID spécifiques
+RUN addgroup -g 101 appgroup && \
+    adduser -u 100 -G appgroup -s /bin/sh -D appuser
 
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist/ ./dist/
