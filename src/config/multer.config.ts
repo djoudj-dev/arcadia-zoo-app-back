@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import { diskStorage } from 'multer';
 import { join } from 'path';
 
-const UPLOAD_BASE_PATH = '/data/coolify/arcadia-zoo-back/uploads'; // Changement ici
+const UPLOAD_BASE_PATH = '/app/uploads'; // Changement ici
 
 function createMulterOptions(uploadDirectory: string) {
   const absolutePath = join(UPLOAD_BASE_PATH, uploadDirectory);
