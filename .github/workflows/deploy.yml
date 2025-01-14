@@ -48,29 +48,3 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/arcadia-zoo-app-back:latest
             ${{ secrets.DOCKER_USERNAME }}/arcadia-zoo-app-back:${{ github.sha }}
-
-      # Étape 7 : Déployer sur le serveur
-      - name: Deploy to server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            # Créer le volume s'il n'existe pas
-            docker volume create arcadia_zoo_uploads || true
-
-            # Arrêter et supprimer l'ancien conteneur
-            docker stop arcadia-zoo-app-back || true
-            docker rm arcadia-zoo-app-back || true
-
-            # Lancer le nouveau conteneur avec le volume
-            docker run -d \
-              --name arcadia-zoo-app-back \
-              --restart always \
-              -p 3000:3000 \
-              -v arcadia_zoo_uploads:/app/uploads \
-              -e NODE_ENV=production \
-              -e API_URL=${{ secrets.API_URL }} \
-              -e CORS_ORIGIN=${{ secrets.CORS_ORIGIN }} \
-              ${{ secrets.DOCKER_USERNAME }}/arcadia-zoo-app-back:latest
