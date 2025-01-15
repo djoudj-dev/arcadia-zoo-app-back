@@ -216,21 +216,32 @@ export class AccountService {
    * @throws NotFoundException Si l'utilisateur n'existe pas
    */
   async findByEmail(email: string): Promise<User> {
-    const res = await query(
-      `
-      SELECT users.id, users.name, users.email, users.password, users.role_id AS "role_id", roles.name AS role_name
-      FROM users
-      LEFT JOIN roles ON users.role_id = roles.id
-      WHERE users.email = $1
-    `,
-      [email],
-    );
+    console.log('Searching for user with email:', email);
+    try {
+      const res = await query(
+        `
+        SELECT users.id, users.name, users.email, users.password, users.role_id AS "role_id", roles.name AS role_name
+        FROM users
+        LEFT JOIN roles ON users.role_id = roles.id
+        WHERE users.email = $1
+      `,
+        [email],
+      );
 
-    if (res.rows.length === 0) {
-      throw new NotFoundException(`User with email ${email} not found`);
+      console.log('Query result:', res.rows);
+
+      if (res.rows.length === 0) {
+        console.log('No user found with email:', email);
+        throw new NotFoundException(`User with email ${email} not found`);
+      }
+
+      const user = this.formatUser(res.rows[0]);
+      console.log('Formatted user:', user);
+      return user;
+    } catch (error) {
+      console.error('Error in findByEmail:', error);
+      throw error;
     }
-
-    return this.formatUser(res.rows[0]);
   }
 
   /**

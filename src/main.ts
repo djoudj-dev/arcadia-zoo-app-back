@@ -38,7 +38,10 @@ if (fs.existsSync(srcTemplateDir)) {
 }
 
 async function bootstrap() {
+  console.log('Starting application...');
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  console.log('NestJS application created');
 
   // Middleware de logging pour déboguer
   app.use((req, res, next) => {
@@ -72,8 +75,8 @@ async function bootstrap() {
 
   // Convertir la chaîne de domaines en tableau
   const corsOrigins = process.env.CORS_ORIGIN?.split(',');
+  console.log('CORS Origins:', corsOrigins);
 
-  // Configuration CORS
   app.enableCors({
     origin: corsOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
@@ -92,14 +95,24 @@ async function bootstrap() {
 
   // Définir le préfixe global pour toutes les routes API
   app.setGlobalPrefix('api');
+  console.log('Global prefix /api set');
 
-  // Configuration des fichiers statiques avec le préfixe /api
+  // Configuration des fichiers statiques
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/api/uploads', // On remet le préfixe /api
+    prefix: '/api/uploads',
   });
+  console.log('Static assets configured');
 
-  await app.listen(3000, '0.0.0.0');
-  console.log('NestJS server is running on http://localhost:3000');
+  try {
+    await app.listen(3000, '0.0.0.0');
+    console.log('Server successfully started on port 3000');
+    console.log('Environment variables:');
+    console.log('- CORS_ORIGIN:', process.env.CORS_ORIGIN);
+    console.log('- NODE_ENV:', process.env.NODE_ENV);
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 }
 
 bootstrap();

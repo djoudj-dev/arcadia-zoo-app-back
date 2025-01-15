@@ -16,7 +16,7 @@ import { AccountService } from 'src/modules/dashboard/admin-dashboard/account-ma
 import { VeterinaryReports } from '../models/veterinary-reports.model';
 import { VeterinaryReportsService } from '../services/veterinary-reports.service';
 
-@Controller('veterinary-reports')
+@Controller('veterinary/reports')
 export class VeterinaryReportsController {
   constructor(
     private readonly veterinaryReportsService: VeterinaryReportsService,

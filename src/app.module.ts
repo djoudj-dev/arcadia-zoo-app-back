@@ -28,6 +28,17 @@ import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module
       authSource: 'admin',
       retryWrites: true,
       w: 'majority',
+      connectionFactory: (connection) => {
+        connection.on('connected', () => {
+          console.log('MongoDB connected successfully');
+          console.log('MongoDB connection URL:', process.env.MONGODB_URI);
+        });
+        connection.on('error', (error) => {
+          console.error('MongoDB connection error:', error);
+          console.error('Attempted connection URL:', process.env.MONGODB_URI);
+        });
+        return connection;
+      },
     }),
     AuthModule,
     AccountModule,
