@@ -11,14 +11,19 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
+    console.log('Attempting to validate user:', email);
     const user = await this.accountService.findByEmail(email);
     if (!user) {
+      console.log('User not found:', email);
       throw new UnauthorizedException('Invalid credentials');
     }
+    console.log('User found, checking password...');
     const isPasswordMatch = await bcrypt.compare(pass, user.password);
     if (!isPasswordMatch) {
+      console.log('Password does not match');
       throw new UnauthorizedException('Invalid credentials');
     }
+    console.log('User validated successfully');
     return user;
   }
 

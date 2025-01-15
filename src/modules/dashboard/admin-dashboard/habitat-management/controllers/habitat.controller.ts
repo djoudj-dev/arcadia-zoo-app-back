@@ -23,7 +23,7 @@ import { HabitatService } from '../services/habitat.service';
  * Contrôleur pour la gestion des habitats en tant qu'admin.
  * Protégé par les gardes d'authentification et de rôles.
  */
-@Controller('admin/habitat-management')
+@Controller('admin/habitats')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class HabitatController {
   /**

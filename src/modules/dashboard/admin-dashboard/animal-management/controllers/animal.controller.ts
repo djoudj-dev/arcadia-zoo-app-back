@@ -19,7 +19,7 @@ import { multerOptionsAnimals } from '../../../../../config/multer.config';
 import { Animal } from '../models/animal.model';
 import { AnimalService } from '../services/animal.service';
 
-@Controller('admin/animal-management')
+@Controller('admin/animals')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AnimalController {
   constructor(private readonly animalService: AnimalService) {}
