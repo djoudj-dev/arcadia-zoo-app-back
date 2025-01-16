@@ -40,7 +40,11 @@ jobs:
 
       # Build
       - name: Build
-        run: npm run build
+        run: |
+          export NODE_ENV=production
+          npm run build
+          mkdir -p dist/src/modules/mail/templates
+          cp -r src/modules/mail/templates dist/src/modules/mail/
 
       # Étape 4 : Configurer Docker Buildx
       - name: Set up Docker Buildx
