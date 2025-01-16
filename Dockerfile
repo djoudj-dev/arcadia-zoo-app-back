@@ -6,9 +6,10 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 COPY src ./src
 
-RUN npm ci && npm run build \
-    && mkdir -p dist/src/modules/mail/templates \
-    && cp -r src/modules/mail/templates dist/src/modules/mail/
+# Build et préparation des templates
+RUN npm ci && npm run build && \
+    mkdir -p /app/dist/src/modules/mail/templates && \
+    cp -r /app/src/modules/mail/templates/* /app/dist/src/modules/mail/templates/
 
 FROM node:20.12-alpine3.19
 
@@ -19,8 +20,9 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY package*.json ./
 
-# Création des dossiers pour les uploads
-RUN mkdir -p uploads/habitats uploads/animals uploads/services
+# Création des dossiers pour les uploads et vérification des templates
+RUN mkdir -p uploads/habitats uploads/animals uploads/services && \
+    ls -la /app/dist/src/modules/mail/templates/
 
 ENV NODE_ENV=production
 
