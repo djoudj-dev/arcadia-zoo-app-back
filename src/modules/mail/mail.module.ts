@@ -27,12 +27,9 @@ dotenv.config();
     {
       provide: 'TEMPLATE_DIR',
       useFactory: () => {
-        const baseDir =
-          process.env.NODE_ENV === 'production' ? 'dist/src' : 'src';
         const templatePath = join(
           process.cwd(),
-          baseDir,
-          'modules/mail/templates',
+          'dist/src/modules/mail/templates',
         );
         console.log('📧 Dossier des templates configuré:', templatePath);
         return templatePath;
