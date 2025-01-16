@@ -1,27 +1,51 @@
 <html>
   <head>
     <meta charset='utf-8' />
-    <title>Bienvenue sur Arcadia Zoo</title>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0;
+      padding: 0; background-color: #FFFFFF; color: #0E1805; } .container {
+      max-width: 600px; margin: 0 auto; padding: 20px; } .header {
+      background-color: #557A46; color: #FFFFFF; padding: 20px; text-align:
+      center; border-radius: 8px 8px 0 0; } .content { background-color:
+      #FFFFFF; padding: 20px; border: 1px solid #A3B583; border-radius: 0 0 8px
+      8px; } .button { display: inline-block; padding: 10px 20px;
+      background-color: #7A9F61; color: #FFFFFF; text-decoration: none;
+      border-radius: 5px; margin: 20px 0; } .footer { text-align: center;
+      padding: 20px; color: #557A46; font-size: 12px; } .credentials {
+      background-color: #A3B583; padding: 15px; border-radius: 5px; margin: 15px
+      0; color: #FFFFFF; }
+    </style>
   </head>
   <body>
-    <h1>Bienvenue sur Arcadia Zoo, {{name}} !</h1>
+    <div class='container'>
+      <div class='header'>
+        <h1>Bienvenue sur Arcadia Zoo</h1>
+      </div>
+      <div class='content'>
+        <p>Bonjour {{name}},</p>
 
-    <p>Votre compte a été créé avec succès.</p>
+        <p>Nous sommes ravis de vous accueillir sur Arcadia Zoo. Votre compte a
+          été créé avec succès.</p>
 
-    <p>Voici vos identifiants de connexion :</p>
-    <ul>
-      <li>Email : {{email}}</li>
-      <li>Mot de passe temporaire : {{password}}</li>
-    </ul>
+        <div class='credentials'>
+          <p><strong>Vos identifiants de connexion :</strong><br />
+            Email :
+            {{email}}<br />
+            Mot de passe :
+            {{password}}</p>
+        </div>
 
-    <p>Pour des raisons de sécurité, nous vous recommandons de changer votre mot
-      de passe lors de votre première connexion.</p>
+        <p>Pour des raisons de sécurité, nous vous recommandons de changer votre
+          mot de passe lors de votre première connexion.</p>
 
-    <p>Cordialement,<br />
-      L'équipe Arcadia Zoo</p>
+        <p>Découvrez dès maintenant nos habitats uniques, nos animaux fascinants
+          et nos services exceptionnels.</p>
+      </div>
 
-    <footer>
-      <p>&copy; {{year}} Arcadia Zoo. Tous droits réservés.</p>
-    </footer>
+      <div class='footer'>
+        <p>© 2024 Arcadia Zoo - Tous droits réservés<br />
+          Cet email a été envoyé automatiquement, merci de ne pas y répondre.</p>
+      </div>
+    </div>
   </body>
 </html>

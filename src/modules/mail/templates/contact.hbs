@@ -2,72 +2,41 @@
   <head>
     <meta charset='utf-8' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
-    <title>Nouveau message de contact</title>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0;
+      padding: 0; background-color: #FFFFFF; color: #0E1805; } .container {
+      max-width: 600px; margin: 0 auto; padding: 20px; } .header {
+      background-color: #557A46; color: #FFFFFF; padding: 20px; text-align:
+      center; border-radius: 8px 8px 0 0; } .content { background-color:
+      #FFFFFF; padding: 20px; border: 1px solid #A3B583; border-radius: 0 0 8px
+      8px; } .sender-info { background-color: #A3B583; padding: 15px;
+      border-radius: 5px; margin: 15px 0; color: #FFFFFF; } .message-box {
+      background-color: #7A9F61; padding: 15px; border-radius: 5px; margin: 15px
+      0; color: #FFFFFF; } .footer { text-align: center; padding: 20px; color:
+      #557A46; font-size: 12px; border-top: 1px solid #A3B583; margin-top: 20px;
+      } a { color: #FFFFFF; text-decoration: underline; }
+    </style>
   </head>
-  <body style='margin: 0; padding: 0; background-color: #f6f9fc;'>
-    <div style='width: 100%; max-width: 600px; margin: 0 auto; padding: 20px;'>
-      <div
-        style='background-color: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 40px; margin-top: 20px;'
-      >
-        <!-- En-tête -->
-        <div style='text-align: center; margin-bottom: 30px;'>
-          <h1
-            style="color: #1a1a1a; font-family: 'Arial', sans-serif; font-size: 24px; margin: 0;"
-          >
-            Nouveau message de contact
-          </h1>
-          <div
-            style='width: 50px; height: 3px; background-color: #4CAF50; margin: 15px auto;'
-          ></div>
+  <body>
+    <div class='container'>
+      <div class='header'>
+        <h1>Nouveau message de contact</h1>
+      </div>
+      <div class='content'>
+        <div class='sender-info'>
+          <p><strong>De :</strong> {{name}}</p>
+          <p><strong>Email :</strong>
+            <a href='mailto:{{email}}'>{{email}}</a></p>
         </div>
 
-        <!-- Informations de l'expéditeur -->
-        <div style='margin-bottom: 30px;'>
-          <p
-            style="font-family: 'Arial', sans-serif; color: #666; margin-bottom: 5px;"
-          >
-            <strong style='color: #1a1a1a;'>De :</strong>
-            <span style='color: #4CAF50;'>{{name}}</span>
-          </p>
-          <p
-            style="font-family: 'Arial', sans-serif; color: #666; margin-bottom: 20px;"
-          >
-            <strong style='color: #1a1a1a;'>Email :</strong>
-            <a
-              href='mailto:{{email}}'
-              style='color: #4CAF50; text-decoration: none;'
-            >{{email}}</a>
-          </p>
+        <h2 style='color: #557A46;'>Message :</h2>
+        <div class='message-box'>
+          <p>{{message}}</p>
         </div>
+      </div>
 
-        <!-- Message -->
-        <div style='margin-bottom: 30px;'>
-          <h2
-            style="color: #1a1a1a; font-family: 'Arial', sans-serif; font-size: 18px; margin-bottom: 15px;"
-          >
-            Message :
-          </h2>
-          <div
-            style='background-color: #f8f9fa; border-left: 4px solid #4CAF50; padding: 20px; border-radius: 5px;'
-          >
-            <p
-              style="font-family: 'Arial', sans-serif; color: #666; line-height: 1.6; margin: 0;"
-            >
-              {{message}}
-            </p>
-          </div>
-        </div>
-
-        <!-- Pied de page -->
-        <div
-          style='text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;'
-        >
-          <p
-            style="font-family: 'Arial', sans-serif; color: #999; font-size: 14px;"
-          >
-            © 2024 Arcadia Zoo. Tous droits réservés.
-          </p>
-        </div>
+      <div class='footer'>
+        <p>© 2024 Arcadia Zoo - Tous droits réservés</p>
       </div>
     </div>
   </body>
