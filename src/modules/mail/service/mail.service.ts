@@ -14,7 +14,7 @@ export class MailService {
   private async compileTemplate(templateName: string, context: any) {
     const templatePath = join(
       process.cwd(),
-      'dist/modules/mail/templates',
+      'dist/src/modules/mail/templates',
       `${templateName}.hbs`,
     );
     if (!fs.existsSync(templatePath)) {
