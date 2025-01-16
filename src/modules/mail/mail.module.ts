@@ -14,13 +14,14 @@ dotenv.config();
       useFactory: () => {
         return createTransport({
           service: 'gmail',
-          host: 'smtp.gmail.com',
+          host: process.env.MAIL_HOST || 'smtp.gmail.com',
           port: 465,
           secure: true,
           auth: {
-            user: process.env.MAIL_USER,
+            user: process.env.ADMIN_EMAIL,
             pass: process.env.MAIL_PASSWORD,
           },
+          from: process.env.MAIL_FROM,
         });
       },
     },
