@@ -24,18 +24,18 @@ import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRoot(process.env.MONGODB_URI, {
+    MongooseModule.forRoot(process.env.MONGO_URL, {
       authSource: 'admin',
       retryWrites: true,
       w: 'majority',
       connectionFactory: (connection) => {
         connection.on('connected', () => {
           console.log('MongoDB connected successfully');
-          console.log('MongoDB connection URL:', process.env.MONGODB_URI);
+          console.log('MongoDB connection URL:', process.env.MONGO_URL);
         });
         connection.on('error', (error) => {
           console.error('MongoDB connection error:', error);
-          console.error('Attempted connection URL:', process.env.MONGODB_URI);
+          console.error('Attempted connection URL:', process.env.MONGO_URL);
         });
         return connection;
       },

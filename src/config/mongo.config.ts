@@ -8,7 +8,7 @@ if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
 }
 
-const mongoUri = process.env.MONGODB_URI;
+const mongoUri = process.env.MONGO_URL;
 
 /**
  * Fonction pour établir une connexion avec MongoDB.
@@ -17,7 +17,7 @@ export const connectMongoDB = async () => {
   try {
     if (!mongoUri) {
       throw new Error(
-        "MONGODB_URI non définie dans les variables d'environnement",
+        "MONGO_URL non définie dans les variables d'environnement",
       );
     }
 
