@@ -9,19 +9,23 @@ export class MailService {
   constructor(
     @Inject('MAILER_TRANSPORT') readonly transport: Transporter,
     @Inject('TEMPLATE_DIR') readonly templateDir: string,
-  ) {}
+  ) {
+    console.log('📧 Dossier des templates:', this.templateDir);
+  }
 
   private async compileTemplate(templateName: string, context: any) {
-    const templatePath = join(
-      process.cwd(),
-      'dist/src/modules/mail/templates',
-      `${templateName}.hbs`,
-    );
+    const templatePath = join(this.templateDir, `${templateName}.hbs`);
+    console.log('📧 Tentative de lecture du template à:', templatePath);
+
     if (!fs.existsSync(templatePath)) {
+      console.error('❌ Template non trouvé à:', templatePath);
+      console.error('📁 Contenu du dossier:', fs.readdirSync(this.templateDir));
       throw new Error(
         `Template ${templateName}.hbs non trouvé dans ${templatePath}`,
       );
     }
+
+    console.log('✅ Template trouvé');
     const template = await fs.promises.readFile(templatePath, 'utf-8');
     const compiledTemplate = handlebars.compile(template);
     return compiledTemplate(context);
