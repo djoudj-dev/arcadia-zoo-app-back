@@ -1,26 +1,20 @@
-FROM node:20.12-alpine3.19 AS builder
+FROM node:20.12-alpine3.19
 
-# Ajout des dépendances de build pour bcrypt
-RUN apk add --no-cache g++ make python3
-
-WORKDIR /build
+WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci
+COPY tsconfig*.json ./
+COPY src ./src
 
-COPY . .
-RUN npm run build
+RUN npm ci && npm run build
 
 FROM node:20.12-alpine3.19
 
 WORKDIR /dist/src
 
-# Installation des outils pour le healthcheck et bcrypt
-RUN apk add --no-cache curl g++ make python3 wget
-
-COPY --from=builder /build/package*.json ./
-COPY --from=builder /build/dist/src .
-COPY --from=builder /build/node_modules ../node_modules
+# Création des dossiers pour les uploads
+RUN mkdir -p uploads/habitats uploads/animals uploads/services
 
 EXPOSE 3000
-CMD ["node", "main.js"]
+# Commande de démarrage
+CMD ["npm", "run", "start:prod"]
