@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -50,12 +51,34 @@ export class AnimalController {
   async updateAnimal(
     @Param('id') id: number,
     @Body() animalData: Partial<Animal>,
-    @UploadedFile() images?: Express.Multer.File,
+    @UploadedFile() image?: Express.Multer.File,
   ): Promise<Animal> {
-    if (images) {
-      animalData.images = images.filename;
+    console.log('Données reçues:', animalData);
+    console.log('Image reçue:', image);
+
+    // Vérifier si l'animal existe
+    const existingAnimal = await this.animalService.findOne(id);
+    if (!existingAnimal) {
+      throw new NotFoundException(`Animal avec ID ${id} non trouvé`);
     }
-    return this.animalService.updateAnimal(id, animalData, 'admin');
+
+    // Gestion de l'image
+    if (image) {
+      animalData.images = image.filename;
+      console.log('Nouvelle image:', animalData.images);
+    } else if (!animalData.images || animalData.images === '{}') {
+      animalData.images = existingAnimal.images;
+      console.log("Conservation de l'image existante:", animalData.images);
+    }
+
+    console.log('Données finales à mettre à jour:', animalData);
+    const result = await this.animalService.updateAnimal(
+      id,
+      animalData,
+      'admin',
+    );
+    console.log('Résultat de la mise à jour:', result);
+    return result;
   }
 
   @Roles('admin')
