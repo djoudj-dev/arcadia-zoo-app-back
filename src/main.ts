@@ -75,14 +75,16 @@ async function bootstrap() {
   console.log('CORS Origins:', corsOrigins);
 
   app.enableCors({
-    origin: corsOrigins,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
     allowedHeaders: [
       'Content-Type',
       'Authorization',
       'x-request-id',
       'Partitioned-Cookie',
       'Storage-Access-Policy',
+      'Origin',
+      'Accept',
     ],
     credentials: true,
     exposedHeaders: ['Storage-Access-Policy'],
@@ -100,6 +102,9 @@ async function bootstrap() {
     setHeaders: (res) => {
       res.set('Access-Control-Allow-Origin', '*');
       res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.set('Cross-Origin-Opener-Policy', 'same-origin');
+      res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+      res.set('Access-Control-Allow-Headers', '*');
       res.set('Cache-Control', 'public, max-age=31536000');
     },
   });
