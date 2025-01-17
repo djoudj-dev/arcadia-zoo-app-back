@@ -90,6 +90,7 @@ export class AnimalService {
         animalData.images.includes('-')
       ) {
         // La nouvelle image est déjà assignée, pas besoin de réassignement
+        animalData.images = `uploads/animals/${animalData.images}`;
       } else {
         // Sinon on garde l'image existante
         animalData.images = existingAnimal.images;
@@ -104,11 +105,7 @@ export class AnimalService {
         weight_range = COALESCE($4, weight_range),
         diet = COALESCE($5, diet),
         habitat_id = COALESCE($6, habitat_id),
-        images = CASE 
-          WHEN $7 IS NULL THEN images
-          WHEN $7 = '' THEN images
-          ELSE $7
-        END,
+        images = COALESCE($7::text, images),
         vet_note = CASE 
           WHEN $8 = '' THEN NULL 
           ELSE COALESCE($8, vet_note)
