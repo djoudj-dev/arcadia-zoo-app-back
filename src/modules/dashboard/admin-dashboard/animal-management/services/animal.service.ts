@@ -83,17 +83,18 @@ export class AnimalService {
     }
 
     // Gestion de l'image
-    if (animalData.images && typeof animalData.images === 'string') {
-      // Si c'est un nouveau fichier, on prend juste le nom du fichier
-      if (animalData.images.includes('filename')) {
-        animalData.images = `uploads/animals/${animalData.images}`;
+    if (animalData.images) {
+      // Si c'est une nouvelle image (contient le nom du fichier généré par multer)
+      if (
+        typeof animalData.images === 'string' &&
+        animalData.images.includes('-')
+      ) {
+        // La nouvelle image est déjà assignée, pas besoin de réassignement
       } else {
         // Sinon on garde l'image existante
         animalData.images = existingAnimal.images;
       }
     }
-
-    console.log('Données à mettre à jour:', animalData);
 
     const res = await query(
       `UPDATE animals SET 
@@ -103,7 +104,11 @@ export class AnimalService {
         weight_range = COALESCE($4, weight_range),
         diet = COALESCE($5, diet),
         habitat_id = COALESCE($6, habitat_id),
-        images = COALESCE($7, images),
+        images = CASE 
+          WHEN $7 IS NULL THEN images
+          WHEN $7 = '' THEN images
+          ELSE $7
+        END,
         vet_note = CASE 
           WHEN $8 = '' THEN NULL 
           ELSE COALESCE($8, vet_note)
@@ -123,7 +128,6 @@ export class AnimalService {
       ],
     );
 
-    console.log('Résultat brut de la mise à jour:', res.rows[0]);
     return this.formatAnimal(res.rows[0]);
   }
 
@@ -156,10 +160,7 @@ export class AnimalService {
       name: row.name,
       species: row.species,
       images: row.images
-        ? `${baseUrl}/api/uploads/animals/${row.images.replace(
-            'uploads/animals/',
-            '',
-          )}`
+        ? `${baseUrl}/api/uploads/animals/${row.images}`
         : null,
       characteristics: row.characteristics,
       weightRange: row.weight_range,
