@@ -21,12 +21,16 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY package*.json ./
 
 # Création des répertoires avec les bonnes permissions
+USER root
+
 RUN mkdir -p /app/dist/modules/mail/templates && \
     mkdir -p /app/uploads/animals && \
     mkdir -p /app/uploads/habitats && \
     mkdir -p /app/uploads/services && \
+    # Utiliser l'utilisateur node existant (UID 1000)
     chown -R node:node /app && \
-    chmod -R 755 /app
+    chmod -R 755 /app && \
+    chmod -R 777 /app/uploads
 
 # Définir l'utilisateur node comme utilisateur par défaut
 USER node
