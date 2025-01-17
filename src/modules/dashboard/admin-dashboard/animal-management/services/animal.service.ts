@@ -71,7 +71,7 @@ export class AnimalService {
     id: number,
     animalData: Partial<Animal>,
     userRole: string,
-    image?: Express.Multer.File, // Ajoutez le paramètre image
+    image?: Express.Multer.File,
   ): Promise<Animal> {
     this.checkAdminRole(userRole);
 
@@ -80,9 +80,14 @@ export class AnimalService {
       throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
     }
 
-    // Mettez à jour le chemin de l'image si une nouvelle image est fournie
+    // Nettoyer le chemin de l'image si fourni
     if (image) {
       animalData.images = `uploads/animals/${image.filename}`;
+    } else if (animalData.images) {
+      animalData.images = animalData.images.replace(
+        /^.*uploads\/animals\//,
+        'uploads/animals/',
+      );
     }
 
     const res = await query(
