@@ -20,6 +20,14 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY package*.json ./
 
+# Création des répertoires avec les bonnes permissions
+RUN mkdir -p /app/dist/modules/mail/templates && \
+    mkdir -p /app/uploads/animals && \
+    mkdir -p /app/uploads/habitats && \
+    mkdir -p /app/uploads/services && \
+    chown -R node:node /app && \
+    chmod -R 755 /app
+
 # Définir l'utilisateur node comme utilisateur par défaut
 USER node
 
