@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { NextFunction, Request, Response } from 'express';
 import * as fs from 'fs';
 import { join } from 'path';
 import { AppModule } from './app.module';
@@ -20,12 +19,6 @@ uploadDirs.forEach((dir) => {
     fs.mkdirSync(fullPath, { recursive: true });
   }
 });
-
-// Création du dossier public pour les fichiers statiques
-const publicDir = join(process.cwd(), 'public');
-if (!fs.existsSync(publicDir)) {
-  fs.mkdirSync(publicDir, { recursive: true });
-}
 
 // Ajoutez après la création des dossiers uploads
 const templateDir = join(process.cwd(), 'dist/modules/mail/templates');
@@ -73,6 +66,7 @@ async function bootstrap() {
         "object-src 'none'",
     );
 
+    // Ajouter les en-têtes pour le partitionnement des cookies
     res.header('Storage-Access-Policy', 'unpartitioned-storage');
     res.header('Partitioned-Cookie', 'none');
 
@@ -90,12 +84,11 @@ async function bootstrap() {
       'Content-Type',
       'Authorization',
       'x-request-id',
-      'Origin',
-      'Accept',
-      'Access-Control-Allow-Origin',
+      'Partitioned-Cookie',
+      'Storage-Access-Policy',
     ],
-    exposedHeaders: ['Access-Control-Allow-Origin'],
     credentials: true,
+    exposedHeaders: ['Storage-Access-Policy'],
   });
 
   console.log('CORS configuration applied');
@@ -105,66 +98,17 @@ async function bootstrap() {
   console.log('Global prefix /api set');
 
   // Configuration des fichiers statiques
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-    prefix: '/api/uploads/',
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/api/uploads',
   });
-
-  // Configuration pour servir les fichiers statiques du dossier public
-  app.useStaticAssets(join(process.cwd(), 'public'), {
-    index: false,
-  });
-
   console.log('Static assets configured');
-
-  app.use('/favicon.ico', (req, res, next) => {
-    const faviconPath = join(process.cwd(), 'public', 'favicon.ico');
-    if (fs.existsSync(faviconPath)) {
-      res.sendFile(faviconPath);
-    } else {
-      res.status(404).send();
-    }
-  });
-
-  app.use((req, res, next) => {
-    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.header('Cross-Origin-Embedder-Policy', 'credentialless');
-    res.header('Cross-Origin-Opener-Policy', 'same-origin');
-
-    // Pour les images spécifiquement
-    if (req.path.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-      res.header('Cache-Control', 'public, max-age=31536000');
-      res.header('Access-Control-Allow-Origin', '*');
-    }
-
-    next();
-  });
-
-  // Middleware pour les images
-  app.use('/api/uploads', (req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.header('Cache-Control', 'public, max-age=31536000');
-    next();
-  });
-
-  app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-    console.error('Erreur globale:', error);
-
-    if (error.code === 'ENOENT') {
-      return res.status(404).json({
-        message: 'Fichier non trouvé',
-        error: error.message,
-      });
-    }
-
-    res.status(500).json({
-      message: 'Erreur interne du serveur',
-      error: error.message,
-    });
-  });
 
   try {
     await app.listen(3000, '0.0.0.0');
+    console.log('Server successfully started on port 3000');
+    console.log('Environment variables:');
+    console.log('- CORS_ORIGIN:', process.env.CORS_ORIGIN);
+    console.log('- NODE_ENV:', process.env.NODE_ENV);
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
