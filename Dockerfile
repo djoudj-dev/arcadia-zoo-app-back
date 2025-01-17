@@ -25,7 +25,8 @@ RUN mkdir -p /app/uploads/habitats && \
     mkdir -p /app/uploads/animals && \
     mkdir -p /app/uploads/services && \
     chown -R node:node /app && \
-    chmod -R 755 /app/uploads
+    chmod -R 755 /app/uploads && \
+    chmod -R 755 /app/dist
 
 # Définir l'utilisateur node comme utilisateur par défaut
 USER node
