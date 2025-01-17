@@ -56,20 +56,24 @@ export class AnimalController {
       image?: Express.Multer.File,
       currentPath?: string | object,
     ): string => {
-      if (image) {
-        return image.filename;
-      }
+      const baseUrl = process.env.API_URL || 'https://api.nedellec-julien.fr';
 
+      if (image) {
+        return `${baseUrl}/api/uploads/animals/${image.filename}`;
+      }
       if (
         !currentPath ||
         typeof currentPath !== 'string' ||
         currentPath === '{}'
-      ) {
+      )
         return '';
+
+      if (currentPath.startsWith('http')) {
+        return currentPath;
       }
 
-      // Extraire uniquement le nom du fichier (ex: 1737058531165-706421970-perroquet.webp)
-      return currentPath.split('/').pop() || '';
+      const cleanPath = currentPath.replace(/^.*uploads\/animals\//, '');
+      return `${baseUrl}/api/uploads/animals/${cleanPath}`;
     };
 
     const updateData: Partial<Animal> = {
