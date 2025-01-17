@@ -54,10 +54,9 @@ async function bootstrap() {
     res.header(
       'Content-Security-Policy',
       "default-src 'self'; " +
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' " +
-        'https://*.googleapis.com https://*.gstatic.com https://maps.google.com; ' +
+        "script-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.gstatic.com https://maps.google.com; " +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
-        "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://api.nedellec-julien.fr; " +
+        "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://api.nedellec-julien.fr https://nedellec-julien.fr; " +
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; " +
         "frame-src 'self' https://www.google.com/ https://*.google.com; " +
         "connect-src 'self' https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com https://api.nedellec-julien.fr; " +
@@ -66,10 +65,8 @@ async function bootstrap() {
         "object-src 'none'",
     );
 
-    // Ajouter les en-têtes pour le partitionnement des cookies
     res.header('Storage-Access-Policy', 'unpartitioned-storage');
     res.header('Partitioned-Cookie', 'none');
-
     next();
   });
 
@@ -97,21 +94,24 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   console.log('Global prefix /api set');
 
-  // Configuration des fichiers statiques
+  // Configuration des fichiers statiques avec options étendues
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/api/uploads',
+    setHeaders: (res) => {
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.set('Cache-Control', 'public, max-age=31536000');
+    },
   });
 
-  // Middleware pour les images
-  app.use('/api/uploads', (req, res, next) => {
-    console.log('Accessing image:', req.url);
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
-    res.header('Cache-Control', 'public, max-age=31536000');
-    next();
+  // Middleware de gestion d'erreurs pour les fichiers statiques
+  app.use('/api/uploads', (err, req, res, next) => {
+    console.error('Erreur accès fichier:', req.url, err);
+    if (err.code === 'ENOENT') {
+      return res.status(404).json({ message: 'Fichier non trouvé' });
+    }
+    next(err);
   });
-
-  console.log('Static assets configured');
 
   try {
     await app.listen(3000, '0.0.0.0');
