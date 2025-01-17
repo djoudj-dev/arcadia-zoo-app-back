@@ -1,5 +1,9 @@
 // Backend: AnimalService
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Pool } from 'pg';
@@ -71,20 +75,24 @@ export class AnimalService {
     id: number,
     animalData: Partial<Animal>,
     userRole: string,
-    image?: Express.Multer.File,
   ): Promise<Animal> {
     this.checkAdminRole(userRole);
-
     const existingAnimal = await this.findOne(id);
     if (!existingAnimal) {
-      throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
+      throw new NotFoundException(`Animal avec l'ID ${id} non trouvé`);
     }
 
-    // Nettoyer le chemin de l'image
-    if (animalData.images) {
-      const filename = animalData.images.split('/').pop();
-      animalData.images = `uploads/animals/${filename}`;
+    // Formater le chemin de l'image si présent
+    if (animalData.images && typeof animalData.images === 'string') {
+      if (!animalData.images.startsWith('uploads/animals/')) {
+        animalData.images = `uploads/animals/${animalData.images}`;
+      }
+    } else {
+      // Si images n'est pas une chaîne valide, utiliser l'image existante
+      animalData.images = existingAnimal.images;
     }
+
+    console.log('Données à mettre à jour:', animalData);
 
     const res = await query(
       `UPDATE animals SET 
@@ -114,6 +122,7 @@ export class AnimalService {
       ],
     );
 
+    console.log('Résultat de la mise à jour:', res.rows[0]);
     return this.formatAnimal(res.rows[0]);
   }
 
