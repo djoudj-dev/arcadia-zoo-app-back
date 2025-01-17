@@ -89,7 +89,10 @@ export class AnimalService {
         typeof animalData.images === 'string' &&
         animalData.images.includes('-')
       ) {
-        animalData.images = `uploads/animals/${animalData.images}`;
+        // Vérifier si le chemin contient déjà uploads/animals/
+        if (!animalData.images.startsWith('uploads/animals/')) {
+          animalData.images = `uploads/animals/${animalData.images}`;
+        }
       } else {
         animalData.images = existingAnimal.images;
       }
