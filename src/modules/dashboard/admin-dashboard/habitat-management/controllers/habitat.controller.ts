@@ -88,14 +88,16 @@ export class HabitatController {
     console.log('Données habitat reçues:', habitatData);
 
     if (image) {
-      habitatData.images = `uploads/habitats/${image.filename}`;
+      habitatData.images = image.filename;
     } else {
       // Conserver l'image existante si aucune nouvelle image n'est fournie
       const existingHabitat = await this.habitatService.findOne(id);
       if (!existingHabitat) {
         throw new NotFoundException(`Habitat avec ID ${id} non trouvé`);
       }
-      habitatData.images = existingHabitat.images ?? '';
+      habitatData.images = existingHabitat.images
+        ? existingHabitat.images.split('/').pop()
+        : '';
     }
 
     console.log('Données à mettre à jour:', habitatData);
