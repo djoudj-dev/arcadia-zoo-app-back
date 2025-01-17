@@ -159,18 +159,7 @@ async function bootstrap() {
     // Configurer Content-Security-Policy
     res.setHeader(
       'Content-Security-Policy',
-      `default-src 'self';
-      script-src 'self' 'nonce-${nonce}' https://maps.googleapis.com;
-      frame-src 'self' https://www.google.com;
-      img-src 'self' data: https: blob:;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      font-src 'self' https://fonts.gstatic.com;
-      connect-src 'self' https://maps.googleapis.com;
-      object-src 'none';
-      base-uri 'self';
-      form-action 'self';
-      frame-ancestors 'none';
-      upgrade-insecure-requests;`,
+      `default-src 'self'; script-src 'self' 'nonce-${nonce}' https://maps.googleapis.com; frame-src 'self' https://www.google.com; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://maps.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests`,
     );
 
     // Autres en-têtes de sécurité recommandés
