@@ -87,18 +87,23 @@ export class HabitatController {
     console.log('Image reçue:', image);
     console.log('Body reçu:', body);
 
-    // Extraire les données de l'habitat du body
-    const habitatData = body.data || body;
+    // Extraire les données de l'habitat du body.data
+    const habitatData =
+      typeof body.data === 'string' ? JSON.parse(body.data) : body.data;
     console.log('Données habitat extraites:', habitatData);
 
+    // Vérifier si l'habitat existe
+    const existingHabitat = await this.habitatService.findOne(id);
+    if (!existingHabitat) {
+      throw new NotFoundException(`Habitat avec ID ${id} non trouvé`);
+    }
+
+    // Gérer l'image
     if (image) {
+      // Si une nouvelle image est fournie, mettre à jour le chemin
       habitatData.images = `uploads/habitats/${image.filename}`;
     } else {
-      // Conserver l'image existante si aucune nouvelle image n'est fournie
-      const existingHabitat = await this.habitatService.findOne(id);
-      if (!existingHabitat) {
-        throw new NotFoundException(`Habitat avec ID ${id} non trouvé`);
-      }
+      // Conserver l'image existante
       habitatData.images = existingHabitat.images;
     }
 
