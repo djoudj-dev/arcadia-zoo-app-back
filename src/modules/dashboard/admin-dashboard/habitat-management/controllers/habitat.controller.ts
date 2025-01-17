@@ -87,7 +87,7 @@ export class HabitatController {
     console.log('Données habitat reçues:', habitatData);
 
     if (images) {
-      habitatData.images = images.filename;
+      habitatData.images = `uploads/habitats/${images.filename}`;
     } else if (habitatData.images === '0' || !habitatData.images) {
       delete habitatData.images;
     }
