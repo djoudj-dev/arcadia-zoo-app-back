@@ -92,8 +92,9 @@ async function bootstrap() {
       'Partitioned-Cookie',
       'Storage-Access-Policy',
     ],
-    credentials: true,
     exposedHeaders: ['Storage-Access-Policy'],
+    credentials: true,
+    maxAge: 86400, // 24 heures de cache pour les requêtes preflight
   });
 
   console.log('CORS configuration applied');
@@ -114,8 +115,27 @@ async function bootstrap() {
 
   console.log('Static assets configured');
 
-  app.use('/favicon.ico', (req, res) => {
-    res.sendFile(join(process.cwd(), 'public/favicon.ico'));
+  app.use('/favicon.ico', (req, res, next) => {
+    const faviconPath = join(process.cwd(), 'public', 'favicon.ico');
+    if (fs.existsSync(faviconPath)) {
+      res.sendFile(faviconPath);
+    } else {
+      res.status(404).send();
+    }
+  });
+
+  app.use((req, res, next) => {
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.header('Cross-Origin-Embedder-Policy', 'credentialless');
+    res.header('Cross-Origin-Opener-Policy', 'same-origin');
+
+    // Pour les images spécifiquement
+    if (req.path.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
+      res.header('Cache-Control', 'public, max-age=31536000');
+      res.header('Access-Control-Allow-Origin', '*');
+    }
+
+    next();
   });
 
   try {
