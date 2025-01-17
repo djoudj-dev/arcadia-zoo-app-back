@@ -20,9 +20,15 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY package*.json ./
 
-# Création des dossiers pour les uploads et vérification des templates
-RUN mkdir -p uploads/habitats uploads/animals uploads/services && \
-    ls -la /app/dist/src/modules/mail/templates/
+# Création des dossiers pour les uploads avec les bonnes permissions
+RUN mkdir -p /app/uploads/habitats && \
+    mkdir -p /app/uploads/animals && \
+    mkdir -p /app/uploads/services && \
+    chown -R node:node /app && \
+    chmod -R 755 /app/uploads
+
+# Définir l'utilisateur node comme utilisateur par défaut
+USER node
 
 ENV NODE_ENV=production
 
