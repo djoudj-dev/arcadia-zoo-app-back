@@ -71,11 +71,13 @@ async function bootstrap() {
   });
 
   // Convertir la chaîne de domaines en tableau
-  const corsOrigins = process.env.CORS_ORIGIN?.split(',');
+  const corsOrigins = process.env.CORS_ORIGIN?.split(',') || [
+    'https://nedellec-julien.fr',
+  ];
   console.log('CORS Origins:', corsOrigins);
 
   app.enableCors({
-    origin: true,
+    origin: corsOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
     allowedHeaders: [
       'Content-Type',
@@ -85,9 +87,15 @@ async function bootstrap() {
       'Storage-Access-Policy',
       'Origin',
       'Accept',
+      'Access-Control-Allow-Origin',
+      'Access-Control-Allow-Methods',
+      'Access-Control-Allow-Headers',
     ],
     credentials: true,
-    exposedHeaders: ['Storage-Access-Policy'],
+    exposedHeaders: [
+      'Access-Control-Allow-Origin',
+      'Access-Control-Allow-Credentials',
+    ],
   });
 
   console.log('CORS configuration applied');
@@ -104,7 +112,8 @@ async function bootstrap() {
   app.useStaticAssets(uploadsPath, {
     prefix: '/api/uploads',
     setHeaders: (res) => {
-      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Access-Control-Allow-Origin', corsOrigins[0]);
+      res.set('Access-Control-Allow-Credentials', 'true');
       res.set('Cross-Origin-Resource-Policy', 'cross-origin');
       res.set('Cross-Origin-Opener-Policy', 'same-origin');
       res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
