@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -72,7 +73,7 @@ export class HabitatController {
    * Accessible uniquement aux administrateurs.
    * @param id Identifiant de l'habitat à mettre à jour
    * @param habitatData Nouvelles données de l'habitat partiellement remplies
-   * @param images Fichier d'image téléchargé pour l'habitat
+   * @param image Fichier d'image téléchargé pour l'habitat
    * @returns La promesse de l'objet Habitat mis à jour
    */
   @Roles('admin')
@@ -81,17 +82,23 @@ export class HabitatController {
   async updateHabitat(
     @Param('id') id: number,
     @Body() habitatData: Partial<Habitat>,
-    @UploadedFile() images: Express.Multer.File,
+    @UploadedFile() image?: Express.Multer.File,
   ): Promise<Habitat> {
-    console.log('Images reçues:', images);
+    console.log('Image reçue:', image);
     console.log('Données habitat reçues:', habitatData);
 
-    if (images) {
-      habitatData.images = `uploads/habitats/${images.filename}`;
-    } else if (habitatData.images === '0' || !habitatData.images) {
-      delete habitatData.images;
+    if (image) {
+      habitatData.images = `uploads/habitats/${image.filename}`;
+    } else {
+      // Conserver l'image existante si aucune nouvelle image n'est fournie
+      const existingHabitat = await this.habitatService.findOne(id);
+      if (!existingHabitat) {
+        throw new NotFoundException(`Habitat avec ID ${id} non trouvé`);
+      }
+      habitatData.images = existingHabitat.images ?? '';
     }
 
+    console.log('Données à mettre à jour:', habitatData);
     const result = await this.habitatService.updateHabitat(
       id,
       habitatData,
