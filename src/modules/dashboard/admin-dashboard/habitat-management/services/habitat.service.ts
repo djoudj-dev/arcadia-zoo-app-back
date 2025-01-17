@@ -86,7 +86,12 @@ export class HabitatService {
       throw new NotFoundException(`Habitat avec l'ID ${id} non trouvé`);
     }
 
-    const { name, description, images } = habitatData;
+    // Formater le chemin de l'image si présent
+    if (habitatData.images) {
+      habitatData.images = `uploads/habitats/${habitatData.images}`;
+    }
+
+    console.log('Données à mettre à jour:', habitatData);
 
     const res = await query(
       `UPDATE habitats SET 
@@ -95,9 +100,10 @@ export class HabitatService {
          images = COALESCE($3, images),
          updated_at = NOW()
        WHERE id_habitat = $4 RETURNING *`,
-      [name, description, images, id],
+      [habitatData.name, habitatData.description, habitatData.images, id],
     );
 
+    console.log('Résultat de la mise à jour:', res.rows[0]);
     return this.formatHabitat(res.rows[0]);
   }
 
