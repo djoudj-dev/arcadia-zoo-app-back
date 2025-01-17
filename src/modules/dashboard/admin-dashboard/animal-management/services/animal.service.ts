@@ -89,10 +89,12 @@ export class AnimalService {
         typeof animalData.images === 'string' &&
         animalData.images.includes('-')
       ) {
-        // Vérifier si le chemin contient déjà uploads/animals/
-        if (!animalData.images.startsWith('uploads/animals/')) {
-          animalData.images = `uploads/animals/${animalData.images}`;
-        }
+        // On stocke uniquement le chemin relatif
+        animalData.images = `uploads/animals/${animalData.images}`;
+      } else if (animalData.images.startsWith('http')) {
+        // Si c'est une URL complète, on extrait le chemin relatif
+        const urlParts = animalData.images.split('/api/');
+        animalData.images = urlParts[1] || existingAnimal.images;
       } else {
         animalData.images = existingAnimal.images;
       }
@@ -157,7 +159,7 @@ export class AnimalService {
       id_animal: row.id_animal,
       name: row.name,
       species: row.species,
-      images: row.images ? `${baseUrl}/api/${row.images}` : null,
+      images: this.formatImageUrl(row.images, baseUrl),
       characteristics: row.characteristics,
       weightRange: row.weight_range,
       diet: row.diet,
@@ -166,5 +168,14 @@ export class AnimalService {
       created_at: row.created_at,
       updated_at: row.updated_at,
     };
+  }
+
+  private formatImageUrl(
+    imageUrl: string | null,
+    baseUrl: string,
+  ): string | null {
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith('http')) return imageUrl;
+    return `${baseUrl}/api/${imageUrl}`;
   }
 }
