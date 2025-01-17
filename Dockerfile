@@ -31,6 +31,9 @@ RUN mkdir -p /app/uploads/habitats && \
 # Définir l'utilisateur node comme utilisateur par défaut
 USER node
 
+# Définir le volume pour la persistance des uploads
+VOLUME ["/app/uploads"]
+
 ENV NODE_ENV=production
 
 EXPOSE 3000
