@@ -52,51 +52,10 @@ export class AnimalController {
     @Body() animalData: Partial<Animal>,
     @UploadedFile() images?: Express.Multer.File,
   ): Promise<Animal> {
-    const getImagePath = (
-      image?: Express.Multer.File,
-      currentPath?: string | object,
-    ): string => {
-      const baseUrl = process.env.API_URL || 'https://api.nedellec-julien.fr';
-
-      if (image) {
-        return `${baseUrl}/api/uploads/animals/${image.filename}`;
-      }
-      if (
-        !currentPath ||
-        typeof currentPath !== 'string' ||
-        currentPath === '{}'
-      )
-        return '';
-
-      if (currentPath.startsWith('http')) {
-        return currentPath;
-      }
-
-      const cleanPath = currentPath.replace(/^.*uploads\/animals\//, '');
-      return `${baseUrl}/api/uploads/animals/${cleanPath}`;
-    };
-
-    const updateData: Partial<Animal> = {
-      ...animalData,
-      images: getImagePath(images, animalData.images),
-    };
-
-    console.log('Données finales envoyées au service:', updateData);
-
-    try {
-      const result = await this.animalService.updateAnimal(
-        id,
-        updateData,
-        'admin',
-      );
-      console.log('Résultat de la mise à jour:', result);
-      return result;
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
-      throw error;
-    } finally {
-      console.log('=== FIN UPDATE ANIMAL ===');
+    if (images) {
+      animalData.images = images.filename;
     }
+    return this.animalService.updateAnimal(id, animalData, 'admin');
   }
 
   @Roles('admin')
