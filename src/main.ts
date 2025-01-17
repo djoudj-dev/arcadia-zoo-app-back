@@ -60,22 +60,36 @@ async function bootstrap() {
 
   // Middleware pour les en-têtes de sécurité
   app.use((req, res, next) => {
+    // Générer un nonce aléatoire pour chaque requête
+    const nonce = crypto.randomBytes(16).toString('base64');
+
     res.header(
       'Content-Security-Policy',
       "default-src 'self'; " +
-        "script-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.gstatic.com https://maps.google.com; " +
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://nedellec-julien.fr https://nedellec-julien.fr/assets/fontawesome/css/; " +
+        `script-src 'self' 'nonce-${nonce}' https://*.googleapis.com https://*.gstatic.com https://maps.google.com; ` +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://nedellec-julien.fr; " +
         "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://api.nedellec-julien.fr https://nedellec-julien.fr; " +
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://nedellec-julien.fr/assets/fontawesome/webfonts/ data:; " +
-        "frame-src 'self' https://www.google.com/ https://*.google.com; " +
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://nedellec-julien.fr data:; " +
+        "frame-src 'self' https://www.google.com https://*.google.com; " +
         "connect-src 'self' https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com https://api.nedellec-julien.fr; " +
         "worker-src 'self' blob:; " +
         "child-src 'self' blob: https://*.google.com; " +
-        "object-src 'none'",
+        "object-src 'none'; " +
+        "base-uri 'self'; " +
+        "form-action 'self'; " +
+        "frame-ancestors 'none'; " +
+        'upgrade-insecure-requests',
     );
 
+    // Autres en-têtes de sécurité
+    res.header('X-Content-Type-Options', 'nosniff');
+    res.header('X-Frame-Options', 'DENY');
+    res.header('X-XSS-Protection', '1; mode=block');
+    res.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.header('Permissions-Policy', 'geolocation=(), camera=()');
     res.header('Storage-Access-Policy', 'unpartitioned-storage');
     res.header('Partitioned-Cookie', 'none');
+
     next();
   });
 
@@ -149,27 +163,6 @@ async function bootstrap() {
       });
     }
     next(err);
-  });
-
-  // Ajouter après la configuration CORS
-  app.use((req, res, next) => {
-    // Générer un nonce aléatoire pour chaque requête
-    const nonce = crypto.randomBytes(16).toString('base64');
-
-    // Configurer Content-Security-Policy
-    res.setHeader(
-      'Content-Security-Policy',
-      `default-src 'self'; script-src 'self' 'nonce-${nonce}' https://maps.googleapis.com; frame-src 'self' https://www.google.com; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://maps.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests`,
-    );
-
-    // Autres en-têtes de sécurité recommandés
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
-
-    next();
   });
 
   app.use(
