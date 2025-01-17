@@ -55,9 +55,9 @@ async function bootstrap() {
       'Content-Security-Policy',
       "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.gstatic.com https://maps.google.com; " +
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://nedellec-julien.fr; " +
         "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://api.nedellec-julien.fr https://nedellec-julien.fr; " +
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; " +
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://nedellec-julien.fr data:; " +
         "frame-src 'self' https://www.google.com/ https://*.google.com; " +
         "connect-src 'self' https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com https://api.nedellec-julien.fr; " +
         "worker-src 'self' blob:; " +
