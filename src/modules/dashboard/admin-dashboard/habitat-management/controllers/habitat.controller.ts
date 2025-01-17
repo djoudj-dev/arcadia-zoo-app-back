@@ -81,23 +81,25 @@ export class HabitatController {
   @UseInterceptors(FileInterceptor('images', multerOptionsHabitats))
   async updateHabitat(
     @Param('id') id: number,
-    @Body() habitatData: Partial<Habitat>,
+    @Body() body: any,
     @UploadedFile() image?: Express.Multer.File,
   ): Promise<Habitat> {
     console.log('Image reçue:', image);
-    console.log('Données habitat reçues:', habitatData);
+    console.log('Body reçu:', body);
+
+    // Extraire les données de l'habitat du body
+    const habitatData = body.data || body;
+    console.log('Données habitat extraites:', habitatData);
 
     if (image) {
-      habitatData.images = image.filename;
+      habitatData.images = `uploads/habitats/${image.filename}`;
     } else {
       // Conserver l'image existante si aucune nouvelle image n'est fournie
       const existingHabitat = await this.habitatService.findOne(id);
       if (!existingHabitat) {
         throw new NotFoundException(`Habitat avec ID ${id} non trouvé`);
       }
-      habitatData.images = existingHabitat.images
-        ? existingHabitat.images.split('/').pop()
-        : '';
+      habitatData.images = existingHabitat.images;
     }
 
     console.log('Données à mettre à jour:', habitatData);
