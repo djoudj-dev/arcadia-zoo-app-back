@@ -166,7 +166,7 @@ export class HabitatService {
       id_habitat: row.id_habitat,
       name: row.name,
       description: row.description,
-      images: row.images,
+      images: row.images ? row.images.replace('uploads/habitats/', '') : null,
       created_at: row.created_at,
       updated_at: row.updated_at,
     };
