@@ -101,6 +101,16 @@ async function bootstrap() {
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/api/uploads',
   });
+
+  // Middleware pour les images
+  app.use('/api/uploads', (req, res, next) => {
+    console.log('Accessing image:', req.url);
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.header('Cache-Control', 'public, max-age=31536000');
+    next();
+  });
+
   console.log('Static assets configured');
 
   try {
