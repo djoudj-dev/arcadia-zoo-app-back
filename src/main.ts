@@ -186,10 +186,13 @@ async function bootstrap() {
   app.use(
     session({
       secret: process.env.SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
       cookie: {
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        partitioned: true, // Pour supporter le partitionnement des cookies
+        partitioned: true,
+        maxAge: 24 * 60 * 60 * 1000, // 24 heures
       },
     }),
   );
