@@ -81,22 +81,11 @@ export class HabitatController {
   @UseInterceptors(FileInterceptor('images', multerOptionsHabitats))
   async updateHabitat(
     @Param('id') id: number,
-    @Body() body: any,
+    @Body() habitatData: Partial<Habitat>,
     @UploadedFile() image?: Express.Multer.File,
   ): Promise<Habitat> {
-    console.log('Body reçu:', body);
+    console.log('Données reçues:', habitatData);
     console.log('Image reçue:', image);
-
-    // Extraire les données de l'habitat
-    let habitatData: Partial<Habitat>;
-    try {
-      habitatData =
-        typeof body.data === 'string' ? JSON.parse(body.data) : body.data;
-      console.log('Données extraites:', habitatData);
-    } catch (error) {
-      console.error('Erreur lors du parsing des données:', error);
-      throw new BadRequestException('Format de données invalide');
-    }
 
     // Vérifier si l'habitat existe
     const existingHabitat = await this.habitatService.findOne(id);
