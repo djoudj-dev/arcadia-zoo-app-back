@@ -27,15 +27,13 @@ export class AnimalsService {
 
   private formatAnimal(row: any): Animal {
     const baseUrl = process.env.API_URL || 'https://api.nedellec-julien.fr';
-    const imagePath = row.images
-      ? row.images.replace(/^.*uploads\/animals\//, '')
-      : null;
-
     return {
       id_animal: row.id_animal,
       name: row.name,
       species: row.species,
-      images: imagePath ? `${baseUrl}/api/uploads/animals/${imagePath}` : null,
+      images: row.images
+        ? `${baseUrl}/api/uploads/animals/${row.images}`
+        : null,
       characteristics: row.characteristics,
       weightRange: row.weight_range,
       diet: row.diet,

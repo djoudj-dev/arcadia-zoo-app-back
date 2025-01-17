@@ -80,14 +80,10 @@ export class AnimalService {
       throw new BadRequestException(`Animal avec l'ID ${id} non trouvé`);
     }
 
-    // Nettoyer le chemin de l'image si fourni
-    if (image) {
-      animalData.images = `uploads/animals/${image.filename}`;
-    } else if (animalData.images) {
-      animalData.images = animalData.images.replace(
-        /^.*uploads\/animals\//,
-        'uploads/animals/',
-      );
+    // Nettoyer le chemin de l'image
+    if (animalData.images) {
+      const filename = animalData.images.split('/').pop();
+      animalData.images = `uploads/animals/${filename}`;
     }
 
     const res = await query(
@@ -144,11 +140,14 @@ export class AnimalService {
   }
 
   private formatAnimal(row: any): Animal {
+    const baseUrl = process.env.API_URL || 'https://api.nedellec-julien.fr';
     return {
       id_animal: row.id_animal,
       name: row.name,
       species: row.species,
-      images: row.images,
+      images: row.images
+        ? `${baseUrl}/api/uploads/animals/${row.images}`
+        : null,
       characteristics: row.characteristics,
       weightRange: row.weight_range,
       diet: row.diet,
