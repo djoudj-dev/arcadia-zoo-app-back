@@ -97,7 +97,11 @@ async function bootstrap() {
   console.log('Global prefix /api set');
 
   // Configuration des fichiers statiques avec options étendues
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+  const uploadsPath = join(process.cwd(), 'uploads');
+  console.log('Chemin des uploads:', uploadsPath);
+  console.log('Contenu du dossier uploads:', fs.readdirSync(uploadsPath));
+
+  app.useStaticAssets(uploadsPath, {
     prefix: '/api/uploads',
     setHeaders: (res) => {
       res.set('Access-Control-Allow-Origin', '*');
@@ -111,9 +115,20 @@ async function bootstrap() {
 
   // Middleware de gestion d'erreurs pour les fichiers statiques
   app.use('/api/uploads', (err, req, res, next) => {
-    console.error('Erreur accès fichier:', req.url, err);
+    console.error('Erreur accès fichier:', {
+      url: req.url,
+      error: err.message,
+      code: err.code,
+      path: join(uploadsPath, req.url),
+      exists: fs.existsSync(join(uploadsPath, req.url)),
+    });
+
     if (err.code === 'ENOENT') {
-      return res.status(404).json({ message: 'Fichier non trouvé' });
+      return res.status(404).json({
+        message: 'Fichier non trouvé',
+        path: req.url,
+        error: err.message,
+      });
     }
     next(err);
   });
