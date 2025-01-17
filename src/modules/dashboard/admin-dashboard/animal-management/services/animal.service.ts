@@ -82,17 +82,13 @@ export class AnimalService {
       throw new NotFoundException(`Animal avec l'ID ${id} non trouvé`);
     }
 
-    // Nettoyer le chemin de l'image
+    // Gestion de l'image
     if (animalData.images && typeof animalData.images === 'string') {
-      // Extraire uniquement le nom du fichier de l'URL ou du chemin
-      const filename = animalData.images
-        .split('/')
-        .pop()
-        ?.replace(/^.*uploads\/animals\//, '');
-
-      if (filename) {
-        animalData.images = filename;
+      // Si c'est un nouveau fichier, on prend juste le nom du fichier
+      if (animalData.images.includes('filename')) {
+        animalData.images = `uploads/animals/${animalData.images}`;
       } else {
+        // Sinon on garde l'image existante
         animalData.images = existingAnimal.images;
       }
     }
@@ -160,7 +156,10 @@ export class AnimalService {
       name: row.name,
       species: row.species,
       images: row.images
-        ? `${baseUrl}/api/uploads/animals/${row.images}`
+        ? `${baseUrl}/api/uploads/animals/${row.images.replace(
+            'uploads/animals/',
+            '',
+          )}`
         : null,
       characteristics: row.characteristics,
       weightRange: row.weight_range,
