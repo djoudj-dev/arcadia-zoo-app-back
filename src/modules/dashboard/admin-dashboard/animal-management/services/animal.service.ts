@@ -157,9 +157,7 @@ export class AnimalService {
       id_animal: row.id_animal,
       name: row.name,
       species: row.species,
-      images: row.images
-        ? `${baseUrl}/api/uploads/animals/${row.images}`
-        : null,
+      images: row.images ? `${baseUrl}/api/${row.images}` : null,
       characteristics: row.characteristics,
       weightRange: row.weight_range,
       diet: row.diet,
