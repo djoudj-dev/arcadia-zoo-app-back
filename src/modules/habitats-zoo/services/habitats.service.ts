@@ -78,7 +78,7 @@ export class HabitatsService {
       name: row.name,
       description: row.description,
       images: row.images
-        ? `${baseUrl}/api/uploads/habitats/${row.images.split('/').pop()}`
+        ? `${baseUrl}/api/uploads/habitats/${row.images}`
         : null,
       created_at: row.created_at,
       updated_at: row.updated_at,

@@ -59,9 +59,8 @@ export class HabitatController {
     @UploadedFile() images: Express.Multer.File,
   ): Promise<Habitat> {
     if (images) {
-      habitatData.images = `uploads/habitats/${images.filename}`;
+      habitatData.images = images.filename;
     } else {
-      console.error('Le champ "images" est requis.');
       throw new BadRequestException('Le champ "images" est requis.');
     }
     return this.habitatService.createHabitat(habitatData, 'admin');

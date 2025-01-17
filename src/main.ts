@@ -105,8 +105,8 @@ async function bootstrap() {
   console.log('Global prefix /api set');
 
   // Configuration des fichiers statiques
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/api/uploads',
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/api/uploads/',
   });
 
   // Configuration pour servir les fichiers statiques du dossier public
