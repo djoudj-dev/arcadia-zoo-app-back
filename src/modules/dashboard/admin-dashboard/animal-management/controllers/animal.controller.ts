@@ -61,19 +61,19 @@ export class AnimalController {
       if (image) {
         return `${baseUrl}/api/uploads/animals/${image.filename}`;
       }
+
       if (
         !currentPath ||
         typeof currentPath !== 'string' ||
         currentPath === '{}'
-      )
+      ) {
         return '';
-
-      if (currentPath.startsWith('http')) {
-        return currentPath;
       }
 
       const cleanPath = currentPath.replace(/^.*uploads\/animals\//, '');
-      return `${baseUrl}/api/uploads/animals/${cleanPath}`;
+      return cleanPath.startsWith('http')
+        ? cleanPath
+        : `${baseUrl}/api/uploads/animals/${cleanPath}`;
     };
 
     const updateData: Partial<Animal> = {
