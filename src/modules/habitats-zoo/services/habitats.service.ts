@@ -72,11 +72,14 @@ export class HabitatsService {
    * @returns Un objet Habitat formaté
    */
   private formatHabitat(row: any): Habitat {
+    const baseUrl = process.env.API_URL || 'https://api.nedellec-julien.fr';
     return {
       id_habitat: row.id_habitat,
       name: row.name,
       description: row.description,
-      images: row.images,
+      images: row.images
+        ? `${baseUrl}/api/uploads/habitats/${row.images.split('/').pop()}`
+        : null,
       created_at: row.created_at,
       updated_at: row.updated_at,
     };
