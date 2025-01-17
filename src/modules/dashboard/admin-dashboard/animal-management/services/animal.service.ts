@@ -84,13 +84,13 @@ export class AnimalService {
 
     // Gestion de l'image
     if (animalData.images) {
-      // Si ce n'est pas une nouvelle image (ne contient pas le nom du fichier généré par multer)
+      // Si c'est une nouvelle image (contient le nom du fichier généré par multer)
       if (
-        !(
-          typeof animalData.images === 'string' &&
-          animalData.images.includes('-')
-        )
+        typeof animalData.images === 'string' &&
+        animalData.images.includes('-')
       ) {
+        animalData.images = `uploads/animals/${animalData.images}`;
+      } else {
         animalData.images = existingAnimal.images;
       }
     }
