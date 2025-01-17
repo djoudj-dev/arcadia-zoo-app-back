@@ -20,6 +20,12 @@ uploadDirs.forEach((dir) => {
   }
 });
 
+// Création du dossier public pour les fichiers statiques
+const publicDir = join(process.cwd(), 'public');
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir, { recursive: true });
+}
+
 // Ajoutez après la création des dossiers uploads
 const templateDir = join(process.cwd(), 'dist/modules/mail/templates');
 if (!fs.existsSync(templateDir)) {
@@ -66,7 +72,6 @@ async function bootstrap() {
         "object-src 'none'",
     );
 
-    // Ajouter les en-têtes pour le partitionnement des cookies
     res.header('Storage-Access-Policy', 'unpartitioned-storage');
     res.header('Partitioned-Cookie', 'none');
 
@@ -101,14 +106,20 @@ async function bootstrap() {
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/api/uploads',
   });
+
+  // Configuration pour servir les fichiers statiques du dossier public
+  app.useStaticAssets(join(process.cwd(), 'public'), {
+    index: false,
+  });
+
   console.log('Static assets configured');
+
+  app.use('/favicon.ico', (req, res) => {
+    res.sendFile(join(process.cwd(), 'public/favicon.ico'));
+  });
 
   try {
     await app.listen(3000, '0.0.0.0');
-    console.log('Server successfully started on port 3000');
-    console.log('Environment variables:');
-    console.log('- CORS_ORIGIN:', process.env.CORS_ORIGIN);
-    console.log('- NODE_ENV:', process.env.NODE_ENV);
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
