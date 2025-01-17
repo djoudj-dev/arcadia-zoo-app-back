@@ -87,11 +87,13 @@ export class HabitatService {
     }
 
     // Formater le chemin de l'image si présent
-    if (
-      habitatData.images &&
-      !habitatData.images.startsWith('uploads/habitats/')
-    ) {
-      habitatData.images = `uploads/habitats/${habitatData.images}`;
+    if (habitatData.images && typeof habitatData.images === 'string') {
+      if (!habitatData.images.startsWith('uploads/habitats/')) {
+        habitatData.images = `uploads/habitats/${habitatData.images}`;
+      }
+    } else {
+      // Si images n'est pas une chaîne valide, utiliser l'image existante
+      habitatData.images = existingHabitat.images;
     }
 
     console.log('Données à mettre à jour:', habitatData);

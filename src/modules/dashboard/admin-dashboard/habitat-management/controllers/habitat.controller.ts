@@ -81,16 +81,22 @@ export class HabitatController {
   @UseInterceptors(FileInterceptor('images', multerOptionsHabitats))
   async updateHabitat(
     @Param('id') id: number,
-    @Body()
-    habitatData: {
-      name: string;
-      description: string;
-      images: string;
-    },
+    @Body() body: any,
     @UploadedFile() image?: Express.Multer.File,
   ): Promise<Habitat> {
+    console.log('Body reçu:', body);
     console.log('Image reçue:', image);
-    console.log('Données reçues:', habitatData);
+
+    // Extraire les données de l'habitat
+    let habitatData: Partial<Habitat>;
+    try {
+      habitatData =
+        typeof body.data === 'string' ? JSON.parse(body.data) : body.data;
+      console.log('Données extraites:', habitatData);
+    } catch (error) {
+      console.error('Erreur lors du parsing des données:', error);
+      throw new BadRequestException('Format de données invalide');
+    }
 
     // Vérifier si l'habitat existe
     const existingHabitat = await this.habitatService.findOne(id);
@@ -98,16 +104,16 @@ export class HabitatController {
       throw new NotFoundException(`Habitat avec ID ${id} non trouvé`);
     }
 
-    // Mise à jour du chemin de l'image
+    // Gestion de l'image
     if (image) {
-      // Si une nouvelle image est uploadée
       habitatData.images = image.filename;
-    } else if (habitatData.images === '{}' || !habitatData.images) {
-      // Si pas de nouvelle image et pas d'image dans les données, garder l'existante
+      console.log('Nouvelle image:', habitatData.images);
+    } else if (!habitatData.images || habitatData.images === '{}') {
       habitatData.images = existingHabitat.images;
+      console.log("Conservation de l'image existante:", habitatData.images);
     }
 
-    console.log('Données à mettre à jour:', habitatData);
+    console.log('Données finales à mettre à jour:', habitatData);
     const result = await this.habitatService.updateHabitat(
       id,
       habitatData,
