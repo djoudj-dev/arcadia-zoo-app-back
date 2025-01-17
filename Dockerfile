@@ -20,19 +20,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY package*.json ./
 
-# Création des dossiers pour les uploads avec les bonnes permissions
-RUN mkdir -p /app/uploads/habitats && \
-    mkdir -p /app/uploads/animals && \
-    mkdir -p /app/uploads/services && \
-    chown -R node:node /app && \
-    chmod -R 755 /app/uploads && \
-    chmod -R 755 /app/dist
-
 # Définir l'utilisateur node comme utilisateur par défaut
 USER node
-
-# Définir le volume pour la persistance des uploads
-VOLUME ["/app/uploads"]
 
 ENV NODE_ENV=production
 
