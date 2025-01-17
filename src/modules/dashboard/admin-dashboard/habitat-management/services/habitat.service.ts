@@ -87,7 +87,10 @@ export class HabitatService {
     }
 
     // Formater le chemin de l'image si présent
-    if (habitatData.images) {
+    if (
+      habitatData.images &&
+      !habitatData.images.startsWith('uploads/habitats/')
+    ) {
       habitatData.images = `uploads/habitats/${habitatData.images}`;
     }
 

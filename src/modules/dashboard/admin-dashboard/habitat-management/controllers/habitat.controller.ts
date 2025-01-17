@@ -98,11 +98,12 @@ export class HabitatController {
       throw new NotFoundException(`Habitat avec ID ${id} non trouvé`);
     }
 
-    // Mise à jour du chemin de l'image si un fichier est téléchargé
+    // Mise à jour du chemin de l'image
     if (image) {
-      habitatData.images = `uploads/habitats/${image.filename}`;
-    } else {
-      // Conserver l'image existante si aucune nouvelle image n'est fournie
+      // Si une nouvelle image est uploadée
+      habitatData.images = image.filename;
+    } else if (habitatData.images === '{}' || !habitatData.images) {
+      // Si pas de nouvelle image et pas d'image dans les données, garder l'existante
       habitatData.images = existingHabitat.images;
     }
 
