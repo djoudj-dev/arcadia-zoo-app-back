@@ -25,15 +25,24 @@ export class AnimalsService {
     return this.formatAnimal(res.rows[0]);
   }
 
+  private formatImageUrl(
+    imageUrl: string | null,
+    baseUrl: string,
+  ): string | null {
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith('http')) return imageUrl;
+    if (imageUrl.startsWith('uploads/animals/'))
+      return `${baseUrl}/api/${imageUrl}`;
+    return `${baseUrl}/api/uploads/animals/${imageUrl}`;
+  }
+
   private formatAnimal(row: any): Animal {
     const baseUrl = process.env.API_URL || 'https://api.nedellec-julien.fr';
     return {
       id_animal: row.id_animal,
       name: row.name,
       species: row.species,
-      images: row.images
-        ? `${baseUrl}/api/uploads/animals/${row.images}`
-        : null,
+      images: this.formatImageUrl(row.images, baseUrl),
       characteristics: row.characteristics,
       weightRange: row.weight_range,
       diet: row.diet,
