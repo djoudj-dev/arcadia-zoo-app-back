@@ -83,10 +83,22 @@ export class HabitatController {
     @Body() habitatData: Partial<Habitat>,
     @UploadedFile() images: Express.Multer.File,
   ): Promise<Habitat> {
+    console.log('Images reçues:', images);
+    console.log('Données habitat reçues:', habitatData);
+
     if (images) {
-      habitatData.images = `uploads/habitats/${images.filename}`;
+      habitatData.images = images.filename;
+    } else if (habitatData.images === '0' || !habitatData.images) {
+      delete habitatData.images;
     }
-    return this.habitatService.updateHabitat(id, habitatData, 'admin');
+
+    const result = await this.habitatService.updateHabitat(
+      id,
+      habitatData,
+      'admin',
+    );
+    console.log('Résultat de la mise à jour:', result);
+    return result;
   }
 
   /**
