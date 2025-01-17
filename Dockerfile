@@ -1,32 +1,16 @@
-FROM node:20.12-alpine3.19 AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
-COPY tsconfig*.json ./
-COPY src ./src
 
-# Build et préparation des templates
-RUN npm ci && npm run build && \
-    mkdir -p /app/dist/src/modules/mail/templates && \
-    cp -r /app/src/modules/mail/templates/* /app/dist/src/modules/mail/templates/
+RUN npm install
 
-FROM node:20.12-alpine3.19
+COPY . .
 
-WORKDIR /app
-
-# Copie des fichiers nécessaires depuis l'étape de build
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY package*.json ./
-
-# Création des dossiers pour les uploads et vérification des templates
-RUN mkdir -p uploads/habitats uploads/animals uploads/services && \
-    ls -la /app/dist/src/modules/mail/templates/
-
-ENV NODE_ENV=production
+RUN npm run build && \
+    mkdir -p /app/uploads/animals /app/uploads/habitats /app/uploads/services
 
 EXPOSE 3000
 
-# Commande de démarrage
 CMD ["npm", "run", "start:prod"]
