@@ -7,28 +7,25 @@ const UPLOAD_BASE_PATH = join(process.cwd(), 'uploads'); // Utilisation du répe
 function createMulterOptions(uploadDirectory: string) {
   const absolutePath = join(UPLOAD_BASE_PATH, uploadDirectory);
 
-  console.log(`Creating upload directory: ${absolutePath}`);
-
+  // Assurer que le répertoire existe
   if (!fs.existsSync(absolutePath)) {
-    console.log(`Directory doesn't exist, creating it...`);
     fs.mkdirSync(absolutePath, { recursive: true });
   }
 
   return {
     storage: diskStorage({
-      destination: (req, file, cb) => {
-        console.log(`Saving file to: ${absolutePath}`);
-        cb(null, absolutePath);
-      },
+      destination: absolutePath,
       filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const filename = `${uniqueSuffix}-${file.originalname}`;
-        console.log(`Generated filename: ${filename}`);
-        cb(null, filename);
+        const originalName = file.originalname
+          .toLowerCase()
+          .split(' ')
+          .join('-');
+        cb(null, uniqueSuffix + '-' + originalName);
       },
     }),
     fileFilter: (req, file, cb) => {
-      if (file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
+      if (file.mimetype.match(/^image\/(jpg|jpeg|png|gif|webp)$/)) {
         cb(null, true);
       } else {
         cb(new Error('Format de fichier non supporté'), false);
