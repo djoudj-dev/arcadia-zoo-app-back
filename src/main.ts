@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import * as crypto from 'crypto';
+import * as session from 'express-session';
 import * as fs from 'fs';
 import { join } from 'path';
 import { AppModule } from './app.module';
@@ -39,6 +41,13 @@ if (fs.existsSync(srcTemplateDir)) {
 
 async function bootstrap() {
   console.log('Starting application...');
+
+  if (!process.env.SESSION_SECRET) {
+    console.error(
+      'ERROR: SESSION_SECRET must be defined in environment variables',
+    );
+    process.exit(1);
+  }
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   console.log('NestJS application created');
@@ -141,6 +150,49 @@ async function bootstrap() {
     }
     next(err);
   });
+
+  // Ajouter après la configuration CORS
+  app.use((req, res, next) => {
+    // Générer un nonce aléatoire pour chaque requête
+    const nonce = crypto.randomBytes(16).toString('base64');
+
+    // Configurer Content-Security-Policy
+    res.setHeader(
+      'Content-Security-Policy',
+      `default-src 'self';
+      script-src 'self' 'nonce-${nonce}' https://maps.googleapis.com;
+      frame-src 'self' https://www.google.com;
+      img-src 'self' data: https: blob:;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      connect-src 'self' https://maps.googleapis.com;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+      frame-ancestors 'none';
+      upgrade-insecure-requests;`,
+    );
+
+    // Autres en-têtes de sécurité recommandés
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'geolocation=(), camera=()');
+
+    next();
+  });
+
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET,
+      cookie: {
+        secure: true,
+        sameSite: 'strict',
+        partitioned: true, // Pour supporter le partitionnement des cookies
+      },
+    }),
+  );
 
   try {
     await app.listen(3000, '0.0.0.0');
