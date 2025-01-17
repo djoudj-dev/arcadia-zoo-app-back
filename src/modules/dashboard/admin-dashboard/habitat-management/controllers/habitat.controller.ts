@@ -47,7 +47,7 @@ export class HabitatController {
    * Utilise le rôle "admin" pour limiter l'accès à cette opération.
    * Intercepte l'upload de fichier pour sauvegarder l'image de l'habitat.
    * @param habitatData Données de l'habitat partiellement remplies
-   * @param images Fichier d'image téléchargé pour l'habitat
+   * @param image Fichier d'image téléchargé pour l'habitat
    * @returns La promesse de l'objet Habitat créé
    * @throws BadRequestException Si le fichier image est manquant
    */
@@ -56,14 +56,14 @@ export class HabitatController {
   @UseInterceptors(FileInterceptor('images', multerOptionsHabitats))
   async createHabitat(
     @Body() habitatData: Partial<Habitat>,
-    @UploadedFile() images: Express.Multer.File,
+    @UploadedFile() image: Express.Multer.File,
   ): Promise<Habitat> {
-    if (images) {
-      habitatData.images = `uploads/habitats/${images.filename}`;
-    } else {
-      console.error('Le champ "images" est requis.');
-      throw new BadRequestException('Le champ "images" est requis.');
+    if (!image) {
+      throw new BadRequestException('Le champ image est obligatoire');
     }
+
+    habitatData.images = `uploads/habitats/${image.filename}`;
+
     return this.habitatService.createHabitat(habitatData, 'admin');
   }
 
