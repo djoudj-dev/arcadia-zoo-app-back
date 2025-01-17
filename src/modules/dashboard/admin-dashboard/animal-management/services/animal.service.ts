@@ -82,14 +82,19 @@ export class AnimalService {
       throw new NotFoundException(`Animal avec l'ID ${id} non trouvé`);
     }
 
-    // Formater le chemin de l'image si présent
+    // Nettoyer le chemin de l'image
     if (animalData.images && typeof animalData.images === 'string') {
-      if (!animalData.images.startsWith('uploads/animals/')) {
-        animalData.images = `uploads/animals/${animalData.images}`;
+      // Extraire uniquement le nom du fichier de l'URL ou du chemin
+      const filename = animalData.images
+        .split('/')
+        .pop()
+        ?.replace(/^.*uploads\/animals\//, '');
+
+      if (filename) {
+        animalData.images = filename;
+      } else {
+        animalData.images = existingAnimal.images;
       }
-    } else {
-      // Si images n'est pas une chaîne valide, utiliser l'image existante
-      animalData.images = existingAnimal.images;
     }
 
     console.log('Données à mettre à jour:', animalData);
@@ -122,7 +127,7 @@ export class AnimalService {
       ],
     );
 
-    console.log('Résultat de la mise à jour:', res.rows[0]);
+    console.log('Résultat brut de la mise à jour:', res.rows[0]);
     return this.formatAnimal(res.rows[0]);
   }
 
