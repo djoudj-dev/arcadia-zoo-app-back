@@ -72,14 +72,20 @@ export class HabitatController {
    * Accessible uniquement aux administrateurs.
    * @param id Identifiant de l'habitat à mettre à jour
    * @param habitatData Nouvelles données de l'habitat partiellement remplies
+   * @param images Fichier d'image téléchargé pour l'habitat
    * @returns La promesse de l'objet Habitat mis à jour
    */
   @Roles('admin')
   @Put(':id')
+  @UseInterceptors(FileInterceptor('images', multerOptionsHabitats))
   async updateHabitat(
     @Param('id') id: number,
     @Body() habitatData: Partial<Habitat>,
+    @UploadedFile() images: Express.Multer.File,
   ): Promise<Habitat> {
+    if (images) {
+      habitatData.images = `uploads/habitats/${images.filename}`;
+    }
     return this.habitatService.updateHabitat(id, habitatData, 'admin');
   }
 

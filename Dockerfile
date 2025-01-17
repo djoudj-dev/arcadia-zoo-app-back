@@ -27,7 +27,7 @@ RUN mkdir -p /app/dist/modules/mail/templates && \
     mkdir -p /app/uploads/animals && \
     mkdir -p /app/uploads/habitats && \
     mkdir -p /app/uploads/services && \
-    # Utiliser l'utilisateur node existant (UID 1000)
+    # S'assurer que tous les dossiers appartiennent à node:node
     chown -R node:node /app && \
     chmod -R 755 /app && \
     chmod -R 777 /app/uploads
