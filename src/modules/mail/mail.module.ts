@@ -1,13 +1,17 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { createTransport } from 'nodemailer';
 import { join } from 'path';
+import { AccountModule } from '../dashboard/admin-dashboard/account-management/account.module';
 import { MailController } from './controller/mail.controller';
+import { PasswordResetController } from './controller/password-reset.controller';
 import { MailService } from './service/mail.service';
+import { PasswordResetService } from './service/password-reset.service';
 
 dotenv.config();
 
 @Module({
+  imports: [forwardRef(() => AccountModule)],
   providers: [
     {
       provide: 'MAILER_TRANSPORT',
@@ -28,17 +32,15 @@ dotenv.config();
     {
       provide: 'TEMPLATE_DIR',
       useFactory: () => {
-        const templatePath = join(
-          process.cwd(),
-          'dist/src/modules/mail/templates',
-        );
+        const templatePath = join(process.cwd(), 'src/modules/mail/templates');
         console.log('📧 Dossier des templates configuré:', templatePath);
         return templatePath;
       },
     },
     MailService,
+    PasswordResetService,
   ],
-  controllers: [MailController],
-  exports: [MailService],
+  controllers: [MailController, PasswordResetController],
+  exports: [MailService, PasswordResetService],
 })
 export class MailModule {}

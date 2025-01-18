@@ -1,10 +1,12 @@
 import {
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
+  forwardRef,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { MailService } from 'src/modules/mail/service/mail.service';
@@ -18,7 +20,10 @@ import { User } from '../models/user.model';
  */
 @Injectable()
 export class AccountService {
-  constructor(readonly mailService: MailService) {}
+  constructor(
+    @Inject(forwardRef(() => MailService))
+    readonly mailService: MailService,
+  ) {}
 
   /**
    * Récupère tous les utilisateurs avec leurs rôles associés.
@@ -301,7 +306,7 @@ export class AccountService {
    */
   async updatePassword(
     userId: number,
-    currentPassword: string,
+    currentPassword: string | null,
     newPassword: string,
   ): Promise<{ message: string }> {
     // Récupérer l'utilisateur
@@ -310,13 +315,17 @@ export class AccountService {
       throw new NotFoundException(`Utilisateur avec l'ID ${userId} non trouvé`);
     }
 
-    // Vérifier le mot de passe actuel
-    const isPasswordValid = await bcrypt.compare(
-      currentPassword,
-      user.password,
-    );
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Le mot de passe actuel est incorrect');
+    // Si currentPassword est null, c'est une réinitialisation de mot de passe
+    // Dans ce cas, on ne vérifie pas l'ancien mot de passe
+    if (currentPassword !== null) {
+      // Vérifier le mot de passe actuel
+      const isPasswordValid = await bcrypt.compare(
+        currentPassword,
+        user.password,
+      );
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Le mot de passe actuel est incorrect');
+      }
     }
 
     // Hasher et enregistrer le nouveau mot de passe
