@@ -15,7 +15,8 @@ export class UserOpinionsService {
    * @param userOpinionsModel Modèle Mongoose pour les avis utilisateurs
    */
   constructor(
-    @InjectModel('UserOpinions') private userOpinionsModel: Model<UserOpinions>,
+    @InjectModel('UserOpinions')
+    private readonly userOpinionsModel: Model<UserOpinions>,
   ) {}
 
   /**
@@ -23,7 +24,7 @@ export class UserOpinionsService {
    * @returns Une promesse contenant un tableau d'avis validés
    */
   async getValidatedUserOpinions(): Promise<UserOpinions[]> {
-    return this.userOpinionsModel.find({ validated: true }).lean().exec();
+    return this.userOpinionsModel.find({ status: 'approved' }).lean().exec();
   }
 
   /**
@@ -116,15 +117,14 @@ export class UserOpinionsService {
       }
 
       // Vérifier si l'avis est déjà validé
-      if (userOpinion.validated) {
+      if (userOpinion.status === 'approved') {
         console.log('⚠️ Avis déjà validé');
         throw new BadRequestException(`L'avis ${id} est déjà validé`);
       }
 
       console.log('✅ Avis trouvé:', userOpinion);
 
-      userOpinion.validated = true;
-      userOpinion.accepted = true;
+      userOpinion.status = 'approved';
       userOpinion.updated_at = new Date();
 
       const savedOpinion = await userOpinion.save();
@@ -158,10 +158,7 @@ export class UserOpinionsService {
    */
   async getPendingUserOpinions(): Promise<UserOpinions[]> {
     return this.userOpinionsModel
-      .find({
-        validated: false,
-        accepted: false,
-      })
+      .find({ status: 'pending' })
       .select('id_opinion name date message rating')
       .lean()
       .exec();
@@ -187,9 +184,7 @@ export class UserOpinionsService {
       );
     }
 
-    userOpinion.rejected = true;
-    userOpinion.accepted = false;
-    userOpinion.validated = false;
+    userOpinion.status = 'rejected';
     return await userOpinion.save();
   }
 
@@ -198,11 +193,6 @@ export class UserOpinionsService {
    * @returns Une promesse contenant un tableau des avis refusés
    */
   async getRejectedUserOpinions(): Promise<UserOpinions[]> {
-    return this.userOpinionsModel
-      .find({
-        rejected: true,
-      })
-      .lean()
-      .exec();
+    return this.userOpinionsModel.find({ status: 'rejected' }).lean().exec();
   }
 }
