@@ -27,7 +27,7 @@ import { UserOpinionsService } from '../services/user-opinions.service';
  */
 @Controller('user-opinions')
 export class UserOpinionsController {
-  constructor(private userOpinionsService: UserOpinionsService) {}
+  constructor(private readonly userOpinionsService: UserOpinionsService) {}
 
   // ==================== ENDPOINTS DE CONSULTATION ====================
 
@@ -91,8 +91,7 @@ export class UserOpinionsController {
         ...userOpinion,
         created_at: new Date(),
         updated_at: new Date(),
-        validated: false,
-        accepted: false,
+        status: 'pending',
       });
     } catch (error) {
       console.error('Erreur lors de la création:', error);

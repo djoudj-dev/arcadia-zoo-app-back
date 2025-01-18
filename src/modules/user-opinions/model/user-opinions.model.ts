@@ -10,16 +10,12 @@ export interface UserOpinions {
   readonly message: string;
   // Note attribuée par l'utilisateur (de 0 à 5)
   readonly rating: number;
-  // Statut d'acceptation par un modérateur
-  accepted: boolean;
-  // Statut de validation selon les critères définis
-  validated: boolean;
+  // Statut de l'avis (pending, approved, rejected)
+  status: 'pending' | 'approved' | 'rejected';
   // Date de publication (optionnelle)
   published_at?: Date;
   // Date de création automatique du document
   readonly created_at: Date;
   // Date de dernière modification automatique
   updated_at: Date;
-  // Statut de rejet par un modérateur
-  rejected?: boolean;
 }
