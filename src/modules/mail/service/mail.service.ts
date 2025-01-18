@@ -81,4 +81,16 @@ export class MailService {
       context: contactData,
     });
   }
+
+  async sendPasswordResetEmail(user: any, resetCode: string) {
+    return this.sendMail({
+      to: user.email,
+      subject: 'Réinitialisation de mot de passe - Arcadia Zoo',
+      template: 'reset-password',
+      context: {
+        name: user.name,
+        resetCode: resetCode,
+      },
+    });
+  }
 }
