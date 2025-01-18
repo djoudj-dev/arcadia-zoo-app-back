@@ -288,7 +288,7 @@ export class ServiceService {
   }
 
   private checkUserRole(userRole: string) {
-    if (userRole !== 'admin') {
+    if (userRole !== 'admin' && userRole !== 'employe') {
       throw new BadRequestException("Vous n'avez pas les droits suffisants");
     }
   }

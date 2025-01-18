@@ -18,4 +18,6 @@ export interface UserOpinions {
   readonly created_at: Date;
   // Date de dernière modification automatique
   updated_at: Date;
+  // ID MongoDB
+  _id?: string;
 }
