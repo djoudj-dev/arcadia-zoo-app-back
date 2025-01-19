@@ -66,7 +66,7 @@ async function bootstrap() {
     res.header(
       'Content-Security-Policy',
       "default-src 'self'; " +
-        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://*.googleapis.com https://*.gstatic.com https://maps.google.com; ` +
+        `script-src 'strict-dynamic' 'nonce-${nonce}' 'unsafe-inline' 'self'; ` +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://nedellec-julien.fr; " +
         "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://api.nedellec-julien.fr https://nedellec-julien.fr; " +
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://nedellec-julien.fr data:; " +
@@ -80,6 +80,10 @@ async function bootstrap() {
         "frame-ancestors 'none'; " +
         'upgrade-insecure-requests',
     );
+
+    // Ajout d'en-têtes pour la gestion des cookies tiers
+    res.header('Cross-Origin-Embedder-Policy', 'require-corp');
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
 
     // Autres en-têtes de sécurité
     res.header('X-Content-Type-Options', 'nosniff');
