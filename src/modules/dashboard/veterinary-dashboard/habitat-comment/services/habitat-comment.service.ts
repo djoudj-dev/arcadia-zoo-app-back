@@ -27,8 +27,14 @@ export class HabitatCommentService {
    * @param id ID du commentaire d'habitat
    * @returns Une promesse d'un objet HabitatComment
    */
-  async getHabitatCommentById(commentId: number): Promise<HabitatComment[]> {
-    return await this.habitatCommentModel.find({ commentId: commentId }).exec();
+  async getHabitatCommentById(commentId: string): Promise<HabitatComment> {
+    const comment = await this.habitatCommentModel.findById(commentId).exec();
+    if (!comment) {
+      throw new NotFoundException(
+        `Commentaire avec l'ID ${commentId} non trouvé`,
+      );
+    }
+    return comment;
   }
 
   /**
@@ -90,12 +96,12 @@ export class HabitatCommentService {
    * @param habitatCommentData Nouvelles données du commentaire
    */
   async updateHabitatComment(
-    id: number,
+    id: string,
     habitatCommentData: Partial<HabitatComment>,
   ): Promise<HabitatComment | null> {
     return await this.habitatCommentModel
-      .findOneAndUpdate(
-        { id_habitat_comment: id },
+      .findByIdAndUpdate(
+        id,
         { ...habitatCommentData, updatedAt: new Date() },
         { new: true },
       )
@@ -106,10 +112,11 @@ export class HabitatCommentService {
    * Supprime un commentaire d'habitat
    * @param id ID du commentaire à supprimer
    */
-  async deleteHabitatComment(id: number): Promise<HabitatComment | null> {
-    return await this.habitatCommentModel
-      .findOneAndDelete({ id_habitat_comment: id })
-      .exec();
+  async deleteHabitatComment(id: string): Promise<void> {
+    const result = await this.habitatCommentModel.findByIdAndDelete(id).exec();
+    if (!result) {
+      throw new NotFoundException(`Commentaire avec l'ID ${id} non trouvé`);
+    }
   }
 
   /**
@@ -119,15 +126,12 @@ export class HabitatCommentService {
     commentId: string,
     userId: number,
   ): Promise<HabitatComment> {
-    const user = await this.accountService.findOne(userId);
-
     const updatedComment = await this.habitatCommentModel
       .findByIdAndUpdate(
         commentId,
         {
           is_resolved: true,
           resolved_at: new Date(),
-          resolved_by: user.name,
           updatedAt: new Date(),
         },
         { new: true },
