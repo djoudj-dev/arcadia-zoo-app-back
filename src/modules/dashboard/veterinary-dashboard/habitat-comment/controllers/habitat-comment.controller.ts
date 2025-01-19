@@ -62,7 +62,7 @@ export class HabitatCommentController {
     @Body() habitatCommentData: HabitatComment,
   ): Promise<HabitatComment | null> {
     return this.habitatCommentService.updateHabitatComment(
-      id,
+      id.toString(),
       habitatCommentData,
     );
   }
@@ -71,10 +71,8 @@ export class HabitatCommentController {
    * Supprime un commentaire d'habitat
    */
   @Delete(':id')
-  async deleteHabitatComment(
-    @Param('id') id: number,
-  ): Promise<HabitatComment | null> {
-    return this.habitatCommentService.deleteHabitatComment(id);
+  async deleteHabitatComment(@Param('id') id: number): Promise<void> {
+    return this.habitatCommentService.deleteHabitatComment(id.toString());
   }
 
   /**
