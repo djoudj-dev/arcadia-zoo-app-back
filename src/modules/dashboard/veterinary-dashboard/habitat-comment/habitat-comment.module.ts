@@ -12,7 +12,7 @@ import { HabitatCommentService } from './services/habitat-comment.service';
       {
         name: 'HabitatComment',
         schema: HabitatCommentSchema,
-        collection: 'habitat_comment',
+        collection: 'habitat_comments',
       },
     ]),
     AccountModule,

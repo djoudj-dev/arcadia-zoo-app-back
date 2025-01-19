@@ -19,6 +19,5 @@ export const HabitatCommentSchema = new Schema(
   },
   {
     timestamps: true,
-    collection: 'habitat_comment',
   },
 );
