@@ -49,7 +49,7 @@ export class HabitatCommentController {
   ): Promise<HabitatComment> {
     return this.habitatCommentService.createHabitatComment(
       habitatCommentData,
-      req.user.id,
+      req.user.sub,
     );
   }
 
