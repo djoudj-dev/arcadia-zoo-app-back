@@ -16,7 +16,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { HabitatComment } from '../models/habitat-comment.model';
 import { HabitatCommentService } from '../services/habitat-comment.service';
 
-@Controller('api/veterinary/habitat-comments')
+@Controller('veterinary/habitat-comments')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class HabitatCommentController {
   constructor(private readonly habitatCommentService: HabitatCommentService) {}
