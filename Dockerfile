@@ -15,6 +15,7 @@ FROM node:20.12-alpine3.19
 
 WORKDIR /app
 
+# Copier les fichiers nécessaires depuis l'étape de build
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
@@ -23,13 +24,7 @@ COPY --from=builder /app/package*.json ./
 RUN mkdir -p /app/uploads/animals && \
     mkdir -p /app/uploads/habitats && \
     mkdir -p /app/uploads/services && \
-    mkdir -p /app/dist/modules/mail/templates
-
-# Copie des templates
-COPY src/modules/mail/templates/* /app/dist/modules/mail/templates/
-
-# Ajustement des permissions
-RUN chown -R node:node /app && \
+    chown -R node:node /app && \
     chmod -R 755 /app && \
     chmod -R 777 /app/uploads
 
