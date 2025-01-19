@@ -66,7 +66,7 @@ async function bootstrap() {
     res.header(
       'Content-Security-Policy',
       "default-src 'self'; " +
-        `script-src 'self' 'nonce-${nonce}' https://*.googleapis.com https://*.gstatic.com https://maps.google.com; ` +
+        `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://*.googleapis.com https://*.gstatic.com https://maps.google.com; ` +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://nedellec-julien.fr; " +
         "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://api.nedellec-julien.fr https://nedellec-julien.fr; " +
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://nedellec-julien.fr data:; " +
