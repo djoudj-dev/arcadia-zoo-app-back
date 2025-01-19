@@ -85,7 +85,7 @@ export class HabitatCommentController {
     @Request() req,
   ): Promise<HabitatComment> {
     const commentId = id.toString();
-    return this.habitatCommentService.resolveComment(commentId, req.user.id);
+    return this.habitatCommentService.resolveComment(commentId, req.user.sub);
   }
 
   /**
