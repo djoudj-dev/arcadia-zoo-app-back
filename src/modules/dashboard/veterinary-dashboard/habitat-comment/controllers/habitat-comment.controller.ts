@@ -43,7 +43,7 @@ export class HabitatCommentController {
    * Crée un nouveau commentaire d'habitat
    */
   @Post()
-  @Roles('admin', 'veterinary')
+  @Roles('Veterinaire')
   async createHabitatComment(
     @Body() habitatCommentData: HabitatComment,
     @Request() req,
@@ -58,6 +58,7 @@ export class HabitatCommentController {
    * Met à jour un commentaire d'habitat existant
    */
   @Put(':id')
+  @Roles('Veterinaire')
   async updateHabitatComment(
     @Param('id') id: number,
     @Body() habitatCommentData: HabitatComment,
@@ -72,6 +73,7 @@ export class HabitatCommentController {
    * Supprime un commentaire d'habitat
    */
   @Delete(':id')
+  @Roles('Veterinaire')
   async deleteHabitatComment(@Param('id') id: number): Promise<void> {
     return this.habitatCommentService.deleteHabitatComment(id.toString());
   }
