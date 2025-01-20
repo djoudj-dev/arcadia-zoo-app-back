@@ -11,7 +11,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TrackVisitDto } from '../dto/track-visit.dto';
 import { VisitStatsService } from '../services/visit-stats.service';
 
-@Controller('api/visits')
+@Controller('visits')
 @UseGuards(JwtAuthGuard)
 export class VisitStatsController {
   constructor(private readonly visitStatsService: VisitStatsService) {}
