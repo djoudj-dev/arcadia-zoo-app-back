@@ -70,6 +70,7 @@ export class HabitatCommentService {
       habitat_name: `Habitat ${habitatCommentData.id_habitat}`,
       createdAt: new Date(),
       updatedAt: new Date(),
+      is_resolved: false,
     });
 
     console.log('Nouveau commentaire à sauvegarder:', newHabitatComment);
