@@ -1,8 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AccountService } from 'src/modules/dashboard/admin-dashboard/account-management/services/account.service';
-import { HabitatService } from 'src/modules/dashboard/admin-dashboard/habitat-management/services/habitat.service';
 import { HabitatComment } from '../models/habitat-comment.model';
 
 @Injectable()
@@ -10,8 +8,6 @@ export class HabitatCommentService {
   constructor(
     @InjectModel('HabitatComment')
     private readonly habitatCommentModel: Model<HabitatComment>,
-    private readonly accountService: AccountService,
-    private readonly habitatService: HabitatService,
   ) {}
 
   /**
@@ -65,23 +61,10 @@ export class HabitatCommentService {
   ): Promise<HabitatComment> {
     console.log('Données reçues:', habitatCommentData);
 
-    const user = await this.accountService.findOne(userId);
-    const habitat = await this.habitatService.findOne(
-      habitatCommentData.id_habitat,
-    );
-
-    if (!habitat) {
-      throw new NotFoundException(
-        `Habitat avec l'ID ${habitatCommentData.id_habitat} non trouvé`,
-      );
-    }
-
     const newHabitatComment = new this.habitatCommentModel({
       ...habitatCommentData,
       id_habitat: Number(habitatCommentData.id_habitat),
-      habitat_name: habitat.name,
       id_user: userId,
-      user_name: user.name,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

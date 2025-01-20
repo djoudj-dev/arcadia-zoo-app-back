@@ -43,6 +43,7 @@ export class HabitatCommentController {
    * Crée un nouveau commentaire d'habitat
    */
   @Post()
+  @Roles('admin', 'veterinary')
   async createHabitatComment(
     @Body() habitatCommentData: HabitatComment,
     @Request() req,
