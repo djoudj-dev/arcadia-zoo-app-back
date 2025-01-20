@@ -48,14 +48,14 @@ export class HabitatCommentController {
     @Body() habitatCommentData: HabitatComment,
     @Request() req,
   ): Promise<HabitatComment> {
-    const commentWithUserData = {
+    const commentData = {
       ...habitatCommentData,
       id_user: req.user.sub,
       user_name: req.user.username,
     };
 
     return this.habitatCommentService.createHabitatComment(
-      commentWithUserData,
+      commentData,
       req.user.sub,
       req.user.username,
     );
