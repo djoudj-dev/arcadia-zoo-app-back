@@ -9,6 +9,7 @@ import { HabitatsService } from 'src/modules/habitats-zoo/services/habitats.serv
 import { ServicesService } from 'src/modules/services-zoo/services/services.service';
 import { TrackVisitDto } from '../dto/track-visit.dto';
 import { VisitStats } from '../schema/visit-stats.schema';
+import { Visit } from '../schema/visit.schema';
 
 @Injectable()
 export class VisitStatsService implements OnModuleInit {
@@ -21,6 +22,8 @@ export class VisitStatsService implements OnModuleInit {
     private readonly habitatsService: HabitatsService,
     private readonly servicesService: ServicesService,
     private readonly http: HttpService,
+    @InjectModel(Visit.name)
+    private readonly visitModel: Model<Visit>,
   ) {}
 
   async onModuleInit() {
@@ -142,68 +145,87 @@ export class VisitStatsService implements OnModuleInit {
   }
 
   async trackVisit(trackVisitDto: TrackVisitDto) {
-    const { categoryName, categoryType } = trackVisitDto;
-
-    // Mettre à jour ou créer les statistiques pour cette catégorie
-    const stats = await this.visitStatsModel.findOneAndUpdate(
-      { categoryName, categoryType },
-      {
-        $inc: {
-          visit_count: 1,
-          total_duration: trackVisitDto.duration || 0,
-        },
-        $set: {
-          last_visit: new Date(),
-          pageId: trackVisitDto.pageId,
-        },
-      },
-      { upsert: true, new: true },
-    );
-
-    // Recalculer la moyenne de durée
-    if (trackVisitDto.duration) {
-      stats.average_duration = stats.total_duration / stats.visit_count;
-      await stats.save();
-    }
-
-    // Mettre à jour les pourcentages pour toutes les catégories
-    await this.updatePercentages();
-
+    const visit = new this.visitModel(trackVisitDto);
+    await visit.save();
     return { success: true, message: 'Visite enregistrée avec succès' };
   }
 
   async getStatsByCategory(categoryType: string) {
-    return this.visitStatsModel.find({ categoryType }).exec();
+    const stats = await this.visitModel.aggregate([
+      {
+        $match: { categoryType },
+      },
+      {
+        $group: {
+          _id: {
+            categoryName: '$categoryName',
+            categoryType: '$categoryType',
+          },
+          visit_count: { $sum: 1 },
+          total_duration: { $sum: '$duration' },
+          last_visit: { $max: '$createdAt' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          category_name: '$_id.categoryName',
+          category_type: '$_id.categoryType',
+          visit_count: 1,
+          total_duration: 1,
+          average_duration: { $divide: ['$total_duration', '$visit_count'] },
+          last_visit: 1,
+        },
+      },
+    ]);
+
+    const totalVisits = stats.reduce((sum, stat) => sum + stat.visit_count, 0);
+
+    return stats.map((stat) => ({
+      ...stat,
+      visit_percentage: (stat.visit_count / totalVisits) * 100,
+    }));
   }
 
   async getStatsByDateRange(startDate: Date, endDate: Date) {
-    return this.visitStatsModel
-      .find({
-        last_visit: {
-          $gte: startDate,
-          $lte: endDate,
+    const stats = await this.visitModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: startDate,
+            $lte: endDate,
+          },
         },
-      })
-      .exec();
-  }
+      },
+      {
+        $group: {
+          _id: {
+            categoryName: '$categoryName',
+            categoryType: '$categoryType',
+          },
+          visit_count: { $sum: 1 },
+          total_duration: { $sum: '$duration' },
+          last_visit: { $max: '$createdAt' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          category_name: '$_id.categoryName',
+          category_type: '$_id.categoryType',
+          visit_count: 1,
+          total_duration: 1,
+          average_duration: { $divide: ['$total_duration', '$visit_count'] },
+          last_visit: 1,
+        },
+      },
+    ]);
 
-  private async updatePercentages() {
-    const allStats = await this.visitStatsModel.find();
-    const totalVisits = allStats.reduce(
-      (sum, stat) => sum + stat.visit_count,
-      0,
-    );
+    const totalVisits = stats.reduce((sum, stat) => sum + stat.visit_count, 0);
 
-    const updatePromises = allStats.map((stat) => {
-      const percentage =
-        totalVisits > 0 ? (stat.visit_count / totalVisits) * 100 : 0;
-      return this.visitStatsModel.findByIdAndUpdate(
-        stat._id,
-        { visit_percentage: percentage },
-        { new: true },
-      );
-    });
-
-    await Promise.all(updatePromises);
+    return stats.map((stat) => ({
+      ...stat,
+      visit_percentage: (stat.visit_count / totalVisits) * 100,
+    }));
   }
 }

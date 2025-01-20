@@ -7,12 +7,14 @@ import { ServicesModule } from 'src/modules/services-zoo/services.module';
 import { CountResourceModule } from '../counts-resource/count-resource.module';
 import { VisitStatsController } from './controllers/visit-stats.controller';
 import { VisitStats, VisitStatsSchema } from './schema/visit-stats.schema';
+import { Visit, VisitSchema } from './schema/visit.schema';
 import { VisitStatsService } from './services/visit-stats.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: VisitStats.name, schema: VisitStatsSchema },
+      { name: Visit.name, schema: VisitSchema },
     ]),
     HttpModule,
     CountResourceModule,
