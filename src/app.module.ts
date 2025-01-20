@@ -18,6 +18,8 @@ import { HabitatsModule } from './modules/habitats-zoo/habitats.module';
 import { MailModule } from './modules/mail/mail.module';
 import { ServicesModule } from './modules/services-zoo/services.module';
 import { CountResourceModule } from './modules/stats-board/counts-resource/count-resource.module';
+import { StatsBoardModule } from './modules/stats-board/stats-board.module';
+import { VisitStatsModule } from './modules/stats-board/visit-stats/visit-stats.module';
 import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module';
 @Module({
   imports: [
@@ -55,6 +57,8 @@ import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module
     HabitatCommentModule,
     OpeningHoursManagementModule,
     MailModule,
+    VisitStatsModule,
+    StatsBoardModule,
   ],
   controllers: [AppController, AuthController],
   providers: [AppService],

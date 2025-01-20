@@ -9,7 +9,7 @@ export class ServicesController {
    * @param servicesService Service de gestion des services.
    */
 
-  constructor(private servicesService: ServicesService) {}
+  constructor(private readonly servicesService: ServicesService) {}
 
   @Get()
   async getAllServices(): Promise<Service[]> {
