@@ -26,7 +26,7 @@ export class VisitStatsController {
     return this.visitStatsService.getAllStats();
   }
 
-  @Get('stats/:categoryType')
+  @Get('stats/category/:categoryType')
   async getStatsByCategory(@Param('categoryType') categoryType: string) {
     return this.visitStatsService.getStatsByCategory(categoryType);
   }
