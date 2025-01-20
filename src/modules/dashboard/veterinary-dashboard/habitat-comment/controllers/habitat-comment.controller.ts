@@ -48,12 +48,19 @@ export class HabitatCommentController {
     @Body() habitatCommentData: HabitatComment,
     @Request() req,
   ): Promise<HabitatComment> {
+    console.log('Données reçues dans le contrôleur:', habitatCommentData);
+    console.log('Données utilisateur:', req.user);
+
     const commentData = {
       ...habitatCommentData,
       id_user: req.user.sub,
       user_name: req.user.username,
+      is_resolved: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
+    console.log('Données à envoyer au service:', commentData);
     return this.habitatCommentService.createHabitatComment(
       commentData,
       req.user.sub,
