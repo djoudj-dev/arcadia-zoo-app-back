@@ -51,6 +51,7 @@ export class HabitatCommentController {
     return this.habitatCommentService.createHabitatComment(
       habitatCommentData,
       req.user.sub,
+      req.user.username,
     );
   }
 

@@ -4,9 +4,9 @@ export const HabitatCommentSchema = new Schema(
   {
     id_habitat_comment: { type: String },
     id_habitat: { type: Number, required: true, index: true },
-    habitat_name: { type: String, required: true },
+    habitat_name: { type: String },
     id_user: { type: Number, required: true },
-    user_name: { type: String, required: true },
+    user_name: { type: String },
     comment: { type: String, required: true },
     habitat_status: {
       type: String,
