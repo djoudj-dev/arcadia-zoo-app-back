@@ -62,7 +62,17 @@ export class HabitatCommentService {
   ): Promise<HabitatComment> {
     console.log('Données reçues dans le service:', habitatCommentData);
 
-    const newHabitatComment = new this.habitatCommentModel(habitatCommentData);
+    const newHabitatComment = new this.habitatCommentModel({
+      ...habitatCommentData,
+      id_habitat: Number(habitatCommentData.id_habitat),
+      id_user: userId,
+      user_name: username,
+      habitat_name: `Habitat ${habitatCommentData.id_habitat}`,
+      is_resolved: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
     console.log('Nouveau commentaire à sauvegarder:', newHabitatComment);
     return await newHabitatComment.save();
   }

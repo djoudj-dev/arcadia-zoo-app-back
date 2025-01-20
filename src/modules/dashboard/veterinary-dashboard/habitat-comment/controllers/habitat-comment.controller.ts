@@ -53,8 +53,9 @@ export class HabitatCommentController {
 
     const commentData = {
       ...habitatCommentData,
-      id_user: req.user.sub,
-      user_name: req.user.username,
+      id_user: req.user.id,
+      user_name: req.user.name,
+      habitat_name: `Habitat ${habitatCommentData.id_habitat}`,
       is_resolved: false,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -63,8 +64,8 @@ export class HabitatCommentController {
     console.log('Données à envoyer au service:', commentData);
     return this.habitatCommentService.createHabitatComment(
       commentData,
-      req.user.sub,
-      req.user.username,
+      req.user.id,
+      req.user.name,
     );
   }
 
