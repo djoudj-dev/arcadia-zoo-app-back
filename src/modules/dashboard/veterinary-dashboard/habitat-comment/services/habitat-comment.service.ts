@@ -62,18 +62,10 @@ export class HabitatCommentService {
   ): Promise<HabitatComment> {
     console.log('Données reçues:', habitatCommentData);
 
-    // Vérification des données requises
-    if (!userId || !username) {
-      throw new Error('userId et username sont requis');
-    }
-
     const newHabitatComment = new this.habitatCommentModel({
+      ...habitatCommentData,
       id_habitat: Number(habitatCommentData.id_habitat),
       habitat_name: `Habitat ${habitatCommentData.id_habitat}`,
-      id_user: userId,
-      user_name: username,
-      comment: habitatCommentData.comment,
-      habitat_status: habitatCommentData.habitat_status,
       is_resolved: false,
     });
 
