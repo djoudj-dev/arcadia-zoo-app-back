@@ -63,13 +63,12 @@ export class HabitatCommentService {
     console.log('Données reçues:', habitatCommentData);
 
     const newHabitatComment = new this.habitatCommentModel({
-      ...habitatCommentData,
       id_habitat: Number(habitatCommentData.id_habitat),
+      habitat_name: `Habitat ${habitatCommentData.id_habitat}`,
       id_user: userId,
       user_name: username,
-      habitat_name: `Habitat ${habitatCommentData.id_habitat}`,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      comment: habitatCommentData.comment,
+      habitat_status: habitatCommentData.habitat_status,
       is_resolved: false,
     });
 
