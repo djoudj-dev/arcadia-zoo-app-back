@@ -186,9 +186,6 @@ async function bootstrap() {
   try {
     await app.listen(3000, '0.0.0.0');
     console.log('Server successfully started on port 3000');
-    console.log('Environment variables:');
-    console.log('- CORS_ORIGIN:', process.env.CORS_ORIGIN);
-    console.log('- NODE_ENV:', process.env.NODE_ENV);
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);

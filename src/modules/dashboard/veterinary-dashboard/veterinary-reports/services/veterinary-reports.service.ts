@@ -106,12 +106,8 @@ export class VeterinaryReportsService {
 
   async getReportsByAnimalId(animalId: string): Promise<VeterinaryReports[]> {
     try {
-      if (!mongoose.Types.ObjectId.isValid(animalId)) {
-        throw new BadRequestException("ID d'animal invalide");
-      }
-
       const reports = await this.veterinaryReportsModel
-        .find({ id_animal: animalId })
+        .find({ id_animal: parseInt(animalId) })
         .exec();
 
       if (!reports || reports.length === 0) {
@@ -122,10 +118,7 @@ export class VeterinaryReportsService {
 
       return reports;
     } catch (error) {
-      if (
-        error instanceof BadRequestException ||
-        error instanceof NotFoundException
-      ) {
+      if (error instanceof NotFoundException) {
         throw error;
       }
       throw new InternalServerErrorException(
