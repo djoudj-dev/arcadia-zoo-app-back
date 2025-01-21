@@ -45,12 +45,14 @@ export class VeterinaryReportsController {
    * Récupère un rapport vétérinaire par son ID
    * @param id ID du rapport vétérinaire
    */
-  @Get(':id')
+  @Get('animal/:id')
   async getVeterinaryReportById(
-    @Param('id') id: string,
+    @Param('id') animalId: string,
   ): Promise<VeterinaryReports> {
     try {
-      return await this.veterinaryReportsService.getVeterinaryReportById(id);
+      return await this.veterinaryReportsService.getVeterinaryReportById(
+        animalId,
+      );
     } catch (error) {
       throw new HttpException(
         'Veterinary report not found',
