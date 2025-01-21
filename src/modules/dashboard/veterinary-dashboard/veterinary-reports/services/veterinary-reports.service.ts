@@ -1,13 +1,13 @@
 import {
-  Injectable,
-  NotFoundException,
   BadRequestException,
+  Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as mongoose from 'mongoose';
 import { Model } from 'mongoose';
 import { VeterinaryReports } from '../models/veterinary-reports.model';
-import * as mongoose from 'mongoose';
 
 @Injectable()
 export class VeterinaryReportsService {
@@ -100,6 +100,36 @@ export class VeterinaryReportsService {
       }
       throw new InternalServerErrorException(
         'Erreur lors de la mise à jour du statut',
+      );
+    }
+  }
+
+  async getReportsByAnimalId(animalId: string): Promise<VeterinaryReports[]> {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(animalId)) {
+        throw new BadRequestException("ID d'animal invalide");
+      }
+
+      const reports = await this.veterinaryReportsModel
+        .find({ animalId: animalId })
+        .exec();
+
+      if (!reports || reports.length === 0) {
+        throw new NotFoundException(
+          'Aucun rapport vétérinaire trouvé pour cet animal',
+        );
+      }
+
+      return reports;
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération des rapports vétérinaires pour cet animal',
       );
     }
   }

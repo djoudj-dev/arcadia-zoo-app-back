@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -29,7 +31,14 @@ export class VeterinaryReportsController {
    */
   @Get()
   async getAllVeterinaryReports(): Promise<VeterinaryReports[]> {
-    return this.veterinaryReportsService.getAllVeterinaryReports();
+    try {
+      return await this.veterinaryReportsService.getAllVeterinaryReports();
+    } catch (error) {
+      throw new HttpException(
+        'Failed to fetch veterinary reports',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -40,7 +49,14 @@ export class VeterinaryReportsController {
   async getVeterinaryReportById(
     @Param('id') id: string,
   ): Promise<VeterinaryReports> {
-    return this.veterinaryReportsService.getVeterinaryReportById(id);
+    try {
+      return await this.veterinaryReportsService.getVeterinaryReportById(id);
+    } catch (error) {
+      throw new HttpException(
+        'Veterinary report not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 
   /**
@@ -53,9 +69,16 @@ export class VeterinaryReportsController {
   async createVeterinaryReport(
     @Body() reportsCommentData: VeterinaryReports,
   ): Promise<VeterinaryReports> {
-    return this.veterinaryReportsService.createVeterinaryReport(
-      reportsCommentData,
-    );
+    try {
+      return await this.veterinaryReportsService.createVeterinaryReport(
+        reportsCommentData,
+      );
+    } catch (error) {
+      throw new HttpException(
+        'Failed to create veterinary report',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -69,10 +92,17 @@ export class VeterinaryReportsController {
     @Param('id') id: number,
     @Body() veterinaryReportsData: VeterinaryReports,
   ): Promise<VeterinaryReports | null> {
-    return this.veterinaryReportsService.updateVeterinaryReport(
-      id.toString(),
-      veterinaryReportsData,
-    );
+    try {
+      return await this.veterinaryReportsService.updateVeterinaryReport(
+        id.toString(),
+        veterinaryReportsData,
+      );
+    } catch (error) {
+      throw new HttpException(
+        'Failed to update veterinary report',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -82,7 +112,14 @@ export class VeterinaryReportsController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   async deleteVeterinaryReport(@Param('id') id: string): Promise<void> {
-    return this.veterinaryReportsService.deleteVeterinaryReport(id);
+    try {
+      await this.veterinaryReportsService.deleteVeterinaryReport(id);
+    } catch (error) {
+      throw new HttpException(
+        'Failed to delete veterinary report',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @Patch(':id/status')
@@ -92,6 +129,34 @@ export class VeterinaryReportsController {
     @Param('id') id: string,
     @Body('is_treated') is_processed: boolean,
   ): Promise<VeterinaryReports> {
-    return this.veterinaryReportsService.updateReportStatus(id, is_processed);
+    try {
+      return await this.veterinaryReportsService.updateReportStatus(
+        id,
+        is_processed,
+      );
+    } catch (error) {
+      throw new HttpException(
+        'Failed to update report status',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  /**
+   * Récupère les rapports vétérinaires pour un animal spécifique
+   * @param animalId ID de l'animal
+   */
+  @Get('animal/:id')
+  async getReportsByAnimalId(
+    @Param('id') animalId: string,
+  ): Promise<VeterinaryReports[]> {
+    try {
+      return await this.veterinaryReportsService.getReportsByAnimalId(animalId);
+    } catch (error) {
+      throw new HttpException(
+        'Failed to fetch veterinary reports for animal',
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }
