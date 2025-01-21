@@ -12,11 +12,11 @@ import { TrackVisitDto } from '../dto/track-visit.dto';
 import { VisitStatsService } from '../services/visit-stats.service';
 
 @Controller('visits')
-@UseGuards(JwtAuthGuard)
 export class VisitStatsController {
   constructor(private readonly visitStatsService: VisitStatsService) {}
 
   @Post('track')
+  @UseGuards(JwtAuthGuard)
   async trackVisit(@Body() trackVisitDto: TrackVisitDto) {
     return this.visitStatsService.trackVisit(trackVisitDto);
   }
