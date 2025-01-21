@@ -25,18 +25,18 @@ FROM node:20.12-alpine3.19
 WORKDIR /app
 
 # Copier les fichiers nécessaires depuis l'étape de construction précédente
-COPY --from=builder /app/dist ./dist  # Code compilé
-COPY --from=builder /app/node_modules ./node_modules  # Dépendances installées
-COPY --from=builder /app/package*.json ./  # Fichiers package.json pour exécution
+COPY --from=builder /app/dist ./dist 
+COPY --from=builder /app/node_modules ./node_modules  
+COPY --from=builder /app/package*.json ./  
 
 # Création des répertoires nécessaires pour le stockage des fichiers
-RUN mkdir -p /app/uploads/animals && \  # Dossier pour les fichiers d'animaux
-    mkdir -p /app/uploads/habitats && \  # Dossier pour les fichiers d'habitats
-    mkdir -p /app/uploads/services && \  # Dossier pour les fichiers de services
+RUN mkdir -p /app/uploads/animals && \  
+    mkdir -p /app/uploads/habitats && \  
+    mkdir -p /app/uploads/services && \  
     # Définition des permissions et propriétaire des fichiers pour éviter les problèmes d'accès
-    chown -R node:node /app && \  # Attribution des fichiers à l'utilisateur node
-    chmod -R 755 /app && \  # Définition des permissions en lecture/écriture pour l'utilisateur
-    chmod -R 777 /app/uploads  # Donne toutes les permissions pour le répertoire uploads (attention en production)
+    chown -R node:node /app && \  
+    chmod -R 755 /app && \  
+    chmod -R 777 /app/uploads  
 
 # Exécuter le conteneur en tant qu'utilisateur non-root pour des raisons de sécurité
 USER node
