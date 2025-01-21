@@ -111,7 +111,7 @@ export class VeterinaryReportsService {
       }
 
       const reports = await this.veterinaryReportsModel
-        .find({ animalId: animalId })
+        .find({ id_animal: animalId })
         .exec();
 
       if (!reports || reports.length === 0) {
