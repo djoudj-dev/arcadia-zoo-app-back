@@ -12,7 +12,7 @@ COPY tsconfig*.json ./
 COPY src ./src
 
 # Installation des dépendances et construction du projet
-RUN npm ci && npm run build && \
+RUN npm install --legacy-peer-deps && npm run build && \
     # Création du répertoire de destination pour les templates d'e-mails
     mkdir -p /app/dist/modules/mail/templates && \
     # Copier les templates d'e-mails du dossier source vers le dossier de build
