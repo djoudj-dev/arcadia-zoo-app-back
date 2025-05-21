@@ -28,8 +28,6 @@ const pool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-  // Explicitly set the dialect to PostgreSQL
-  dialect: 'postgres',
 });
 
 // Ajouter des listeners pour les événements de connexion
@@ -55,12 +53,9 @@ export const query = async (text: string, params?: any[]): Promise<QueryResult> 
   const client = await pool.connect();
   try {
     console.log('Executing query:', text);
-    // Specify that we're using PostgreSQL dialect
     const result = await client.query({
       text,
       values: params,
-      // Explicitly set the dialect to PostgreSQL
-      dialect: 'postgres',
     });
     console.log('Query executed successfully');
     return result;
