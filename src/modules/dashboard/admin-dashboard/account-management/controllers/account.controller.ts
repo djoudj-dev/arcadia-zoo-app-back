@@ -114,7 +114,7 @@ export class AccountController {
    * @returns Message de confirmation
    */
   @Post('update-password')
-  @UseGuards(JwtAuthGuard)
+  /*@UseGuards(JwtAuthGuard)*/
   async updatePassword(
     @Request() req,
     @Body() passwordData: UpdatePasswordDto,
