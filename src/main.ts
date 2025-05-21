@@ -97,7 +97,7 @@ async function bootstrap() {
     next();
   });
 
-  // Convertir la chaîne de domaines en tableau
+  // Convertir la chaîne de domaines en tableau.
   const corsOrigins = process.env.CORS_ORIGIN?.split(',') || [
     'https://arcadia.nedellec-julien.fr',
   ];
