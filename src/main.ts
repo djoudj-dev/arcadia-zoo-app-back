@@ -68,10 +68,10 @@ async function bootstrap() {
       "default-src 'self'; " +
         `script-src 'strict-dynamic' 'nonce-${nonce}' 'unsafe-inline' 'self'; ` +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://nedellec-julien.fr; " +
-        "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://api.nedellec-julien.fr https://nedellec-julien.fr; " +
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://nedellec-julien.fr data:; " +
+        "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://arcadia-api.nedellec-julien.fr https://arcadia.nedellec-julien.fr; " +
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://arcadia.nedellec-julien.fr data:; " +
         "frame-src 'self' https://www.google.com https://*.google.com; " +
-        "connect-src 'self' https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com https://api.nedellec-julien.fr; " +
+        "connect-src 'self' https://*.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com https://arcadia-api.nedellec-julien.fr; " +
         "worker-src 'self' blob:; " +
         "child-src 'self' blob: https://*.google.com; " +
         "object-src 'none'; " +
@@ -99,7 +99,7 @@ async function bootstrap() {
 
   // Convertir la chaîne de domaines en tableau
   const corsOrigins = process.env.CORS_ORIGIN?.split(',') || [
-    'https://nedellec-julien.fr',
+    'https://arcadia.nedellec-julien.fr',
   ];
   console.log('CORS Origins:', corsOrigins);
 

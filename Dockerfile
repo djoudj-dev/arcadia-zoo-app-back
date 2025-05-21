@@ -30,12 +30,12 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./  
 
 # Création des répertoires nécessaires pour le stockage des fichiers
-RUN mkdir -p /app/uploads/animals && \  
-    mkdir -p /app/uploads/habitats && \  
-    mkdir -p /app/uploads/services && \  
+RUN mkdir -p /app/uploads/animals && \
+    mkdir -p /app/uploads/habitats && \
+    mkdir -p /app/uploads/services && \
     # Définition des permissions et propriétaire des fichiers pour éviter les problèmes d'accès
-    chown -R node:node /app && \  
-    chmod -R 755 /app && \  
+    chown -R node:node /app && \
+    chmod -R 755 /app && \
     chmod -R 777 /app/uploads  
 
 # Exécuter le conteneur en tant qu'utilisateur non-root pour des raisons de sécurité
