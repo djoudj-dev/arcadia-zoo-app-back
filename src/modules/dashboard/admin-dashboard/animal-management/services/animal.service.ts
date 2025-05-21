@@ -12,12 +12,12 @@ import { Animal } from '../models/animal.model';
 @Injectable()
 export class AnimalService {
   async getAllAnimals(): Promise<Animal[]> {
-    const res = await query('/* PostgreSQL */ SELECT * FROM animals');
+    const res = await query('SELECT * FROM animals');
     return res.rows.map((row: Animal) => this.formatAnimal(row));
   }
 
   async findOne(id: number): Promise<Animal | null> {
-    const res = await query('/* PostgreSQL */ SELECT * FROM animals WHERE id_animal = $1', [id]);
+    const res = await query('SELECT * FROM animals WHERE id_animal = $1', [id]);
     return res.rows[0] ? this.formatAnimal(res.rows[0]) : null;
   }
 
@@ -52,7 +52,7 @@ export class AnimalService {
     }
 
     const res = await query(
-      `/* PostgreSQL */
+      `
       INSERT INTO animals (name, species, characteristics, weight_range, diet, habitat_id, images, vet_note, created_at, updated_at) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW()) RETURNING *`,
       [
