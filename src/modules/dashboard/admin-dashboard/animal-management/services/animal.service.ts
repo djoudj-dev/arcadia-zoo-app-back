@@ -6,21 +6,18 @@ import {
 } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Pool } from 'pg';
 import { query } from '../../../../../config/postgres.config';
 import { Animal } from '../models/animal.model';
-
-const pool = new Pool();
 
 @Injectable()
 export class AnimalService {
   async getAllAnimals(): Promise<Animal[]> {
-    const res = await query('SELECT * FROM animals');
-    return res.rows.map((row) => this.formatAnimal(row));
+    const res = await query('/* PostgreSQL */ SELECT * FROM animals');
+    return res.rows.map((row: Animal) => this.formatAnimal(row));
   }
 
   async findOne(id: number): Promise<Animal | null> {
-    const res = await query('SELECT * FROM animals WHERE id_animal = $1', [id]);
+    const res = await query('/* PostgreSQL */ SELECT * FROM animals WHERE id_animal = $1', [id]);
     return res.rows[0] ? this.formatAnimal(res.rows[0]) : null;
   }
 
@@ -55,7 +52,8 @@ export class AnimalService {
     }
 
     const res = await query(
-      `INSERT INTO animals (name, species, characteristics, weight_range, diet, habitat_id, images, vet_note, created_at, updated_at) 
+      `/* PostgreSQL */
+      INSERT INTO animals (name, species, characteristics, weight_range, diet, habitat_id, images, vet_note, created_at, updated_at) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW()) RETURNING *`,
       [
         name,
@@ -101,7 +99,8 @@ export class AnimalService {
     }
 
     const res = await query(
-      `UPDATE animals SET 
+      `/* PostgreSQL */
+      UPDATE animals SET 
         name = COALESCE($1, name),
         species = COALESCE($2, species),
         characteristics = COALESCE($3, characteristics),
@@ -143,7 +142,7 @@ export class AnimalService {
       fs.unlinkSync(imagePath);
     }
 
-    await query('DELETE FROM animals WHERE id_animal = $1', [id]);
+    await query('/* PostgreSQL */ DELETE FROM animals WHERE id_animal = $1', [id]);
     return existingAnimal;
   }
 
@@ -154,7 +153,7 @@ export class AnimalService {
   }
 
   private formatAnimal(row: any): Animal {
-    const baseUrl = process.env.API_URL || 'https://api.nedellec-julien.fr';
+    const baseUrl = process.env.API_URL || 'https://arcadia-api.nedellec-julien.fr';
     return {
       id_animal: row.id_animal,
       name: row.name,

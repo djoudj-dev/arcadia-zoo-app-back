@@ -9,7 +9,8 @@ export class AnimalsService {
    */
   async getAllAnimals(): Promise<Animal[]> {
     const res = await query(
-      `SELECT id_animal, name, species, habitat_id, images, characteristics, weight_range, diet, vet_note, created_at, updated_at
+      `/* PostgreSQL */
+      SELECT id_animal, name, species, habitat_id, images, characteristics, weight_range, diet, vet_note, created_at, updated_at
       FROM animals`,
     );
     return res.rows.map((row) => this.formatAnimal(row));
@@ -17,7 +18,8 @@ export class AnimalsService {
 
   async getAnimalById(id: number): Promise<Animal> {
     const res = await query(
-      `SELECT id_animal, name, species, habitat_id, images, characteristics, weight_range, diet, vet_note, created_at, updated_at
+      `/* PostgreSQL */
+      SELECT id_animal, name, species, habitat_id, images, characteristics, weight_range, diet, vet_note, created_at, updated_at
       FROM animals
       WHERE id_animal = $1`,
       [id],
@@ -37,7 +39,7 @@ export class AnimalsService {
   }
 
   private formatAnimal(row: any): Animal {
-    const baseUrl = process.env.API_URL || 'https://api.nedellec-julien.fr';
+    const baseUrl = process.env.API_URL || 'https://arcadia-api.nedellec-julien.fr';
     return {
       id_animal: row.id_animal,
       name: row.name,
