@@ -17,7 +17,6 @@ dotenv.config();
       provide: 'MAILER_TRANSPORT',
       useFactory: () => {
         return createTransport({
-          service: 'gmail',
           host: process.env.MAIL_HOST,
           port: 465,
           secure: true,
