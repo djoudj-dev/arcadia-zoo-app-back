@@ -93,7 +93,7 @@ export class HabitatController {
 
     // Gestion de l'image
     if (image) {
-      habitatData.images = image.filename;
+      habitatData.images = `uploads/habitats/${image.filename}`;
       console.log('Nouvelle image:', habitatData.images);
     } else if (!habitatData.images || habitatData.images === '{}') {
       habitatData.images = existingHabitat.images;
