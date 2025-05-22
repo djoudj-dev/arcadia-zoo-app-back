@@ -84,8 +84,6 @@ export class HabitatController {
     @Body() habitatData: Partial<Habitat>,
     @UploadedFile() image?: Express.Multer.File,
   ): Promise<Habitat> {
-    console.log('Données reçues:', habitatData);
-    console.log('Image reçue:', image);
 
     // Vérifier si l'habitat existe
     const existingHabitat = await this.habitatService.findOne(id);

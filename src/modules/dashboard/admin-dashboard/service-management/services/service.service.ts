@@ -129,6 +129,21 @@ export class ServiceService {
       );
     }
 
+    // Vérifier si le service existe avant de démarrer la transaction
+    const existingService = await this.findOne(id);
+    if (!existingService) {
+      throw new BadRequestException(`Service non trouvé avec l'ID : ${id}`);
+    }
+
+    // Valider les caractéristiques avant de démarrer la transaction
+    for (const feature of features) {
+      if (!feature.name || !feature.type) {
+        throw new BadRequestException(
+          'Chaque caractéristique doit avoir un "name" et un "type" non vides.',
+        );
+      }
+    }
+
     // Démarrer une transaction
     const client = await pool.connect();
     await client.query('BEGIN');
@@ -143,19 +158,9 @@ export class ServiceService {
         [name, description, images, id],
       );
 
-      if (res.rowCount === 0) {
-        throw new BadRequestException(`Service non trouvé avec l'ID : ${id}`);
-      }
-
       const updatedService = res.rows[0];
 
       for (const feature of features) {
-        if (!feature.name || !feature.type) {
-          throw new BadRequestException(
-            'Chaque caractéristique doit avoir un "name" et un "type" non vides.',
-          );
-        }
-
         let featureId;
 
         // Rechercher ou insérer la caractéristique dans `features`
@@ -277,14 +282,26 @@ export class ServiceService {
   }
 
   private formatService(row: any): Service {
+    const baseUrl = process.env.API_URL || 'https://arcadia-api.nedellec-julien.fr';
     return {
       id_service: row.id_service,
       name: row.name,
       description: row.description,
-      images: row.images,
+      images: this.formatImageUrl(row.images, baseUrl),
       created_at: row.created_at,
       updated_at: row.updated_at,
     };
+  }
+
+  private formatImageUrl(
+    imageUrl: string | null,
+    baseUrl: string,
+  ): string | null {
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith('http')) return imageUrl;
+    if (imageUrl.startsWith('uploads/services/'))
+      return `${baseUrl}/api/${imageUrl}`;
+    return `${baseUrl}/api/uploads/services/${imageUrl}`;
   }
 
   private checkUserRole(userRole: string) {

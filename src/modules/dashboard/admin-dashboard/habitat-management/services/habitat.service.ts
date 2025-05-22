@@ -37,12 +37,8 @@ export class HabitatService {
     habitatData: Partial<Habitat>,
     userRole: string,
   ): Promise<Habitat> {
-    console.log("Début de la création de l'habitat");
     this.checkAdminRole(userRole);
-    console.log("Rôle de l'utilisateur vérifié:", userRole);
-
     const { name, description, images } = habitatData;
-    console.log("Données de l'habitat reçues:", habitatData);
 
     if (!name || !description || !images) {
       console.error(
@@ -173,13 +169,25 @@ export class HabitatService {
    * @returns Un objet Habitat formaté
    */
   private formatHabitat(row: any): Habitat {
+    const baseUrl = process.env.API_URL || 'https://arcadia-api.nedellec-julien.fr';
     return {
       id_habitat: row.id_habitat,
       name: row.name,
       description: row.description,
-      images: row.images,
+      images: this.formatImageUrl(row.images, baseUrl),
       created_at: row.created_at,
       updated_at: row.updated_at,
     };
+  }
+
+  private formatImageUrl(
+    imageUrl: string | null,
+    baseUrl: string,
+  ): string | null {
+    if (!imageUrl) return null;
+    if (imageUrl.startsWith('http')) return imageUrl;
+    if (imageUrl.startsWith('uploads/habitats/'))
+      return `${baseUrl}/api/${imageUrl}`;
+    return `${baseUrl}/api/uploads/habitats/${imageUrl}`;
   }
 }
