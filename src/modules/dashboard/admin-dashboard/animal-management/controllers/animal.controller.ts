@@ -53,9 +53,6 @@ export class AnimalController {
     @Body() animalData: Partial<Animal>,
     @UploadedFile() image?: Express.Multer.File,
   ): Promise<Animal> {
-    console.log('Données reçues:', animalData);
-    console.log('Image reçue:', image);
-
     // Vérifier si l'animal existe
     const existingAnimal = await this.animalService.findOne(id);
     if (!existingAnimal) {
