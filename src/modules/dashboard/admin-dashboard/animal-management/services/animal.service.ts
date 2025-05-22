@@ -51,6 +51,11 @@ export class AnimalService {
       );
     }
 
+    // Format image path for new animals
+    if (typeof animalData.images === 'string' && !animalData.images.startsWith('uploads/animals/')) {
+      animalData.images = `uploads/animals/${animalData.images}`;
+    }
+
     const res = await query(
       `
       INSERT INTO animals (name, species, characteristics, weight_range, diet, habitat_id, images, vet_note, created_at, updated_at) 
@@ -175,6 +180,8 @@ export class AnimalService {
   ): string | null {
     if (!imageUrl) return null;
     if (imageUrl.startsWith('http')) return imageUrl;
-    return `${baseUrl}/api/${imageUrl}`;
+    if (imageUrl.startsWith('uploads/animals/'))
+      return `${baseUrl}/api/${imageUrl}`;
+    return `${baseUrl}/api/uploads/animals/${imageUrl}`;
   }
 }
