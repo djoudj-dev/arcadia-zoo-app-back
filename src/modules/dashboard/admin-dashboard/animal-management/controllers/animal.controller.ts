@@ -39,7 +39,8 @@ export class AnimalController {
     @UploadedFile() images: Express.Multer.File,
   ): Promise<Animal> {
     if (images) {
-      animalData.images = images.filename;
+      // Pour S3, on utilise l'URL complète ou le chemin S3
+      animalData.images = (images as any).location || images.filename;
     } else {
       throw new BadRequestException('Le champ "images" est requis.');
     }
@@ -61,7 +62,8 @@ export class AnimalController {
 
     // Gestion de l'image
     if (image) {
-      animalData.images = image.filename;
+      // Pour S3, on utilise l'URL complète ou le chemin S3
+      animalData.images = (image as any).location || image.filename;
       console.log('Nouvelle image:', animalData.images);
     } else if (!animalData.images || animalData.images === '{}') {
       animalData.images = existingAnimal.images;

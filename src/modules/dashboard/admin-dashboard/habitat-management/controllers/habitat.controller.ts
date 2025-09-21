@@ -63,7 +63,8 @@ export class HabitatController {
       throw new BadRequestException('Le champ image est obligatoire');
     }
 
-    habitatData.images = `uploads/habitats/${image.filename}`;
+    // Pour S3, on utilise l'URL complète ou le chemin S3
+    habitatData.images = (image as any).location || `uploads/habitats/${image.filename}`;
 
     return this.habitatService.createHabitat(habitatData, 'admin');
   }
@@ -93,7 +94,8 @@ export class HabitatController {
 
     // Gestion de l'image
     if (image) {
-      habitatData.images = `uploads/habitats/${image.filename}`;
+      // Pour S3, on utilise l'URL complète ou le chemin S3
+      habitatData.images = (image as any).location || `uploads/habitats/${image.filename}`;
       console.log('Nouvelle image:', habitatData.images);
     } else if (!habitatData.images || habitatData.images === '{}') {
       habitatData.images = existingHabitat.images;
