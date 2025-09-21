@@ -65,10 +65,10 @@ export class ServiceController {
       throw new BadRequestException('Le format de features est invalide');
     }
 
-    // Set the image path in serviceData
+    // Set the image path in serviceData (S3 or local)
     const serviceDataWithImage = {
       ...serviceData,
-      images: `uploads/services/${image.filename}`,
+      images: (image as any).location || `uploads/services/${image.filename}`,
     };
 
     return this.serviceService.createService(
@@ -94,9 +94,9 @@ export class ServiceController {
   ): Promise<Service> {
     console.log('Image reçue :', image);
 
-    // Mise à jour du chemin de l'image si un fichier est téléchargé
+    // Mise à jour du chemin de l'image si un fichier est téléchargé (S3 or local)
     if (image) {
-      serviceData.images = `uploads/services/${image.filename}`;
+      serviceData.images = (image as any).location || `uploads/services/${image.filename}`;
     } else {
       // Conserver l'image existante si aucune nouvelle image n'est fournie
       const existingService = await this.serviceService.findById(id);
@@ -115,23 +115,24 @@ export class ServiceController {
 
     // Convertit `features` de chaîne JSON en tableau d'objets Feature
     let parsedFeatures: Feature[];
+    // Parse uniquement et capture les erreurs de JSON
     try {
       parsedFeatures = JSON.parse(serviceData.features);
-
-      // Vérification que chaque élément du tableau a les propriétés nécessaires
-      if (
-        !Array.isArray(parsedFeatures) ||
-        parsedFeatures.some(
-          (f) =>
-            !f.name || // Assurez-vous que `name` est présent
-            !f.type || // Assurez-vous que `type` est présent
-            typeof f.name !== 'string' || // Vérification du type
-            typeof f.type !== 'string', // Vérification du type
-        )
-      ) {
-        throw new Error();
-      }
     } catch {
+      throw new BadRequestException('Le format de features est invalide');
+    }
+
+    // Vérifie la structure des éléments après un parse réussi
+    if (
+      !Array.isArray(parsedFeatures) ||
+      parsedFeatures.some(
+        (f) =>
+          !f?.name || // Assurez-vous que `name` est présent
+          !f?.type || // Assurez-vous que `type` est présent
+          typeof f.name !== 'string' || // Vérification du type
+          typeof f.type !== 'string', // Vérification du type
+      )
+    ) {
       throw new BadRequestException(
         'Le format de features est invalide ou manque des propriétés obligatoires.',
       );
