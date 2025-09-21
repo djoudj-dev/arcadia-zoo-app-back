@@ -29,7 +29,7 @@ export class ServiceController {
 
   @Get()
   @Roles('admin', 'employe')
-  @UseInterceptors(FileInterceptor('image', multerOptionsServices))
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices()))
   async getAllServices(): Promise<Service[]> {
     return this.serviceService.getAllServices();
   }
@@ -42,7 +42,7 @@ export class ServiceController {
 
   @Post()
   @Roles('admin', 'employe')
-  @UseInterceptors(FileInterceptor('image', multerOptionsServices))
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices()))
   async createService(
     @Body()
     serviceData: {
@@ -80,7 +80,7 @@ export class ServiceController {
 
   @Put(':id')
   @Roles('admin', 'employe')
-  @UseInterceptors(FileInterceptor('image', multerOptionsServices))
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices()))
   async updateService(
     @Param('id') id: number,
     @Body()

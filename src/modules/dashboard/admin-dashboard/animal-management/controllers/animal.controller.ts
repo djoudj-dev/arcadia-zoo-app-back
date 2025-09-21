@@ -33,7 +33,7 @@ export class AnimalController {
 
   @Roles('admin')
   @Post()
-  @UseInterceptors(FileInterceptor('images', multerOptionsAnimals))
+  @UseInterceptors(FileInterceptor('images', multerOptionsAnimals()))
   async createAnimal(
     @Body() animalData: Partial<Animal>,
     @UploadedFile() images: Express.Multer.File,
@@ -48,7 +48,7 @@ export class AnimalController {
   }
 
   @Put(':id')
-  @UseInterceptors(FileInterceptor('images', multerOptionsAnimals))
+  @UseInterceptors(FileInterceptor('images', multerOptionsAnimals()))
   async updateAnimal(
     @Param('id') id: number,
     @Body() animalData: Partial<Animal>,

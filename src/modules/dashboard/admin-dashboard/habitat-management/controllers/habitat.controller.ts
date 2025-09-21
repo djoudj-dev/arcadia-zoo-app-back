@@ -54,7 +54,7 @@ export class HabitatController {
    */
   @Roles('admin')
   @Post()
-  @UseInterceptors(FileInterceptor('images', multerOptionsHabitats))
+  @UseInterceptors(FileInterceptor('images', multerOptionsHabitats()))
   async createHabitat(
     @Body() habitatData: Partial<Habitat>,
     @UploadedFile() image: Express.Multer.File,
@@ -79,7 +79,7 @@ export class HabitatController {
    */
   @Roles('admin')
   @Put(':id')
-  @UseInterceptors(FileInterceptor('images', multerOptionsHabitats))
+  @UseInterceptors(FileInterceptor('images', multerOptionsHabitats()))
   async updateHabitat(
     @Param('id') id: number,
     @Body() habitatData: Partial<Habitat>,

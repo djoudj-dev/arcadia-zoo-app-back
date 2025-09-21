@@ -83,10 +83,31 @@ function createMulterOptions(uploadDirectory: string) {
   };
 }
 
-// Utilisation pour les différents types d'uploads
-export const multerOptionsHabitats = createMulterOptions('habitats');
-export const multerOptionsAnimals = createMulterOptions('animals');
-export const multerOptionsServices = createMulterOptions('services');
+// Utilisation pour les différents types d'uploads (lazy loading)
+let _multerOptionsHabitats: any = null;
+let _multerOptionsAnimals: any = null;
+let _multerOptionsServices: any = null;
+
+export const multerOptionsHabitats = () => {
+  if (!_multerOptionsHabitats) {
+    _multerOptionsHabitats = createMulterOptions('habitats');
+  }
+  return _multerOptionsHabitats;
+};
+
+export const multerOptionsAnimals = () => {
+  if (!_multerOptionsAnimals) {
+    _multerOptionsAnimals = createMulterOptions('animals');
+  }
+  return _multerOptionsAnimals;
+};
+
+export const multerOptionsServices = () => {
+  if (!_multerOptionsServices) {
+    _multerOptionsServices = createMulterOptions('services');
+  }
+  return _multerOptionsServices;
+};
 
 export const createTemplateDirectory = () => {
   const templateDir = join(process.cwd(), 'src/modules/mail/templates');
