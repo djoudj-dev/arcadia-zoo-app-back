@@ -6,21 +6,28 @@ import * as fs from 'fs';
 import { join } from 'path';
 import { AppModule } from './app.module';
 
-// Création du dossier uploads principal.
+// Création du dossier uploads principal seulement si S3 n'est pas activé
+const USE_S3 = process.env.USE_S3 === 'true';
 const uploadBasePath = join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadBasePath)) {
-  fs.mkdirSync(uploadBasePath);
-}
 
-// Création des sous-dossiers
-const uploadDirs = ['uploads/animals', 'uploads/habitats', 'uploads/services'];
-
-uploadDirs.forEach((dir) => {
-  const fullPath = join(process.cwd(), dir);
-  if (!fs.existsSync(fullPath)) {
-    fs.mkdirSync(fullPath, { recursive: true });
+if (!USE_S3) {
+  console.log('Configuration stockage local activée');
+  if (!fs.existsSync(uploadBasePath)) {
+    fs.mkdirSync(uploadBasePath);
   }
-});
+
+  // Création des sous-dossiers
+  const uploadDirs = ['uploads/animals', 'uploads/habitats', 'uploads/services'];
+
+  uploadDirs.forEach((dir) => {
+    const fullPath = join(process.cwd(), dir);
+    if (!fs.existsSync(fullPath)) {
+      fs.mkdirSync(fullPath, { recursive: true });
+    }
+  });
+} else {
+  console.log('Configuration S3 activée - pas de création de dossiers locaux');
+}
 
 // Ajoutez après la création des dossiers uploads
 const templateDir = join(process.cwd(), 'dist/modules/mail/templates');
@@ -131,43 +138,51 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   console.log('Global prefix /api set');
 
-  // Configuration des fichiers statiques avec options étendues
-  const uploadsPath = join(process.cwd(), 'uploads');
-  console.log('Chemin des uploads:', uploadsPath);
-  console.log('Contenu du dossier uploads:', fs.readdirSync(uploadsPath));
+  // Configuration des fichiers statiques seulement si stockage local
+  if (!USE_S3) {
+    const uploadsPath = join(process.cwd(), 'uploads');
+    console.log('Configuration fichiers statiques locaux');
+    console.log('Chemin des uploads:', uploadsPath);
 
-  app.useStaticAssets(uploadsPath, {
-    prefix: '/api/uploads',
-    setHeaders: (res) => {
-      res.set('Access-Control-Allow-Origin', corsOrigins[0]);
-      res.set('Access-Control-Allow-Credentials', 'true');
-      res.set('Cross-Origin-Resource-Policy', 'cross-origin');
-      res.set('Cross-Origin-Opener-Policy', 'same-origin');
-      res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-      res.set('Access-Control-Allow-Headers', '*');
-      res.set('Cache-Control', 'public, max-age=31536000');
-    },
-  });
+    if (fs.existsSync(uploadsPath)) {
+      console.log('Contenu du dossier uploads:', fs.readdirSync(uploadsPath));
+    }
 
-  // Middleware de gestion d'erreurs pour les fichiers statiques
-  app.use('/api/uploads', (err, req, res, next) => {
-    console.error('Erreur accès fichier:', {
-      url: req.url,
-      error: err.message,
-      code: err.code,
-      path: join(uploadsPath, req.url),
-      exists: fs.existsSync(join(uploadsPath, req.url)),
+    app.useStaticAssets(uploadsPath, {
+      prefix: '/api/uploads',
+      setHeaders: (res) => {
+        res.set('Access-Control-Allow-Origin', corsOrigins[0]);
+        res.set('Access-Control-Allow-Credentials', 'true');
+        res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+        res.set('Cross-Origin-Opener-Policy', 'same-origin');
+        res.set('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+        res.set('Access-Control-Allow-Headers', '*');
+        res.set('Cache-Control', 'public, max-age=31536000');
+      },
     });
 
-    if (err.code === 'ENOENT') {
-      return res.status(404).json({
-        message: 'Fichier non trouvé',
-        path: req.url,
+    // Middleware de gestion d'erreurs pour les fichiers statiques
+    app.use('/api/uploads', (err, req, res, next) => {
+      console.error('Erreur accès fichier:', {
+        url: req.url,
         error: err.message,
+        code: err.code,
+        path: join(uploadsPath, req.url),
+        exists: fs.existsSync(join(uploadsPath, req.url)),
       });
-    }
-    next(err);
-  });
+
+      if (err.code === 'ENOENT') {
+        return res.status(404).json({
+          message: 'Fichier non trouvé',
+          path: req.url,
+          error: err.message,
+        });
+      }
+      next(err);
+    });
+  } else {
+    console.log('S3 activé - pas de configuration de fichiers statiques locaux');
+  }
 
   app.use(
     session({
