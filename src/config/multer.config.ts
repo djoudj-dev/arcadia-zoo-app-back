@@ -9,10 +9,11 @@ const S3_BUCKET = process.env.S3_BUCKET || 'savedatabase';
 const USE_S3 = process.env.USE_S3 === 'true';
 
 function createMulterOptions(uploadDirectory: string) {
-  // Configuration S3 si activée
+  // Configuration S3 si activée (priorité)
   if (USE_S3) {
     try {
       const s3Client = S3Config.getInstance();
+      console.log(`Configuration S3 activée pour ${uploadDirectory}`);
 
       return {
         storage: multerS3({
@@ -38,17 +39,26 @@ function createMulterOptions(uploadDirectory: string) {
         },
       };
     } catch (error) {
-      console.warn('Erreur configuration S3, utilisation du stockage local:', error);
-      // Fallback vers le stockage local
+      console.error('Erreur configuration S3:', error);
+      throw new Error(`Configuration S3 échouée: ${error.message}`);
     }
   }
 
   // Configuration locale (fallback)
   const absolutePath = join(UPLOAD_BASE_PATH, uploadDirectory);
 
-  // Assurer que le répertoire existe
-  if (!fs.existsSync(absolutePath)) {
-    fs.mkdirSync(absolutePath, { recursive: true });
+  // Assurer que le répertoire existe (avec gestion d'erreur)
+  try {
+    if (!fs.existsSync(absolutePath)) {
+      fs.mkdirSync(absolutePath, { recursive: true });
+    }
+  } catch (error) {
+    console.warn(`Impossible de créer le répertoire ${absolutePath}:`, error);
+    // En production, si on ne peut pas créer le répertoire local,
+    // on s'assure que S3 est configuré
+    if (!USE_S3) {
+      throw new Error('Stockage local inaccessible et S3 non configuré');
+    }
   }
 
   return {
