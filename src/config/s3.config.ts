@@ -10,6 +10,15 @@ export class S3Config {
       const region = process.env.S3_REGION || configService?.get('S3_REGION') || 'us-east-1';
       const accessKeyId = process.env.S3_ACCESS_KEY || configService?.get('S3_ACCESS_KEY');
       const secretAccessKey = process.env.S3_SECRET_KEY || configService?.get('S3_SECRET_KEY');
+      const bucket = process.env.S3_BUCKET || configService?.get('S3_BUCKET');
+
+      console.log('Configuration S3:', {
+        endpoint,
+        region,
+        bucket,
+        accessKeyId: accessKeyId ? accessKeyId.substring(0, 4) + '***' : 'MISSING',
+        secretAccessKey: secretAccessKey ? '***' + secretAccessKey.substring(secretAccessKey.length - 4) : 'MISSING'
+      });
 
       if (!endpoint || !accessKeyId || !secretAccessKey) {
         throw new Error('Configuration S3 manquante. Vérifiez vos variables d\'environnement.');
