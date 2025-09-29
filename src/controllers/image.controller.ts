@@ -4,11 +4,24 @@ import { Response } from 'express';
 @Controller('images')
 export class ImageController {
 
+  @Get('health')
+  healthCheck() {
+    return {
+      status: 'ok',
+      message: 'Image proxy service is running',
+      s3Config: {
+        bucket: process.env.S3_BUCKET,
+        endpoint: process.env.S3_ENDPOINT,
+        useS3: process.env.USE_S3
+      }
+    };
+  }
+
   @Get('*')
   async serveImage(@Param('0') imagePath: string, @Res() res: Response) {
-    // Short-circuit health endpoint so wildcard does not try to proxy it
-    if (!imagePath || imagePath === 'health') {
-      return res.status(HttpStatus.OK).json({ status: 'ok' });
+    // Vérifier que le chemin d'image est valide
+    if (!imagePath) {
+      return res.status(HttpStatus.BAD_REQUEST).send('Chemin d\'image manquant');
     }
 
     const S3_BUCKET = process.env.S3_BUCKET;
@@ -95,18 +108,5 @@ export class ImageController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Erreur serveur');
       return;
     }
-  }
-
-  @Get('health')
-  healthCheck() {
-    return {
-      status: 'ok',
-      message: 'Image proxy service is running',
-      s3Config: {
-        bucket: process.env.S3_BUCKET,
-        endpoint: process.env.S3_ENDPOINT,
-        useS3: process.env.USE_S3
-      }
-    };
   }
 }
