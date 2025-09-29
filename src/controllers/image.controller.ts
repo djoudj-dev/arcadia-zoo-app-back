@@ -66,14 +66,17 @@ export class ImageController {
           console.log(`Tentative ${attempt}/${maxRetries} pour récupérer l'image`);
 
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 secondes timeout
+          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 secondes timeout
 
           response = await fetch(s3Url, {
             signal: controller.signal,
             headers: {
               'User-Agent': 'Arcadia-Backend-Image-Proxy',
-              'Accept': 'image/*'
-            }
+              'Accept': 'image/*',
+              'Connection': 'keep-alive'
+            },
+            // @ts-ignore - keepAlive options pour Node.js fetch
+            keepalive: true
           });
 
           clearTimeout(timeoutId);
