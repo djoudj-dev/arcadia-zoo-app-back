@@ -186,8 +186,8 @@ export class HabitatService {
   ): string | null {
     if (!imageUrl) return null;
     if (imageUrl.startsWith('http')) return imageUrl;
-    if (imageUrl.startsWith('uploads/habitats/'))
+    if (imageUrl.startsWith('images/habitats/'))
       return `${baseUrl}/api/${imageUrl}`;
-    return `${baseUrl}/api/uploads/habitats/${imageUrl}`;
+    return `${baseUrl}/api/images/habitats/${imageUrl}`;
   }
 }

@@ -39,13 +39,13 @@ export class AnimalsService {
 
     // Si le chemin contient déjà 'images/animals/', on l'utilise tel quel
     if (cleanPath.includes('images/animals/')) {
-      return `${baseUrl}/api/uploads/animals/${cleanPath.split('images/animals/')[1]}`;
+      return `${baseUrl}/api/images/animals/${cleanPath.split('images/animals/')[1]}`;
     }
 
-    if (cleanPath.startsWith('uploads/animals/'))
+    if (cleanPath.startsWith('images/animals/'))
       return `${baseUrl}/api/${cleanPath}`;
 
-    return `${baseUrl}/api/uploads/animals/${cleanPath}`;
+    return `${baseUrl}/api/images/animals/${cleanPath}`;
   }
 
   private formatAnimal(row: any): Animal {

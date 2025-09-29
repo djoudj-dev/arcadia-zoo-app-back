@@ -149,7 +149,7 @@ async function bootstrap() {
     }
 
     app.useStaticAssets(uploadsPath, {
-      prefix: '/api/uploads',
+      prefix: '/api/images',
       setHeaders: (res) => {
         res.set('Access-Control-Allow-Origin', corsOrigins[0]);
         res.set('Access-Control-Allow-Credentials', 'true');
@@ -162,7 +162,7 @@ async function bootstrap() {
     });
 
     // Middleware de gestion d'erreurs pour les fichiers statiques
-    app.use('/api/uploads', (err, req, res, next) => {
+    app.use('/api/images', (err, req, res, next) => {
       console.error('Erreur accès fichier:', {
         url: req.url,
         error: err.message,

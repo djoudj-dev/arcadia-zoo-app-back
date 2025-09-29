@@ -299,9 +299,9 @@ export class ServiceService {
   ): string | null {
     if (!imageUrl) return null;
     if (imageUrl.startsWith('http')) return imageUrl;
-    if (imageUrl.startsWith('uploads/services/'))
+    if (imageUrl.startsWith('images/services/'))
       return `${baseUrl}/api/${imageUrl}`;
-    return `${baseUrl}/api/uploads/services/${imageUrl}`;
+    return `${baseUrl}/api/images/services/${imageUrl}`;
   }
 
   private checkUserRole(userRole: string) {
