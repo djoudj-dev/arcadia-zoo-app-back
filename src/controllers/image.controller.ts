@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Res, HttpStatus } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Req, Res, HttpStatus } from '@nestjs/common';
+import { Request, Response } from 'express';
 
 @Controller('images')
 export class ImageController {
@@ -18,9 +18,16 @@ export class ImageController {
   }
 
   @Get('*')
-  async serveImage(@Param('0') imagePath: string, @Res() res: Response) {
+  async serveImage(@Req() req: Request, @Res() res: Response) {
+    // Extraire le chemin d'image depuis l'URL
+    const imagePath = req.params[0] || req.path.replace('/api/images/', '');
+
+    console.log('Request path:', req.path);
+    console.log('Request params:', req.params);
+    console.log('Extracted imagePath:', imagePath);
+
     // Vérifier que le chemin d'image est valide
-    if (!imagePath) {
+    if (!imagePath || imagePath === '') {
       return res.status(HttpStatus.BAD_REQUEST).send('Chemin d\'image manquant');
     }
 
