@@ -6,20 +6,50 @@ export class ImageController {
 
   @Get('*')
   async serveImage(@Param('0') imagePath: string, @Res() res: Response) {
+    const S3_BUCKET = process.env.S3_BUCKET;
+    const s3Url = `https://s3.nedellec-julien.fr/${S3_BUCKET}/${imagePath}`;
+
     try {
       console.log('Demande d\'image:', imagePath);
-
-      const S3_BUCKET = process.env.S3_BUCKET;
-
-      // URL S3 publique (via notre MinIO)
-      const s3Url = `https://s3.nedellec-julien.fr/${S3_BUCKET}/${imagePath}`;
       console.log('URL S3 construite:', s3Url);
 
-      // Récupérer l'image depuis S3
-      const response = await fetch(s3Url);
+      // Récupérer l'image depuis S3 avec timeout et retry
+      let response;
+      const maxRetries = 2;
 
-      if (!response.ok) {
-        console.error('Image non trouvée sur S3:', s3Url);
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`Tentative ${attempt}/${maxRetries} pour récupérer l'image`);
+
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 secondes timeout
+
+          response = await fetch(s3Url, {
+            signal: controller.signal,
+            headers: {
+              'User-Agent': 'Arcadia-Backend-Image-Proxy',
+              'Accept': 'image/*'
+            }
+          });
+
+          clearTimeout(timeoutId);
+          break; // Succès, sortir de la boucle
+
+        } catch (fetchError) {
+          console.warn(`Échec tentative ${attempt}:`, fetchError.message);
+
+          if (attempt === maxRetries) {
+            console.warn('Échec après la dernière tentative:', fetchError);
+            break; // Sortir de la boucle et gérer l'erreur plus bas sans lancer une exception locale
+          }
+
+          // Attendre 1 seconde avant le retry
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+
+      if (!response || !response.ok) {
+        console.error('Image non trouvée ou erreur lors de la récupération sur S3:', s3Url);
         res.status(HttpStatus.NOT_FOUND).send('Image non trouvée');
         return;
       }
@@ -44,6 +74,19 @@ export class ImageController {
 
     } catch (error) {
       console.error('Erreur lors du chargement de l\'image:', error);
+
+      if (error.name === 'AbortError') {
+        console.error('Timeout lors de la récupération de l\'image:', s3Url);
+        res.status(HttpStatus.GATEWAY_TIMEOUT).send('Timeout de connexion S3');
+        return;
+      }
+
+      if (error.cause?.code === 'UND_ERR_CONNECT_TIMEOUT') {
+        console.error('Timeout de connexion S3:', s3Url);
+        res.status(HttpStatus.GATEWAY_TIMEOUT).send('Timeout de connexion S3');
+        return;
+      }
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Erreur serveur');
       return;
     }
