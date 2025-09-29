@@ -33,9 +33,19 @@ export class AnimalsService {
   ): string | null {
     if (!imageUrl) return null;
     if (imageUrl.startsWith('http')) return imageUrl;
-    if (imageUrl.startsWith('uploads/animals/'))
-      return `${baseUrl}/api/${imageUrl}`;
-    return `${baseUrl}/api/uploads/animals/${imageUrl}`;
+
+    // Nettoyer les chemins qui commencent par /
+    const cleanPath = imageUrl.startsWith('/') ? imageUrl.substring(1) : imageUrl;
+
+    // Si le chemin contient déjà 'images/animals/', on l'utilise tel quel
+    if (cleanPath.includes('images/animals/')) {
+      return `${baseUrl}/api/uploads/animals/${cleanPath.split('images/animals/')[1]}`;
+    }
+
+    if (cleanPath.startsWith('uploads/animals/'))
+      return `${baseUrl}/api/${cleanPath}`;
+
+    return `${baseUrl}/api/uploads/animals/${cleanPath}`;
   }
 
   private formatAnimal(row: any): Animal {
