@@ -19,12 +19,15 @@ export class ImageController {
 
   @Get('*')
   async serveImage(@Req() req: Request, @Res() res: Response) {
-    // Extraire le chemin d'image depuis l'URL
-    const imagePath = req.params[0] || req.path.replace('/api/images/', '');
+    // Extraire le chemin d'image depuis l'URL et nettoyer les doublons
+    let imagePath = req.params[0] || req.path.replace('/api/images/', '');
+
+    // Nettoyer le chemin s'il contient des doublons
+    imagePath = imagePath.replace(/^\/?(images\/)?/, ''); // Supprimer /images/ au début s'il existe
 
     console.log('Request path:', req.path);
     console.log('Request params:', req.params);
-    console.log('Extracted imagePath:', imagePath);
+    console.log('Cleaned imagePath:', imagePath);
 
     // Vérifier que le chemin d'image est valide
     if (!imagePath || imagePath === '') {
