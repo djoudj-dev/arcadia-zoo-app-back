@@ -33,7 +33,7 @@ export class AnimalController {
 
   @Roles('admin')
   @Post()
-  @UseInterceptors(FileInterceptor('images', multerOptionsAnimals.get()) as any)
+  @UseInterceptors(FileInterceptor('images', multerOptionsAnimals() as any))
   async createAnimal(
     @Body() animalData: Partial<Animal>,
     @UploadedFile() images: Express.Multer.File,
@@ -41,7 +41,7 @@ export class AnimalController {
     if (images) {
       // Construire l'URL via notre proxy d'images
       const filename = (images as any).key || images.filename; // key pour S3, filename pour local
-      animalData.images = `/images/animals/${filename}`;
+      animalData.images = `/images/${filename}`;
       console.log('URL image créée:', animalData.images);
     } else {
       throw new BadRequestException('Le champ "images" est requis.');
@@ -50,7 +50,7 @@ export class AnimalController {
   }
 
   @Put(':id')
-  @UseInterceptors(FileInterceptor('images', multerOptionsAnimals.get()) as any)
+  @UseInterceptors(FileInterceptor('images', multerOptionsAnimals() as any))
   async updateAnimal(
     @Param('id') id: number,
     @Body() animalData: Partial<Animal>,
@@ -66,7 +66,7 @@ export class AnimalController {
     if (image) {
       // Construire l'URL via notre proxy d'images
       const filename = (image as any).key || image.filename; // key pour S3, filename pour local
-      animalData.images = `/images/animals/${filename}`;
+      animalData.images = `/images/${filename}`;
       console.log('Nouvelle image:', animalData.images);
     } else if (!animalData.images || animalData.images === '{}') {
       animalData.images = existingAnimal.images;

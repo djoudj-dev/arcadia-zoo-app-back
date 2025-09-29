@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Param, Res, HttpStatus } from '@nestjs/common';
 import { Response } from 'express';
 
 @Controller('images')
@@ -44,7 +44,8 @@ export class ImageController {
 
     } catch (error) {
       console.error('Erreur lors du chargement de l\'image:', error);
-      throw new HttpException('Image introuvable', HttpStatus.NOT_FOUND);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Erreur serveur');
+      return;
     }
   }
 

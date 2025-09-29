@@ -54,7 +54,7 @@ export class HabitatController {
    */
   @Roles('admin')
   @Post()
-  @UseInterceptors(FileInterceptor('images', multerOptionsHabitats.get()) as any)
+  @UseInterceptors(FileInterceptor('images', multerOptionsHabitats() as any))
   async createHabitat(
     @Body() habitatData: Partial<Habitat>,
     @UploadedFile() image: Express.Multer.File,
@@ -65,7 +65,7 @@ export class HabitatController {
 
     // Construire l'URL via notre proxy d'images
     const filename = (image as any).key || image.filename; // key pour S3, filename pour local
-    habitatData.images = `/images/habitats/${filename}`;
+    habitatData.images = `/images/${filename}`;
     console.log('URL image créée:', habitatData.images);
 
     return this.habitatService.createHabitat(habitatData, 'admin');
@@ -81,7 +81,7 @@ export class HabitatController {
    */
   @Roles('admin')
   @Put(':id')
-  @UseInterceptors(FileInterceptor('images', multerOptionsHabitats.get()) as any)
+  @UseInterceptors(FileInterceptor('images', multerOptionsHabitats() as any))
   async updateHabitat(
     @Param('id') id: number,
     @Body() habitatData: Partial<Habitat>,
@@ -98,7 +98,7 @@ export class HabitatController {
     if (image) {
       // Construire l'URL via notre proxy d'images
       const filename = (image as any).key || image.filename; // key pour S3, filename pour local
-      habitatData.images = `/images/habitats/${filename}`;
+      habitatData.images = `/images/${filename}`;
       console.log('Nouvelle image:', habitatData.images);
     } else if (!habitatData.images || habitatData.images === '{}') {
       habitatData.images = existingHabitat.images;

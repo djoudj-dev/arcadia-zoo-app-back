@@ -29,7 +29,7 @@ export class ServiceController {
 
   @Get()
   @Roles('admin', 'employe')
-  @UseInterceptors(FileInterceptor('image', multerOptionsServices.get()) as any)
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices() as any))
   async getAllServices(): Promise<Service[]> {
     return this.serviceService.getAllServices();
   }
@@ -42,7 +42,7 @@ export class ServiceController {
 
   @Post()
   @Roles('admin', 'employe')
-  @UseInterceptors(FileInterceptor('image', multerOptionsServices.get()) as any)
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices() as any))
   async createService(
     @Body()
     serviceData: {
@@ -69,7 +69,7 @@ export class ServiceController {
     const filename = (image as any).key || image.filename; // key pour S3, filename pour local
     const serviceDataWithImage = {
       ...serviceData,
-      images: `/images/services/${filename}`,
+      images: `/images/${filename}`,
     };
     console.log('URL image créée:', serviceDataWithImage.images);
 
@@ -82,7 +82,7 @@ export class ServiceController {
 
   @Put(':id')
   @Roles('admin', 'employe')
-  @UseInterceptors(FileInterceptor('image', multerOptionsServices.get()) as any)
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices() as any))
   async updateService(
     @Param('id') id: number,
     @Body()
@@ -100,7 +100,7 @@ export class ServiceController {
     if (image) {
       // Construire l'URL via notre proxy d'images
       const filename = (image as any).key || image.filename; // key pour S3, filename pour local
-      serviceData.images = `/images/services/${filename}`;
+      serviceData.images = `/images/${filename}`;
       console.log('Nouvelle image:', serviceData.images);
     } else {
       // Conserver l'image existante si aucune nouvelle image n'est fournie
