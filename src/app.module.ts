@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
+import { ImageController } from './controllers/image.controller';
 import { AnimalsModule } from './modules/animals-zoo/animals.module';
 import { AccountModule } from './modules/dashboard/admin-dashboard/account-management/account.module';
 import { AnimalModule } from './modules/dashboard/admin-dashboard/animal-management/animal.module';
@@ -60,7 +61,7 @@ import { UserOpinionsModule } from './modules/user-opinions/user-opinions.module
     VisitStatsModule,
     StatsBoardModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController, AuthController, ImageController],
   providers: [AppService],
 })
 export class AppModule {}

@@ -88,25 +88,31 @@ let _multerOptionsHabitats: any = null;
 let _multerOptionsAnimals: any = null;
 let _multerOptionsServices: any = null;
 
-export const multerOptionsHabitats = () => {
-  if (!_multerOptionsHabitats) {
-    _multerOptionsHabitats = createMulterOptions('habitats');
+export const multerOptionsHabitats = {
+  get() {
+    if (!_multerOptionsHabitats) {
+      _multerOptionsHabitats = createMulterOptions('habitats');
+    }
+    return _multerOptionsHabitats;
   }
-  return _multerOptionsHabitats;
 };
 
-export const multerOptionsAnimals = () => {
-  if (!_multerOptionsAnimals) {
-    _multerOptionsAnimals = createMulterOptions('animals');
+export const multerOptionsAnimals = {
+  get() {
+    if (!_multerOptionsAnimals) {
+      _multerOptionsAnimals = createMulterOptions('animals');
+    }
+    return _multerOptionsAnimals;
   }
-  return _multerOptionsAnimals;
 };
 
-export const multerOptionsServices = () => {
-  if (!_multerOptionsServices) {
-    _multerOptionsServices = createMulterOptions('services');
+export const multerOptionsServices = {
+  get() {
+    if (!_multerOptionsServices) {
+      _multerOptionsServices = createMulterOptions('services');
+    }
+    return _multerOptionsServices;
   }
-  return _multerOptionsServices;
 };
 
 export const createTemplateDirectory = () => {

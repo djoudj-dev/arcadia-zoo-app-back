@@ -29,7 +29,7 @@ export class ServiceController {
 
   @Get()
   @Roles('admin', 'employe')
-  @UseInterceptors(FileInterceptor('image', multerOptionsServices()))
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices.get()) as any)
   async getAllServices(): Promise<Service[]> {
     return this.serviceService.getAllServices();
   }
@@ -42,7 +42,7 @@ export class ServiceController {
 
   @Post()
   @Roles('admin', 'employe')
-  @UseInterceptors(FileInterceptor('image', multerOptionsServices()))
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices.get()) as any)
   async createService(
     @Body()
     serviceData: {
@@ -65,11 +65,13 @@ export class ServiceController {
       throw new BadRequestException('Le format de features est invalide');
     }
 
-    // Set the image path in serviceData (S3 or local)
+    // Construire l'URL via notre proxy d'images
+    const filename = (image as any).key || image.filename; // key pour S3, filename pour local
     const serviceDataWithImage = {
       ...serviceData,
-      images: (image as any).location || `uploads/services/${image.filename}`,
+      images: `/images/services/${filename}`,
     };
+    console.log('URL image créée:', serviceDataWithImage.images);
 
     return this.serviceService.createService(
       serviceDataWithImage,
@@ -80,7 +82,7 @@ export class ServiceController {
 
   @Put(':id')
   @Roles('admin', 'employe')
-  @UseInterceptors(FileInterceptor('image', multerOptionsServices()))
+  @UseInterceptors(FileInterceptor('image', multerOptionsServices.get()) as any)
   async updateService(
     @Param('id') id: number,
     @Body()
@@ -94,9 +96,12 @@ export class ServiceController {
   ): Promise<Service> {
     console.log('Image reçue :', image);
 
-    // Mise à jour du chemin de l'image si un fichier est téléchargé (S3 or local)
+    // Gestion de l'image
     if (image) {
-      serviceData.images = (image as any).location || `uploads/services/${image.filename}`;
+      // Construire l'URL via notre proxy d'images
+      const filename = (image as any).key || image.filename; // key pour S3, filename pour local
+      serviceData.images = `/images/services/${filename}`;
+      console.log('Nouvelle image:', serviceData.images);
     } else {
       // Conserver l'image existante si aucune nouvelle image n'est fournie
       const existingService = await this.serviceService.findById(id);
