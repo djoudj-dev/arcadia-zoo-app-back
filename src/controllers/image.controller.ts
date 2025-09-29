@@ -51,7 +51,10 @@ export class ImageController {
     }
 
     const S3_BUCKET = process.env.S3_BUCKET;
-    const s3Url = `https://s3.nedellec-julien.fr/${S3_BUCKET}/${imagePath}`;
+    const S3_ENDPOINT = process.env.S3_ENDPOINT || 'https://s3.nedellec-julien.fr';
+    // Retirer le protocole de l'endpoint s'il est présent
+    const s3Host = S3_ENDPOINT.replace(/^https?:\/\//, '');
+    const s3Url = `https://${s3Host}/${S3_BUCKET}/${imagePath}`;
 
     try {
       console.log('Demande d\'image:', imagePath);

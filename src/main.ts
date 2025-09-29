@@ -75,7 +75,7 @@ async function bootstrap() {
       "default-src 'self'; " +
         `script-src 'strict-dynamic' 'nonce-${nonce}' 'unsafe-inline' 'self' https://*.googleapis.com https://*.gstatic.com; ` +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://arcadia.nedellec-julien.fr; " +
-        "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://arcadia-api.nedellec-julien.fr https://arcadia.nedellec-julien.fr https://s3.djoudj.dev; " +
+        "img-src 'self' data: blob: https://*.googleapis.com https://*.gstatic.com https://arcadia-api.nedellec-julien.fr https://arcadia.nedellec-julien.fr https://s3.nedellec-julien.fr; " +
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://arcadia.nedellec-julien.fr data:; " +
         "frame-src 'self' https://www.google.com https://*.google.com https://maps.google.com; " +
         "connect-src 'self' https://*.googleapis.com https://maps.googleapis.com https://*.gstatic.com https://cdnjs.cloudflare.com https://arcadia-api.nedellec-julien.fr; " +
