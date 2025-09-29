@@ -22,8 +22,24 @@ export class ImageController {
     // Extraire le chemin d'image depuis l'URL et nettoyer les doublons
     let imagePath = req.params[0] || req.path.replace('/api/images/', '');
 
-    // Nettoyer le chemin s'il contient des doublons
-    imagePath = imagePath.replace(/^\/?(images\/)?/, ''); // Supprimer /images/ au début s'il existe
+    // Normalisation agressive du chemin pour éviter les doublons
+    // 1) Supprimer le préfixe éventuel /api/images/
+    imagePath = imagePath.replace(/^\/?api\/images\//, '');
+    // 2) Remplacer les doublons de slash
+    imagePath = imagePath.replace(/\/+/, '/');
+    imagePath = imagePath.replace(/\/+/, '/'); // deux passes rapides suffisent pour les cas courants
+    // 3) Si le chemin contient "images/animals/" on garde la dernière occurrence
+    if (imagePath.includes('images/animals/')) {
+      imagePath = 'animals/' + imagePath.split('images/animals/').pop();
+    }
+    // 4) Si le chemin contient "uploads/animals/", on le normalise vers "animals/"
+    if (imagePath.includes('uploads/animals/')) {
+      imagePath = 'animals/' + imagePath.split('uploads/animals/').pop();
+    }
+    // 5) Supprimer un éventuel préfixe /images/ résiduel
+    imagePath = imagePath.replace(/^\/?images\//, '');
+    // 6) Supprimer les slashs de début restants
+    imagePath = imagePath.replace(/^\/+/, '');
 
     console.log('Request path:', req.path);
     console.log('Request params:', req.params);
