@@ -51,17 +51,18 @@ export class ImageController {
     }
 
     const S3_BUCKET = process.env.S3_BUCKET;
-    const S3_ENDPOINT = process.env.S3_ENDPOINT || 'https://s3.nedellec-julien.fr';
-    // Retirer le protocole de l'endpoint s'il est présent
-    const s3Host = S3_ENDPOINT.replace(/^https?:\/\//, '');
+    const S3_ENDPOINT = process.env.S3_ENDPOINT || 'http://minio-ukskwggs4wsgw4soos8k4wwg:9000';
 
-    // Si on utilise s3.nedellec-julien.fr, on peut aussi utiliser l'IP directement
-    // pour contourner les problèmes DNS dans Docker
-    const resolvedHost = s3Host === 's3.nedellec-julien.fr' && process.env.S3_USE_IP === 'true'
-      ? '146.59.239.218'
-      : s3Host;
-
-    const s3Url = `https://${resolvedHost}/${S3_BUCKET}/${imagePath}`;
+    // Construire l'URL avec le bon protocole
+    let s3Url: string;
+    if (S3_ENDPOINT.startsWith('http://') || S3_ENDPOINT.startsWith('https://')) {
+      // L'endpoint contient déjà le protocole
+      const baseUrl = S3_ENDPOINT.replace(/\/$/, ''); // Retirer le slash final si présent
+      s3Url = `${baseUrl}/${S3_BUCKET}/${imagePath}`;
+    } else {
+      // Pas de protocole, ajouter https par défaut
+      s3Url = `https://${S3_ENDPOINT}/${S3_BUCKET}/${imagePath}`;
+    }
 
     try {
       console.log('Demande d\'image:', imagePath);
@@ -83,12 +84,8 @@ export class ImageController {
             headers: {
               'User-Agent': 'Arcadia-Backend-Image-Proxy',
               'Accept': 'image/*',
-              'Connection': 'keep-alive',
-              // Ajouter le Host header si on utilise l'IP
-              ...(resolvedHost !== s3Host && { 'Host': s3Host })
-            },
-            // @ts-ignore - keepAlive options pour Node.js fetch
-            keepalive: true
+              'Connection': 'keep-alive'
+            }
           });
 
           clearTimeout(timeoutId);
