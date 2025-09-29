@@ -44,7 +44,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 
 # Configuration optimisée pour S3 uniquement
-RUN echo "options timeout:5 attempts:2 rotate" >> /etc/resolv.conf
+# NOTE: Skipping DNS tweak; /etc/resolv.conf is read-only in some environments (e.g., Coolify/CNI),
+# and Node is already configured with ipv4first via NODE_OPTIONS.
 # Définition des permissions et propriétaire des fichiers
 RUN chown -R node:node /app && chmod -R 755 /app
 
