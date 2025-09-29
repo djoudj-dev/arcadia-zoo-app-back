@@ -6,6 +6,11 @@ export class ImageController {
 
   @Get('*')
   async serveImage(@Param('0') imagePath: string, @Res() res: Response) {
+    // Short-circuit health endpoint so wildcard does not try to proxy it
+    if (!imagePath || imagePath === 'health') {
+      return res.status(HttpStatus.OK).json({ status: 'ok' });
+    }
+
     const S3_BUCKET = process.env.S3_BUCKET;
     const s3Url = `https://s3.nedellec-julien.fr/${S3_BUCKET}/${imagePath}`;
 
