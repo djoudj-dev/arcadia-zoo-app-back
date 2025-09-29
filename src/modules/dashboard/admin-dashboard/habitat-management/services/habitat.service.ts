@@ -186,8 +186,14 @@ export class HabitatService {
   ): string | null {
     if (!imageUrl) return null;
     if (imageUrl.startsWith('http')) return imageUrl;
-    if (imageUrl.startsWith('images/habitats/'))
-      return `${baseUrl}/api/${imageUrl}`;
-    return `${baseUrl}/api/images/habitats/${imageUrl}`;
+
+    // Nettoyer le chemin pour éviter les doublons
+    let cleanPath = imageUrl;
+
+    // Supprimer les préfixes redondants
+    cleanPath = cleanPath.replace(/^\/?images\/habitats\//, '');
+    cleanPath = cleanPath.replace(/^\/?habitats\//, '');
+
+    return `${baseUrl}/api/images/habitats/${cleanPath}`;
   }
 }

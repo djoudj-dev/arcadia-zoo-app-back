@@ -299,9 +299,15 @@ export class ServiceService {
   ): string | null {
     if (!imageUrl) return null;
     if (imageUrl.startsWith('http')) return imageUrl;
-    if (imageUrl.startsWith('images/services/'))
-      return `${baseUrl}/api/${imageUrl}`;
-    return `${baseUrl}/api/images/services/${imageUrl}`;
+
+    // Nettoyer le chemin pour éviter les doublons
+    let cleanPath = imageUrl;
+
+    // Supprimer les préfixes redondants
+    cleanPath = cleanPath.replace(/^\/?images\/services\//, '');
+    cleanPath = cleanPath.replace(/^\/?services\//, '');
+
+    return `${baseUrl}/api/images/services/${cleanPath}`;
   }
 
   private checkUserRole(userRole: string) {
