@@ -36,6 +36,23 @@ export class ImageController {
     if (imagePath.includes('uploads/animals/')) {
       imagePath = 'animals/' + imagePath.split('uploads/animals/').pop();
     }
+
+    // 4b) Normaliser également pour services
+    if (imagePath.includes('images/services/')) {
+      imagePath = 'services/' + imagePath.split('images/services/').pop();
+    }
+    if (imagePath.includes('uploads/services/')) {
+      imagePath = 'services/' + imagePath.split('uploads/services/').pop();
+    }
+
+    // 4c) Normaliser également pour habitats
+    if (imagePath.includes('images/habitats/')) {
+      imagePath = 'habitats/' + imagePath.split('images/habitats/').pop();
+    }
+    if (imagePath.includes('uploads/habitats/')) {
+      imagePath = 'habitats/' + imagePath.split('uploads/habitats/').pop();
+    }
+
     // 5) Supprimer un éventuel préfixe /images/ résiduel
     imagePath = imagePath.replace(/^\/?images\//, '');
     // 6) Supprimer les slashs de début restants
