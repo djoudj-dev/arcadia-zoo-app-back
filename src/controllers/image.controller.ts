@@ -67,7 +67,7 @@ export class ImageController {
       return res.status(HttpStatus.BAD_REQUEST).send('Chemin d\'image manquant');
     }
 
-    const S3_BUCKET = process.env.S3_BUCKET;
+    const S3_BUCKET = process.env.S3_BUCKET || 'arcadia';
     const S3_ENDPOINT = process.env.S3_ENDPOINT || 'http://minio-ukskwggs4wsgw4soos8k4wwg:9000';
 
     // Construire l'URL avec le bon protocole

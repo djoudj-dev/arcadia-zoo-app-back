@@ -5,7 +5,7 @@ import { join } from 'path';
 import { S3Config } from './s3.config';
 
 const UPLOAD_BASE_PATH = join(process.cwd(), 'uploads'); // Utilisation du répertoire du projet
-const S3_BUCKET = process.env.S3_BUCKET || 'savedatabase';
+const S3_BUCKET = process.env.S3_BUCKET || 'arcadia';
 const USE_S3 = process.env.USE_S3 === 'true';
 
 function createMulterOptions(uploadDirectory: string) {
