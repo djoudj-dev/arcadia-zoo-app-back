@@ -1,5 +1,7 @@
 import { Controller, Get, Req, Res, HttpStatus } from '@nestjs/common';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { Request, Response } from 'express';
+import { S3Config } from '../config/s3.config';
 
 @Controller('images')
 export class ImageController {
@@ -10,8 +12,8 @@ export class ImageController {
       status: 'ok',
       message: 'Image proxy service is running',
       s3Config: {
-        bucket: process.env.S3_BUCKET,
-        endpoint: process.env.S3_ENDPOINT,
+        bucket: process.env.S3_BUCKET || 'arcadia',
+        endpoint: process.env.S3_ENDPOINT || 'https://s3.nedellec-julien.fr',
         useS3: process.env.USE_S3
       }
     };
@@ -68,68 +70,36 @@ export class ImageController {
     }
 
     const S3_BUCKET = process.env.S3_BUCKET || 'arcadia';
-    const S3_ENDPOINT = process.env.S3_ENDPOINT || 'http://minio-ukskwggs4wsgw4soos8k4wwg:9000';
-
-    // Construire l'URL avec le bon protocole
-    let s3Url: string;
-    if (S3_ENDPOINT.startsWith('http://') || S3_ENDPOINT.startsWith('https://')) {
-      // L'endpoint contient déjà le protocole
-      const baseUrl = S3_ENDPOINT.replace(/\/$/, ''); // Retirer le slash final si présent
-      s3Url = `${baseUrl}/${S3_BUCKET}/${imagePath}`;
-    } else {
-      // Pas de protocole, ajouter https par défaut
-      s3Url = `https://${S3_ENDPOINT}/${S3_BUCKET}/${imagePath}`;
-    }
 
     try {
       console.log('Demande d\'image:', imagePath);
-      console.log('URL S3 construite:', s3Url);
+      console.log('Bucket:', S3_BUCKET);
 
-      // Récupérer l'image depuis S3 avec timeout et retry
-      let response;
-      const maxRetries = 2;
+      // Utiliser le SDK S3 avec authentification
+      const s3Client = S3Config.getInstance();
 
-      for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-          console.log(`Tentative ${attempt}/${maxRetries} pour récupérer l'image`);
+      const command = new GetObjectCommand({
+        Bucket: S3_BUCKET,
+        Key: imagePath,
+      });
 
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 secondes timeout
+      console.log('Récupération depuis S3:', { Bucket: S3_BUCKET, Key: imagePath });
 
-          response = await fetch(s3Url, {
-            signal: controller.signal,
-            headers: {
-              'User-Agent': 'Arcadia-Backend-Image-Proxy',
-              'Accept': 'image/*',
-              'Connection': 'keep-alive'
-            }
-          });
+      const s3Response = await s3Client.send(command);
 
-          clearTimeout(timeoutId);
-          break; // Succès, sortir de la boucle
-
-        } catch (fetchError) {
-          console.warn(`Échec tentative ${attempt}:`, fetchError.message);
-
-          if (attempt === maxRetries) {
-            console.warn('Échec après la dernière tentative:', fetchError);
-            break; // Sortir de la boucle et gérer l'erreur plus bas sans lancer une exception locale
-          }
-
-          // Attendre 1 seconde avant le retry
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-
-      if (!response || !response.ok) {
-        console.error('Image non trouvée ou erreur lors de la récupération sur S3:', s3Url);
+      if (!s3Response.Body) {
+        console.error('Image non trouvée sur S3:', imagePath);
         res.status(HttpStatus.NOT_FOUND).send('Image non trouvée');
         return;
       }
 
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      const contentType = response.headers.get('content-type') || 'image/webp';
+      // Convertir le stream en buffer
+      const chunks: Uint8Array[] = [];
+      for await (const chunk of s3Response.Body as any) {
+        chunks.push(chunk);
+      }
+      const buffer = Buffer.concat(chunks);
+      const contentType = s3Response.ContentType || 'image/webp';
 
       console.log('Image récupérée avec succès, taille:', buffer.length);
 
@@ -146,16 +116,16 @@ export class ImageController {
       res.send(buffer);
 
     } catch (error) {
-      console.error('Erreur lors du chargement de l\'image:', error);
+      console.error('Erreur lors du chargement de l\'image depuis S3:', error);
 
-      if (error.name === 'AbortError') {
-        console.error('Timeout lors de la récupération de l\'image:', s3Url);
-        res.status(HttpStatus.GATEWAY_TIMEOUT).send('Timeout de connexion S3');
+      if (error.name === 'NoSuchKey') {
+        console.error('Image non trouvée sur S3:', imagePath);
+        res.status(HttpStatus.NOT_FOUND).send('Image non trouvée');
         return;
       }
 
-      if (error.cause?.code === 'UND_ERR_CONNECT_TIMEOUT') {
-        console.error('Timeout de connexion S3:', s3Url);
+      if (error.name === 'AbortError' || error.cause?.code === 'UND_ERR_CONNECT_TIMEOUT') {
+        console.error('Timeout de connexion S3 pour:', imagePath);
         res.status(HttpStatus.GATEWAY_TIMEOUT).send('Timeout de connexion S3');
         return;
       }

@@ -63,6 +63,22 @@ export class HabitatController {
       throw new BadRequestException('Le champ image est obligatoire');
     }
 
+    console.log('=== DEBUG UPLOAD HABITAT ===');
+    console.log('Image uploadée:', {
+      originalname: image.originalname,
+      filename: image.filename,
+      key: (image as any).key,
+      location: (image as any).location,
+      bucket: (image as any).bucket,
+      size: image.size,
+      mimetype: image.mimetype,
+    });
+    console.log('Variables d\'environnement:', {
+      USE_S3: process.env.USE_S3,
+      S3_BUCKET: process.env.S3_BUCKET,
+      S3_ENDPOINT: process.env.S3_ENDPOINT,
+    });
+
     // Construire l'URL via notre proxy d'images
     let filename = (image as any).key || image.filename; // key pour S3, filename pour local
     // Extraire juste le nom du fichier si c'est une clé S3 (contient un chemin)
@@ -70,7 +86,8 @@ export class HabitatController {
       filename = filename.split('/').pop();
     }
     habitatData.images = filename;
-    console.log('URL image créée:', habitatData.images);
+    console.log('Nom de fichier stocké en BD:', habitatData.images);
+    console.log('=== FIN DEBUG ===');
 
     return this.habitatService.createHabitat(habitatData, 'admin');
   }
