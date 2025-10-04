@@ -27,13 +27,15 @@ export class ServiceService {
 
   private groupFeatures(rows: any[]): Service[] {
     const serviceMap = new Map<number, Service>();
+    const baseUrl = process.env.API_URL || 'https://arcadia-api.nedellec-julien.fr';
+
     rows.forEach((row) => {
       if (!serviceMap.has(row.id_service)) {
         serviceMap.set(row.id_service, {
           id_service: row.id_service,
           name: row.name,
           description: row.description,
-          images: row.images,
+          images: this.formatImageUrl(row.images, baseUrl),  // Formater l'URL de l'image
           created_at: row.created_at,
           updated_at: row.updated_at,
           features: [],
