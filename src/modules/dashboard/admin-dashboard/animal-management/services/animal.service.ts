@@ -51,11 +51,6 @@ export class AnimalService {
       );
     }
 
-    // Format image path for new animals
-    if (typeof animalData.images === 'string' && !animalData.images.startsWith('uploads/animals/')) {
-      animalData.images = `uploads/animals/${animalData.images}`;
-    }
-
     const res = await query(
       `
       INSERT INTO animals (name, species, characteristics, weight_range, diet, habitat_id, images, vet_note, created_at, updated_at) 
@@ -86,21 +81,8 @@ export class AnimalService {
     }
 
     // Gestion de l'image
-    if (animalData.images) {
-      // Si c'est une nouvelle image (contient le nom du fichier généré par multer)
-      if (
-        typeof animalData.images === 'string' &&
-        animalData.images.includes('-')
-      ) {
-        // On stocke uniquement le chemin relatif
-        animalData.images = `uploads/animals/${animalData.images}`;
-      } else if (animalData.images.startsWith('http')) {
-        // Si c'est une URL complète, on extrait le chemin relatif
-        const urlParts = animalData.images.split('/api/');
-        animalData.images = urlParts[1] || existingAnimal.images;
-      } else {
-        animalData.images = existingAnimal.images;
-      }
+    if (!animalData.images || typeof animalData.images !== 'string') {
+      animalData.images = existingAnimal.images;
     }
 
     const res = await query(

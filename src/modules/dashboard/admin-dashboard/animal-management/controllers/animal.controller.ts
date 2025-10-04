@@ -40,8 +40,12 @@ export class AnimalController {
   ): Promise<Animal> {
     if (images) {
       // Construire l'URL via notre proxy d'images
-      const filename = (images as any).key || images.filename; // key pour S3, filename pour local
-      animalData.images = `/images/${filename}`;
+      let filename = (images as any).key || images.filename; // key pour S3, filename pour local
+      // Extraire juste le nom du fichier si c'est une clé S3 (contient un chemin)
+      if (filename.includes('/')) {
+        filename = filename.split('/').pop();
+      }
+      animalData.images = filename;
       console.log('URL image créée:', animalData.images);
     } else {
       throw new BadRequestException('Le champ "images" est requis.');
@@ -65,8 +69,12 @@ export class AnimalController {
     // Gestion de l'image
     if (image) {
       // Construire l'URL via notre proxy d'images
-      const filename = (image as any).key || image.filename; // key pour S3, filename pour local
-      animalData.images = `/images/${filename}`;
+      let filename = (image as any).key || image.filename; // key pour S3, filename pour local
+      // Extraire juste le nom du fichier si c'est une clé S3 (contient un chemin)
+      if (filename.includes('/')) {
+        filename = filename.split('/').pop();
+      }
+      animalData.images = filename;
       console.log('Nouvelle image:', animalData.images);
     } else if (!animalData.images || animalData.images === '{}') {
       animalData.images = existingAnimal.images;

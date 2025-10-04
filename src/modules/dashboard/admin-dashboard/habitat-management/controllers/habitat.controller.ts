@@ -64,8 +64,12 @@ export class HabitatController {
     }
 
     // Construire l'URL via notre proxy d'images
-    const filename = (image as any).key || image.filename; // key pour S3, filename pour local
-    habitatData.images = `/images/${filename}`;
+    let filename = (image as any).key || image.filename; // key pour S3, filename pour local
+    // Extraire juste le nom du fichier si c'est une clé S3 (contient un chemin)
+    if (filename.includes('/')) {
+      filename = filename.split('/').pop();
+    }
+    habitatData.images = filename;
     console.log('URL image créée:', habitatData.images);
 
     return this.habitatService.createHabitat(habitatData, 'admin');
@@ -97,8 +101,12 @@ export class HabitatController {
     // Gestion de l'image
     if (image) {
       // Construire l'URL via notre proxy d'images
-      const filename = (image as any).key || image.filename; // key pour S3, filename pour local
-      habitatData.images = `/images/${filename}`;
+      let filename = (image as any).key || image.filename; // key pour S3, filename pour local
+      // Extraire juste le nom du fichier si c'est une clé S3 (contient un chemin)
+      if (filename.includes('/')) {
+        filename = filename.split('/').pop();
+      }
+      habitatData.images = filename;
       console.log('Nouvelle image:', habitatData.images);
     } else if (!habitatData.images || habitatData.images === '{}') {
       habitatData.images = existingHabitat.images;

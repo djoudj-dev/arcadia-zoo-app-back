@@ -66,10 +66,14 @@ export class ServiceController {
     }
 
     // Construire l'URL via notre proxy d'images
-    const filename = (image as any).key || image.filename; // key pour S3, filename pour local
+    let filename = (image as any).key || image.filename; // key pour S3, filename pour local
+    // Extraire juste le nom du fichier si c'est une clé S3 (contient un chemin)
+    if (filename.includes('/')) {
+      filename = filename.split('/').pop();
+    }
     const serviceDataWithImage = {
       ...serviceData,
-      images: `/images/${filename}`,
+      images: filename,
     };
     console.log('URL image créée:', serviceDataWithImage.images);
 
@@ -99,8 +103,12 @@ export class ServiceController {
     // Gestion de l'image
     if (image) {
       // Construire l'URL via notre proxy d'images
-      const filename = (image as any).key || image.filename; // key pour S3, filename pour local
-      serviceData.images = `/images/${filename}`;
+      let filename = (image as any).key || image.filename; // key pour S3, filename pour local
+      // Extraire juste le nom du fichier si c'est une clé S3 (contient un chemin)
+      if (filename.includes('/')) {
+        filename = filename.split('/').pop();
+      }
+      serviceData.images = filename;
       console.log('Nouvelle image:', serviceData.images);
     } else {
       // Conserver l'image existante si aucune nouvelle image n'est fournie

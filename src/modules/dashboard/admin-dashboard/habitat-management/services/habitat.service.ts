@@ -82,13 +82,8 @@ export class HabitatService {
       throw new NotFoundException(`Habitat avec l'ID ${id} non trouvé`);
     }
 
-    // Formater le chemin de l'image si présent
-    if (habitatData.images && typeof habitatData.images === 'string') {
-      if (!habitatData.images.startsWith('uploads/habitats/')) {
-        habitatData.images = `uploads/habitats/${habitatData.images}`;
-      }
-    } else {
-      // Si images n'est pas une chaîne valide, utiliser l'image existante
+    // Conserver l'image existante si aucune nouvelle image n'est fournie
+    if (!habitatData.images || typeof habitatData.images !== 'string') {
       habitatData.images = existingHabitat.images;
     }
 
