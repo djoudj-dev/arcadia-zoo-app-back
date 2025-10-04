@@ -39,6 +39,17 @@ export class AnimalController {
     @UploadedFile() images: Express.Multer.File,
   ): Promise<Animal> {
     if (images) {
+      console.log('=== DEBUG UPLOAD ANIMAL ===');
+      console.log('Image uploadée:', {
+        originalname: images.originalname,
+        filename: images.filename,
+        key: (images as any).key,
+        location: (images as any).location,
+        bucket: (images as any).bucket,
+        size: images.size,
+        mimetype: images.mimetype,
+      });
+
       // Construire l'URL via notre proxy d'images
       let filename = (images as any).key || images.filename; // key pour S3, filename pour local
       // Extraire juste le nom du fichier si c'est une clé S3 (contient un chemin)
@@ -46,7 +57,8 @@ export class AnimalController {
         filename = filename.split('/').pop();
       }
       animalData.images = filename;
-      console.log('URL image créée:', animalData.images);
+      console.log('Nom de fichier stocké en BD:', animalData.images);
+      console.log('=== FIN DEBUG ===');
     } else {
       throw new BadRequestException('Le champ "images" est requis.');
     }
@@ -68,6 +80,15 @@ export class AnimalController {
 
     // Gestion de l'image
     if (image) {
+      console.log('=== DEBUG UPDATE ANIMAL ===');
+      console.log('Image uploadée:', {
+        originalname: image.originalname,
+        filename: image.filename,
+        key: (image as any).key,
+        location: (image as any).location,
+        bucket: (image as any).bucket,
+      });
+
       // Construire l'URL via notre proxy d'images
       let filename = (image as any).key || image.filename; // key pour S3, filename pour local
       // Extraire juste le nom du fichier si c'est une clé S3 (contient un chemin)
@@ -75,7 +96,8 @@ export class AnimalController {
         filename = filename.split('/').pop();
       }
       animalData.images = filename;
-      console.log('Nouvelle image:', animalData.images);
+      console.log('Nom de fichier stocké en BD:', animalData.images);
+      console.log('=== FIN DEBUG ===');
     } else if (!animalData.images || animalData.images === '{}') {
       animalData.images = existingAnimal.images;
       console.log("Conservation de l'image existante:", animalData.images);

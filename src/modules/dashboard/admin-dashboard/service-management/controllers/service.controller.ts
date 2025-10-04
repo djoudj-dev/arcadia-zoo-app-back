@@ -57,6 +57,17 @@ export class ServiceController {
       throw new BadRequestException('Le champ image est obligatoire');
     }
 
+    console.log('=== DEBUG UPLOAD SERVICE ===');
+    console.log('Image uploadée:', {
+      originalname: image.originalname,
+      filename: image.filename,
+      key: (image as any).key,
+      location: (image as any).location,
+      bucket: (image as any).bucket,
+      size: image.size,
+      mimetype: image.mimetype,
+    });
+
     // Convert features from JSON string to an array of Feature objects
     let parsedFeatures: Feature[];
     try {
@@ -75,7 +86,8 @@ export class ServiceController {
       ...serviceData,
       images: filename,
     };
-    console.log('URL image créée:', serviceDataWithImage.images);
+    console.log('Nom de fichier stocké en BD:', serviceDataWithImage.images);
+    console.log('=== FIN DEBUG ===');
 
     return this.serviceService.createService(
       serviceDataWithImage,
@@ -98,10 +110,17 @@ export class ServiceController {
     },
     @UploadedFile() image?: Express.Multer.File, // Image rendue optionnelle
   ): Promise<Service> {
-    console.log('Image reçue :', image);
-
     // Gestion de l'image
     if (image) {
+      console.log('=== DEBUG UPDATE SERVICE ===');
+      console.log('Image uploadée:', {
+        originalname: image.originalname,
+        filename: image.filename,
+        key: (image as any).key,
+        location: (image as any).location,
+        bucket: (image as any).bucket,
+      });
+
       // Construire l'URL via notre proxy d'images
       let filename = (image as any).key || image.filename; // key pour S3, filename pour local
       // Extraire juste le nom du fichier si c'est une clé S3 (contient un chemin)
@@ -109,7 +128,8 @@ export class ServiceController {
         filename = filename.split('/').pop();
       }
       serviceData.images = filename;
-      console.log('Nouvelle image:', serviceData.images);
+      console.log('Nom de fichier stocké en BD:', serviceData.images);
+      console.log('=== FIN DEBUG ===');
     } else {
       // Conserver l'image existante si aucune nouvelle image n'est fournie
       const existingService = await this.serviceService.findById(id);
