@@ -99,13 +99,31 @@ export class ImageController {
         chunks.push(chunk);
       }
       const buffer = Buffer.concat(chunks);
-      const contentType = s3Response.ContentType || 'image/webp';
 
-      console.log('Image récupérée avec succès, taille:', buffer.length);
+      // Déterminer le Content-Type de manière fiable
+      const inferMime = (key: string): string => {
+        const lower = key.toLowerCase();
+        if (lower.endsWith('.webp')) return 'image/webp';
+        if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
+        if (lower.endsWith('.png')) return 'image/png';
+        if (lower.endsWith('.gif')) return 'image/gif';
+        if (lower.endsWith('.svg')) return 'image/svg+xml';
+        if (lower.endsWith('.avif')) return 'image/avif';
+        return 'application/octet-stream';
+      };
+
+      const contentType = s3Response.ContentType || inferMime(imagePath);
+
+      console.log('Image récupérée avec succès, taille:', buffer.length, 'type:', contentType);
 
       // Headers CORS et cache
       res.set({
         'Content-Type': contentType,
+        'Content-Length': String(buffer.length),
+        'Content-Disposition': 'inline',
+        'Accept-Ranges': 'bytes',
+        'Timing-Allow-Origin': '*',
+        'Cross-Origin-Resource-Policy': 'cross-origin',
         'Access-Control-Allow-Origin': process.env.CORS_ORIGIN || '*',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': '*',
