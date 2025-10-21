@@ -5,9 +5,8 @@ import {
   Param,
   Post,
   Query,
-  UseGuards,
+
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TrackVisitDto } from '../dto/track-visit.dto';
 import { VisitStatsService } from '../services/visit-stats.service';
 
@@ -16,7 +15,6 @@ export class VisitStatsController {
   constructor(private readonly visitStatsService: VisitStatsService) {}
 
   @Post('track')
-  @UseGuards(JwtAuthGuard)
   async trackVisit(@Body() trackVisitDto: TrackVisitDto) {
     return this.visitStatsService.trackVisit(trackVisitDto);
   }
